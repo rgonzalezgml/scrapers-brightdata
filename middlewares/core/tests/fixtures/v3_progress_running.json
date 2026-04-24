@@ -1,0 +1,7 @@
+{
+  "snapshot_id": "s_demo_v3_0001",
+  "status": "running",
+  "rows_collected": 120,
+  "rows_expected": 1000,
+  "percentage": 12
+}

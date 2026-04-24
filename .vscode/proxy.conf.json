@@ -1,0 +1,11 @@
+{
+  "/api": {
+    "target": "http://host.docker.internal:8009",
+    "secure": false,
+    "pathRewrite": {
+      "^/api": ""
+    },
+    "changeOrigin": true,
+    "logLevel": "info"
+  }
+}

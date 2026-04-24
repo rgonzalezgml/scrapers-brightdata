@@ -1,0 +1,62 @@
+{
+  "name": "brightdata-scrapers-dev",
+  "build": {
+    "dockerfile": "Dockerfile.dev",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "mounts": [
+    "source=C:/Users/Genomma Lab/.ssh-gitkeeper,target=/root/.ssh,type=bind",
+    "source=${localEnv:USERPROFILE}/.claude,target=/root/.claude,type=bind"
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+  "postCreateCommand": "bash /workspace/scripts/add-skill-symlinks.sh && git config --global user.name 'Ramiro González Almarales' && git config --global user.email 'ramiro.gonzalez@contractor.genommalab.com'",
+  "forwardPorts": [
+    5679
+  ],
+  "portsAttributes": {
+    "5679": {
+      "label": "Python Debugger",
+      "onAutoForward": "silent"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Python
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-python.vscode-python-envs",
+        // Testing
+        "ms-python.python-test-adapter",
+        // Spell checking
+        "streetsidesoftware.code-spell-checker",
+        "streetsidesoftware.code-spell-checker-spanish",
+        // Utilidades generales
+        "eamodio.gitlens",
+        "redhat.vscode-yaml",
+        "humao.rest-client",
+        // AI
+        "anthropic.claude-code",
+        "openai.chatgpt"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["tests"],
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": false,
+        "python.linting.flake8Enabled": true,
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.python"
+        }
+      }
+    }
+  }
+}

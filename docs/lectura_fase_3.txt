@@ -1,0 +1,29 @@
+Mi lectura: fase 3 es construir el puente Python que expone cada scraper de BrightData como tool al agente,  
+  no reescribir lógica de scraping. El tradeoff clave es sync vs async: los scrapers de BrightData tardan      
+  segundos o minutos (navegación + renderizado), así que el cliente no puede bloquear el tool-use loop — o
+  hacés polling al dataset de BrightData, o disparás + devolvés un job_id que el agente consulta después.      
+   
+  Lo que concretamente habría que hacer por scraper:                                                           
+                  
+  1. Cliente Python en shared/services/<scraper>.py — dispara el collector de BrightData (API trigger), hace   
+  polling al dataset hasta que esté ready, devuelve JSON normalizado.
+  2. Tool schema (estilo qlik_tools.py): declara name, description, input_schema (qué params acepta el agente: 
+  URL, SKU, query, filtros) y forma de output esperada.                                                        
+  3. Registro en ServiceRegistry (shared/middleware.py) para que los agentes que lo necesiten lo descubran.
+  4. Mapeo scraper → agente: decidir qué agente usa qué scraper (el de I+D no necesita los de precios y        
+  viceversa — ver el xlsx).                                                                                    
+  5. Auth/secretos: BRIGHTDATA_API_KEY vía env vars (probable AWS Secrets Manager en prod).                    
+  6. Tests pytest con fixtures del dataset real (no mocks — coherente con convención del proyecto).            
+                                                                                                               
+  Lo que no tocarías en fase 3: parsing (eso vive en sc_code/ ya), selectores, paginación. Todo eso es fase 2 y
+   ya quedó resuelto del lado de BrightData.                                                                   
+                                                                                                               
+  Preguntas abiertas que habría que resolver antes de implementar:
+  - ¿BrightData devuelve por webhook, por dataset polling, o ambos? Eso define la forma del cliente.
+  - ¿Los scrapers se disparan on-demand (el agente pide y espera) o hay colecciones programadas que el agente  
+  solo consulta? Son dos patrones muy distintos.                                                             
+  - ¿Un cliente Python por scraper, o un cliente genérico brightdata_client.py que reciba collector_id como    
+  parámetro? Probablemente lo segundo (DRY), con tool schemas específicos encima.                          
+                                                                                                               
+  ¿Querés que ancle esto en docs/specs/memory.md como definición tentativa de fase 3, o preferís esperar a
+  hablarlo con el equipo de agentes antes de fijarlo? 

@@ -1,0 +1,14 @@
+[
+  {
+    "article_id": "FAKE_v3_row1",
+    "url": "https://example.com/a/1",
+    "headline": "Row one — v3 snapshot",
+    "paywalled": false
+  },
+  {
+    "article_id": "FAKE_v3_row2",
+    "url": "https://example.com/a/2",
+    "headline": "Row two — v3 snapshot",
+    "paywalled": true
+  }
+]

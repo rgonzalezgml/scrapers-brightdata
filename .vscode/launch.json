@@ -1,0 +1,72 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Archivo actual",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "/usr/local/bin/python3",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "cwd": "${fileDirname}" // <-- agrega esto
+    },
+    {
+      "name": "API (Uvicorn)",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "/usr/local/bin/python3",
+      "module": "uvicorn",
+      "args": [
+        "main:app",
+        "--reload",
+        "--log-level",
+        "debug",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8009"
+      ],
+      "cwd": "${workspaceFolder}/server",
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/server"
+      }
+    },
+    // {
+    //   "name": "Streamlit",
+    //   "type": "debugpy",
+    //   "request": "launch",
+    //   "python": "/usr/local/bin/python3",
+    //   "module": "streamlit",
+    //   "args": [
+    //     "run",
+    //     "frontend/streamlit_app.py",
+    //     "--server.address",
+    //     "0.0.0.0",
+    //     "--server.port",
+    //     "8501",
+    //     "--logger.level=debug",
+    //     "--server.runOnSave=true",
+    //     "--server.fileWatcherType=poll"
+    //   ],
+    //   "cwd": "${workspaceFolder}",
+    //   "console": "integratedTerminal"
+    // },
+    {
+      "name": "Angular (pnpm start)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm start",
+      "cwd": "${workspaceFolder}/client/web"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "API + Angular",
+      "configurations": [
+        "API (Uvicorn)",
+        "Angular (pnpm start)"
+      ]
+    }
+  ]
+}

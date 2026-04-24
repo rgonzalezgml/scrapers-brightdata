@@ -1,0 +1,35 @@
+# syntax=docker/dockerfile:1
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# System deps + Playwright system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        bash \
+        ca-certificates \
+        curl \
+        git \
+        openssh-client \
+        # Playwright browser dependencies
+        libnss3 \
+        libatk-bridge2.0-0 \
+        libdrm2 \
+        libxkbcommon0 \
+        libgbm1 \
+        libasound2 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Python deps
+COPY requirements.txt .
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt \
+    && playwright install chromium \
+    && playwright install-deps chromium
+
+EXPOSE 5679
+
+CMD ["bash"]

@@ -1,0 +1,175 @@
+[
+  {
+    "product_id": "10248076",
+    "product_url": "https://www.cosme.net/products/10248076/",
+    "product_name_raw": "ルース パウダー",
+    "product_name_clean": "ルース パウダー",
+    "brand_id": "2108",
+    "brand_name": "コスメデコルテ",
+    "category_primary_id": "302",
+    "category_ids": ["300", "302"],
+    "category_names": ["ベースメイク", "フェイスパウダー"],
+    "category_chains": [
+      [
+        {"id": "300", "name": "ベースメイク"},
+        {"id": "302", "name": "フェイスパウダー"}
+      ]
+    ],
+    "effect_ids": ["12", "34"],
+    "effect_names": ["カバー力", "化粧もち"],
+    "ingredient_tag_ids": ["77"],
+    "rating_avg": 5.6,
+    "review_count": 1234,
+    "review_count_photo": 231,
+    "launch_date": "2022-09-16",
+    "launch_year": 2022,
+    "regulation_class": "cosmetic",
+    "official_name": "コスメデコルテ ルース パウダー",
+    "is_official": true,
+    "maker_id": "102317",
+    "maker_name": "コスメデコルテ",
+    "price_text": "20g・6,270円 / 16g・6,270円",
+    "variants": [
+      {
+        "volume_raw": "20g",
+        "volume_value": 20.0,
+        "volume_unit": "g",
+        "price_jpy": 6270,
+        "price_tax_included": null,
+        "sku_note": null
+      },
+      {
+        "volume_raw": "16g",
+        "volume_value": 16.0,
+        "volume_unit": "g",
+        "price_jpy": 6270,
+        "price_tax_included": null,
+        "sku_note": null
+      }
+    ],
+    "variations": [
+      {"variation_id": "5544", "label": "001 ピンク"},
+      {"variation_id": "5545", "label": "002 ベージュ"}
+    ],
+    "rankings": [
+      {"ranking_name": "2024年下半期新作ベストコスメ 第1位", "position": 1, "year": 2024, "scope": "H2"}
+    ],
+    "scraped_date": "2026-04-21T12:00:00.000Z",
+    "scraper_flags": [],
+    "has_mojibake": false
+  },
+  {
+    "product_id": "10264676",
+    "product_url": "https://www.cosme.net/products/10264676/",
+    "product_name_raw": "ジェノプティクス インフィニット オーラ エッセンス",
+    "product_name_clean": "ジェノプティクス インフィニット オーラ エッセンス",
+    "brand_id": "73",
+    "brand_name": "SK-II",
+    "category_primary_id": "1006",
+    "category_ids": ["310", "1006"],
+    "category_names": ["スキンケア", "美容液"],
+    "category_chains": [
+      [
+        {"id": "310", "name": "スキンケア"},
+        {"id": "1006", "name": "美容液"}
+      ]
+    ],
+    "effect_ids": [],
+    "effect_names": [],
+    "ingredient_tag_ids": [],
+    "rating_avg": 6.2,
+    "review_count": 342,
+    "review_count_photo": 41,
+    "launch_date": "2025-04-15",
+    "launch_year": 2025,
+    "regulation_class": "quasi_drug",
+    "official_name": "ジェノプティクス インフィニット オーラ エッセンス",
+    "is_official": true,
+    "maker_id": "51",
+    "maker_name": "P&G Japan",
+    "price_text": "30mL・22,000円 / 50mL・33,000円",
+    "variants": [
+      {"volume_raw": "30mL", "volume_value": 30.0, "volume_unit": "ml", "price_jpy": 22000, "price_tax_included": null, "sku_note": null},
+      {"volume_raw": "50mL", "volume_value": 50.0, "volume_unit": "ml", "price_jpy": 33000, "price_tax_included": null, "sku_note": null}
+    ],
+    "variations": [],
+    "rankings": [],
+    "scraped_date": "2026-04-21T12:00:00.000Z",
+    "scraper_flags": [],
+    "has_mojibake": false
+  },
+  {
+    "product_id": "99999001",
+    "product_url": "https://www.cosme.net/products/99999001/",
+    "product_name_raw": null,
+    "product_name_clean": null,
+    "brand_id": null,
+    "brand_name": null,
+    "category_primary_id": null,
+    "category_ids": [],
+    "category_names": [],
+    "category_chains": [],
+    "effect_ids": [],
+    "effect_names": [],
+    "ingredient_tag_ids": [],
+    "rating_avg": null,
+    "review_count": null,
+    "review_count_photo": null,
+    "launch_date": null,
+    "launch_year": null,
+    "regulation_class": null,
+    "official_name": null,
+    "is_official": null,
+    "maker_id": null,
+    "maker_name": null,
+    "price_text": null,
+    "variants": [],
+    "variations": [],
+    "rankings": [],
+    "scraped_date": "2026-04-21T12:00:00.000Z",
+    "scraper_flags": ["rate_limit_blocked"],
+    "has_mojibake": false,
+    "fetch_error": "HTTP 429 after 3 retries",
+    "fetch_attempts": 3
+  },
+  {
+    "source_type": "bestcosme",
+    "award_year": 2025,
+    "award_group": "grand",
+    "award_category_slug": null,
+    "category_id": null,
+    "rank": 1,
+    "product_id": "10264676",
+    "product_url": "https://www.cosme.net/products/10264676/",
+    "product_name_raw": "ジェノプティクス インフィニット オーラ エッセンス",
+    "product_name_clean": "ジェノプティクス インフィニット オーラ エッセンス",
+    "brand_name_raw": "SK-II",
+    "ai_highlights": [],
+    "scraped_date": "2026-04-21T12:00:00.000Z"
+  },
+  {
+    "source_type": "bestcosme",
+    "award_year": 2025,
+    "award_group": "category",
+    "award_category_slug": "serum",
+    "category_id": null,
+    "rank": 3,
+    "product_id": "10248076",
+    "product_url": "https://www.cosme.net/products/10248076/",
+    "product_name_raw": "ルース パウダー",
+    "product_name_clean": "ルース パウダー",
+    "brand_name_raw": "コスメデコルテ",
+    "ai_highlights": ["軽い付け心地", "崩れにくい"],
+    "scraped_date": "2026-04-21T12:00:00.000Z"
+  },
+  {
+    "brand_id": "73",
+    "brand_name": "SK-II",
+    "brand_url": "https://www.cosme.net/brands/73/?nt=1",
+    "brand_total_products": 145,
+    "brand_total_reviews": 45678,
+    "brand_official_site": "https://www.sk-ii.jp/",
+    "brand_country": null,
+    "scraped_date": "2026-04-21T12:00:00.000Z"
+  }
+]

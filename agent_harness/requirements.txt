@@ -1,0 +1,5 @@
+# Deps especificas del harness (se suman a /workspace/requirements.txt).
+# Instalar con: pip install -r agent_harness/requirements.txt
+anthropic>=0.42.0
+fastapi>=0.110
+uvicorn[standard]>=0.27

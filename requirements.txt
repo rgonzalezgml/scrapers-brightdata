@@ -1,0 +1,21 @@
+# HTTP & Proxies
+requests
+httpx
+
+# Browser automation (BrightData Scraping Browser)
+playwright
+
+# Data handling
+pandas
+pydantic>=2
+pydantic-settings
+python-dotenv
+
+# Middleware logging (structured)
+structlog
+
+# Dev / debug
+debugpy
+pytest
+pytest-mock
+pytest-asyncio

@@ -1,0 +1,14 @@
+[
+  {
+    "article_id": "FAKE_dca_row1",
+    "url": "https://example.com/a/1",
+    "headline": "Row one — dca dataset",
+    "paywalled": false
+  },
+  {
+    "article_id": "FAKE_dca_row2",
+    "url": "https://example.com/a/2",
+    "headline": "Row two — dca dataset",
+    "paywalled": false
+  }
+]

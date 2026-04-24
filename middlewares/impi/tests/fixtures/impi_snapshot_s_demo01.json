@@ -1,0 +1,50 @@
+[
+  {
+    "denominacion": "TAFIROL",
+    "expediente": "1234567",
+    "registro": "REG-2020-001",
+    "titular": "GENOMMA LAB INTERNACIONAL S.A.B. DE C.V.",
+    "fecha_terminacion": "2026-06-15",
+    "fecha_cancelacion": null,
+    "fecha_solicitud": "2016-06-15",
+    "imagen": null,
+    "scraped_date": "2026-04-22",
+    "scraper_flags": []
+  },
+  {
+    "denominacion": "SUERO-BEBE",
+    "expediente": "2345678",
+    "registro": "REG-2019-014",
+    "titular": "GENOMMA LAB INTERNACIONAL S.A.B. DE C.V.",
+    "fecha_terminacion": "2026-07-02",
+    "fecha_cancelacion": null,
+    "fecha_solicitud": "2015-06-01",
+    "imagen": [],
+    "scraped_date": "2026-04-22",
+    "scraper_flags": []
+  },
+  {
+    "denominacion": "OXISEPT",
+    "expediente": "3456789",
+    "registro": "REG-2018-202",
+    "titular": "GENOMMA LAB INTERNACIONAL S.A.B. DE C.V.",
+    "fecha_terminacion": "2026-05-20",
+    "fecha_cancelacion": null,
+    "fecha_solicitud": "2014-05-20",
+    "imagen": "https://marcia.impi.gob.mx/media/oxisept.png",
+    "scraped_date": "2026-04-22",
+    "scraper_flags": ["paginated"]
+  },
+  {
+    "denominacion": "X-IBUPROFENO",
+    "expediente": "4567890",
+    "registro": null,
+    "titular": "LABORATORIOS OTROS S.A. DE C.V.",
+    "fecha_terminacion": "2026-06-30",
+    "fecha_cancelacion": null,
+    "fecha_solicitud": "2016-06-30",
+    "imagen": null,
+    "scraped_date": "2026-04-22",
+    "scraper_flags": ["owner_mismatch"]
+  }
+]

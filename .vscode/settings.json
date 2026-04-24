@@ -1,0 +1,26 @@
+{
+  "typescript.tsdk": "client/web/node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "angular.trace.server": "off",
+  "python.defaultInterpreterPath": "/usr/local/bin/python3",
+  "eslint.workingDirectories": [
+    {
+      "directory": "client/web",
+      "changeProcessCWD": true
+    }
+  ],
+  "eslint.validate": [
+    "typescript",
+    "html"
+  ],
+  "eslint.probe": [
+    "typescript",
+    "html"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.codeActionsOnSaveTimeout": 1500
+}
