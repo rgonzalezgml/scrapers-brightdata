@@ -11,7 +11,7 @@ scripts-old/
 scripts/last_run_*.json
 scripts/last_run_*.raw.json
 scripts/*.json
-scrapers/*/results/
+bd-scrapers/*/results/
 
 # ---- Python -----------------------------------------------------------------
 __pycache__/

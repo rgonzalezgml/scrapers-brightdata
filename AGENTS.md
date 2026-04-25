@@ -5,7 +5,7 @@ Skills shared across agents live in `.agents/skills/` (source of truth). `.claud
 
 ## Project Context
 
-**brightdata-scrapers** is a Python scraping platform that uses BrightData proxies and Scraping Browser to collect data from external sources. Scrapers are organized as independent modules under `scrapers/`. Each module has its own spec.
+**brightdata-scrapers** is a Python scraping platform that uses BrightData proxies and Scraping Browser to collect data from external sources. Scrapers are organized as independent modules under `bd_scrapers/`. Each module has its own spec.
 
 ## Shared Expectations
 

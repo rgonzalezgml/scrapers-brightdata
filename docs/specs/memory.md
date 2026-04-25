@@ -7,8 +7,8 @@ Este documento es el **contrato canónico** del flujo de trabajo para cada scrap
 El trabajo de un scraper tiene **tres etapas**:
 
 1. **Análisis** — producir la spec (`<name>.md`) con el brief para DB AI (§1-§3 databrightdata) y la spec profunda nuestra (§1-§N genomma lab). **Definido abajo.**
-2. **Implementación JS** — construir los parsers buenos en `scrapers/<name>/sc_browser/` + `sc_code/` sobre el andamiaje que DB AI genera en `vendor/`. **Definido abajo.**
-3. **Middleware Python** — empaquetar el scraper como cliente Python stateless en `middlewares/<name>/` para que el repo de agentes lo consuma como dependencia. **Definido abajo.**
+2. **Implementación JS** — construir los parsers buenos en `bd-bd_scrapers/<name>/sc_browser/` + `sc_code/` sobre el andamiaje que DB AI genera en `vendor/`. **Definido abajo.**
+3. **Middleware Python** — empaquetar el scraper como cliente Python stateless en `gli_scrapers/<name>/` para que el repo de agentes lo consuma como dependencia. **Definido abajo.**
 
 ---
 
@@ -95,7 +95,7 @@ assert len(prose) <= 1000, f'databrightdata excede: {len(prose)}'
 
 ### Cómo obtener el material para genomma lab
 
-1. **Prior work primero.** Si existe `docs/specs/brightd-scrapers/<name>/current_prompt.txt` o equivalente, reutilizar. Histórico: cosme, cosmetics-design, olive-young, alibaba, made-in-china.
+1. **Prior work primero.** Si existe `docs/specs/brightd-bd_scrapers/<name>/current_prompt.txt` o equivalente, reutilizar. Histórico: cosme, cosmetics-design, olive-young, alibaba, made-in-china.
 2. **MCP brightdata** si no hay prior work. Tools: `mcp__brightdata__scrape_as_markdown`, `mcp__brightdata__scrape_batch`, `mcp__brightdata__search_engine`. Scrapear:
    - Homepage (estructura, navegación).
    - `robots.txt` (disallow, sitemaps, Crawl-delay, bots bloqueados — **revisar si ClaudeBot está Disallowed**).
@@ -131,12 +131,12 @@ Una vez aprobada la spec, entregar SOLO la sección `databrightdata` (§1-§3) a
 
 ### Objetivo
 
-Producir los parsers de producción en `/workspace/scrapers/<name>/sc_browser/` y `sc_code/` (JS para BrightData: cheerio / iconv / DOM selectors), partiendo del andamiaje que DB AI entregó en `vendor/`.
+Producir los parsers de producción en `/workspace/bd-bd_scrapers/<name>/sc_browser/` y `sc_code/` (JS para BrightData: cheerio / iconv / DOM selectors), partiendo del andamiaje que DB AI entregó en `vendor/`.
 
 ### Estructura de carpetas
 
 ```
-/workspace/scrapers/<name>/
+/workspace/bd_scrapers/<name>/
 ├── __init__.py
 ├── vendor/                          ← v0: entrega de DB AI, READ-ONLY archivo
 │   ├── sc_browser/
@@ -167,8 +167,8 @@ Producir los parsers de producción en `/workspace/scrapers/<name>/sc_browser/` 
 
 ### Resultados y feedback loop
 
-- Cada corrida del scraper produce un JSON que se guarda en `scrapers/<name>/results/`.
-- `scrapers/<name>/results/registry.md` mantiene el mapa **archivo → versión** con fecha, modo (`sc_browser`/`sc_code`), fixture/URL, notas.
+- Cada corrida del scraper produce un JSON que se guarda en `bd_scrapers/<name>/results/`.
+- `bd_scrapers/<name>/results/registry.md` mantiene el mapa **archivo → versión** con fecha, modo (`sc_browser`/`sc_code`), fixture/URL, notas.
 - El registry es la fuente para decidir qué gap cerrar en la siguiente `_vN+1`: leer el JSON más reciente, comparar contra el schema de la spec §2, identificar el próximo bug o campo faltante, iterar.
 
 ### Errores y gotchas — dos niveles
@@ -177,7 +177,7 @@ Consultar ambos **antes** de proponer una nueva versión:
 
 - **Cross-scraper (runtime BrightData)**: `/workspace/docs/specs/brightdata-errors.md`
   Reglas `R1..RN` del runtime: `navigate()` solo top-level, `parse()` sin args, funciones browser-only en Code worker, patrones de retry, etc. Se alimenta de runs que fallan con errores del runtime (no del sitio).
-- **Per-scraper (site-specific)**: `/workspace/scrapers/<name>/results/errors.md`
+- **Per-scraper (site-specific)**: `/workspace/bd_scrapers/<name>/results/errors.md`
   Gotchas del sitio concreto con `E1..EN`: selectores hardcoded en vendor, encoding raro, anti-bot, redirects, paginación atípica, etc. Se alimenta de cada JSON en `results/` que expone un problema nuevo.
 
 Cuando un error nuevo sale en un run:
@@ -186,7 +186,7 @@ Cuando un error nuevo sale en un run:
 
 ### Flujo canónico
 
-1. **Input de DB AI**: usuario entrega la sección `databrightdata` (§1-§3) de la spec a DB AI externo. DB AI genera 4 archivos JS y el usuario los coloca en `scrapers/<name>/vendor/sc_browser/` y `sc_code/`.
+1. **Input de DB AI**: usuario entrega la sección `databrightdata` (§1-§3) de la spec a DB AI externo. DB AI genera 4 archivos JS y el usuario los coloca en `bd_scrapers/<name>/vendor/sc_browser/` y `sc_code/`.
 2. **First boot — copia verbatim con sufijo `_v1`**: copiar los 4 archivos de `vendor/` a `sc_browser/` y `sc_code/` **tal cual, sin editar**, agregando sufijo `_v1` al nombre. Después de este paso `vendor/` queda archivado y **no se toca más**.
    ```bash
    cp vendor/sc_browser/interaction_code.js sc_browser/interaction_code_v1.js
@@ -251,7 +251,7 @@ Temas candidatos a cubrir aquí cuando toque:
 
 ### Objetivo
 
-Producir `/workspace/middlewares/<name>/`: paquete Python stateless que envuelve el scraper JS (Etapa 2) y lo expone como cliente importable por el **repo de agentes**.
+Producir `/workspace/gli_scrapers/<name>/`: paquete Python stateless que envuelve el scraper JS (Etapa 2) y lo expone como cliente importable por el **repo de agentes**.
 
 ### Regla de oro
 
@@ -265,7 +265,7 @@ El middleware solo sabe:
 
 ### Contrato público
 
-Cada `middlewares/<name>/` expone:
+Cada `gli_scrapers/<name>/` expone:
 
 ```python
 from middlewares.<name> import trigger, get_result, TOOL_SCHEMA
@@ -310,13 +310,13 @@ middlewares/
 
 ### Reglas duras
 
-- **Nombres Python-safe**: `middlewares/cosmetics_design/` con underscore. El scraper JS sigue siendo `scrapers/cosmetics-design/` con hyphen.
+- **Nombres Python-safe**: `gli_scrapers/cosmetics_design/` con underscore. El scraper JS sigue siendo `scrapers/cosmetics-design/` con hyphen.
 - **Async por default**: `httpx.AsyncClient`, `async def`.
 - **Pydantic v2** para `inputs` y envelope. Validación estricta de `inputs` antes de llamar BrightData — si falla, devolver `INVALID_INPUTS` sin llamar la API.
 - **Errores normalizados**: catálogo común (ver `core/errors.py`). No inventar códigos.
 - **Tests sin mocks** de BrightData API — fixtures reales de snapshots.
 - **Auth**: `BRIGHTDATA_API_KEY` vía env var. Nunca hardcodear.
-- **Versionado por git commit**, no por `client_v1.py` / `client_v2.py`. Excepción: si el contrato público rompe, crear `middlewares/<name>/v2/` al lado y mantener v1 hasta migración del consumidor.
+- **Versionado por git commit**, no por `client_v1.py` / `client_v2.py`. Excepción: si el contrato público rompe, crear `gli_scrapers/<name>/v2/` al lado y mantener v1 hasta migración del consumidor.
 
 ### Handoff de diseño
 
@@ -324,7 +324,7 @@ Antes de implementar, cada scraper necesita su handoff en `/workspace/docs/fase3
 
 ### Agente responsable
 
-`middleware-python` — implementa `middlewares/<name>/` a partir de `docs/fase3/<name>-handoff.md` y `docs/specs/scrapers/<name>.md`. Definido en `.claude/agents/middleware-python.md`.
+`middleware-python` — implementa `gli_scrapers/<name>/` a partir de `docs/fase3/<name>-handoff.md` y `docs/specs/scrapers/<name>.md`. Definido en `.claude/agents/middleware-python.md`.
 
 ### Consumo desde el repo de agentes
 

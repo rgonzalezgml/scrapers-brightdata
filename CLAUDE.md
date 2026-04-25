@@ -6,7 +6,7 @@
 
 ## Project Vision
 
-**brightdata-scrapers** es una plataforma de scraping modular de Genomma Lab. Cada scraper es un módulo independiente bajo `scrapers/` con su propia lógica de extracción, transformación y entrega de datos. Los scrapers usan BrightData como infraestructura de proxy y Scraping Browser para sitios con renderizado JavaScript.
+**brightdata-scrapers** es una plataforma de scraping modular de Genomma Lab. Cada scraper es un módulo independiente bajo `bd_scrapers/` con su propia lógica de extracción, transformación y entrega de datos. Los scrapers usan BrightData como infraestructura de proxy y Scraping Browser para sitios con renderizado JavaScript.
 
 **Repo consumidor (downstream)**: los middlewares de este repo se importan desde el repo `GeommaAI` (Genesis), una plataforma de 12 agentes IA + meta-agente de Genomma Lab. Stack: Python (FastAPI) backend + Next.js frontend. Ver `docs/guias/genommaai-ecosystem.md` para arquitectura, patrones de middleware (registry singleton vs FastAPI standalone vs cliente importable), convenciones de agente y mapeo presunto scraper→agente.
 
@@ -16,8 +16,8 @@
 
 ```
 /workspace
-├── scrapers/                         → módulos de scraping JS (BrightData Scraper Studio)
-├── middlewares/                      → paquetes Python que envuelven cada scraper y lo exponen al repo de agentes
+├── bd_scrapers/                         → módulos de scraping JS (BrightData Scraper Studio)
+├── gli_scrapers/                      → paquetes Python que envuelven cada scraper y lo exponen al repo de agentes
 │   └── <name>/                       → cliente Python stateless (httpx + pydantic)
 ├── tests/                            → tests de cada módulo
 ├── docs/
@@ -26,7 +26,7 @@
 │   └── specs/
 │       ├── memory.md                 → memoria persistente del proyecto
 │       ├── source-scrapers.xlsx      → catálogo oficial de scrapers (hoja `scrapers`)
-│       └── scrapers/
+│       └── bd_scrapers/
 │           ├── <name>.md             → spec por scraper (databrightdata + genomma lab)
 │           └── ...
 ├── .claude/agents/                   → subagentes de Claude Code
@@ -44,7 +44,7 @@
 
 - Estructura fija de `<name>.md` (header + `databrightdata` + `genomma lab`).
 - Regla dura: `databrightdata` (§1+§2+§3 prosa) **≤ 1000 caracteres**.
-- Tres etapas del trabajo de un scraper: **análisis**, **implementación JS** (BrightData Scraper Studio) y **middleware Python** (paquete stateless en `middlewares/<name>/`).
+- Tres etapas del trabajo de un scraper: **análisis**, **implementación JS** (BrightData Scraper Studio) y **middleware Python** (paquete stateless en `gli_scrapers/<name>/`).
 - Cómo obtener material: prior work → MCP brightdata → fallback curl.
 
 > **No usar la memoria per-container** (`~/.claude/projects/-workspace/memory/`) para conocimiento del proyecto: no sobrevive al reset del contenedor. Toda memoria duradera vive en el repo.
@@ -81,7 +81,7 @@ Solo para tareas que **no son implementación**:
 
 ### Regla: no implementar sin spec
 
-Ningún cambio no trivial en `scrapers/` debe implementarse sin que el spec del módulo lo respalde.
+Ningún cambio no trivial en `bd_scrapers/` debe implementarse sin que el spec del módulo lo respalde.
 Si el spec no menciona el caso → el spec está incompleto → actualizar primero.
 
 ---
@@ -91,8 +91,8 @@ Si el spec no menciona el caso → el spec está incompleto → actualizar prime
 | Agent | Dominio — delegar SIEMPRE que la tarea caiga aquí |
 |-------|---------------------------------------------------|
 | `analyst` | Crear o actualizar specs. Punto de entrada para features nuevas, cambios de comportamiento, o cuando hay que documentar antes de implementar. |
-| `analista-de-scrapers` | Todo cambio en `scrapers/<name>/sc_browser/` y `sc_code/`: interaction code, parser code, selectores, paginación, entrega de datos. JS runtime de BrightData Scraper Studio, no Python. |
-| `middleware-python` | Todo cambio en `middlewares/<name>/`: cliente Python stateless (httpx + pydantic v2) que envuelve un scraper de BrightData y expone `trigger` / `get_result` / `TOOL_SCHEMA`. Requiere handoff en `docs/fase3/<name>-handoff.md`. |
+| `analista-de-scrapers` | Todo cambio en `bd_scrapers/<name>/sc_browser/` y `sc_code/`: interaction code, parser code, selectores, paginación, entrega de datos. JS runtime de BrightData Scraper Studio, no Python. |
+| `middleware-python` | Todo cambio en `gli_scrapers/<name>/`: cliente Python stateless (httpx + pydantic v2) que envuelve un scraper de BrightData y expone `trigger` / `get_result` / `TOOL_SCHEMA`. Requiere handoff en `docs/fase3/<name>-handoff.md`. |
 
 ---
 
@@ -100,7 +100,7 @@ Si el spec no menciona el caso → el spec está incompleto → actualizar prime
 
 | Skill | Use for |
 |-------|---------|
-| `scraper-spec-analysis` | **Etapa 1**: producir `docs/specs/scrapers/<name>.md` (databrightdata ≤1000 chars + genomma lab) |
+| `scraper-spec-analysis` | **Etapa 1**: producir `docs/specs/bd_scrapers/<name>.md` (databrightdata ≤1000 chars + genomma lab) |
 | `scraper-implementation` | **Etapa 2**: iterar `v1 → v2 → vN` del scraper. Cubre DSL completa de BrightData Scraper Studio, Browser vs Code worker, best practices, patrones |
 | `find-skills` | Descubrir e instalar skills desde skills.sh con `npx skills` |
 | `module-specs` | (legacy — usar `scraper-spec-analysis`) |

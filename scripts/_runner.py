@@ -93,7 +93,7 @@ def _install_raw_snapshot_dump(
         return None
 
     try:
-        from middlewares.core.client import BaseScraperClient
+        from gli_scrapers.core.client import BaseScraperClient
     except Exception:  # noqa: BLE001
         return None
 

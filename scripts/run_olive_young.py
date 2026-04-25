@@ -20,8 +20,8 @@ if str(_ROOT) not in sys.path:
 
 from scripts._runner import run  # noqa: E402
 
-from middlewares.olive_young import get_result, trigger  # noqa: E402
-from middlewares.olive_young import client as _client_module  # noqa: E402
+from gli_scrapers.olive_young import get_result, trigger  # noqa: E402
+from gli_scrapers.olive_young import client as _client_module  # noqa: E402
 
 INPUTS: dict = {
     "region": "kr",
