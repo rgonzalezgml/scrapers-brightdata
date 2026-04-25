@@ -10,6 +10,8 @@ scripts-old/
 # ---- Resultados de runs locales ---------------------------------------------
 scripts/last_run_*.json
 scripts/last_run_*.raw.json
+scripts/*.json
+scrapers/*/results/
 
 # ---- Python -----------------------------------------------------------------
 __pycache__/
