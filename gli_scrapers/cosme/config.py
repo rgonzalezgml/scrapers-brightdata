@@ -139,3 +139,48 @@ BLOCK_SATURATION_THRESHOLD: float = 0.5
 # fetch is the bottleneck with 1-2s delay per product). 60 minutes is a
 # safe middle estimate.
 DEFAULT_ETA_SECONDS: int = 60 * 60
+
+
+# ---- Snowflake mapper --------------------------------------------------------
+
+from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
+
+MAPPER = SnowflakeMapper(
+    table="DEV_STG.GNM_MEX.SRC_COSME_AWARD_HIST",
+    source="cosme",
+    field_map={
+        "product_id":           "ID_PRODUCTO",
+        "product_url":          "URL_PRODUCTO",
+        "product_name_raw":     "NM_PRODUCTO_RAW",
+        "product_name_clean":   "NM_PRODUCTO_CLEAN",
+        "brand_id":             "ID_MARCA",
+        "brand_name":           "NM_MARCA",
+        "maker_id":             "ID_FABRICANTE",
+        "maker_name":           "NM_FABRICANTE",
+        "category_primary_id":  "ID_CATEGORIA_PRIMARIA",
+        "category_ids":         "DS_CATEGORIA_IDS",
+        "category_names":       "DS_CATEGORIA_NOMBRES",
+        "category_chains":      "DS_CATEGORIA_CADENAS",
+        "effect_ids":           "DS_EFECTO_IDS",
+        "effect_names":         "DS_EFECTO_NOMBRES",
+        "ingredient_tag_ids":   "DS_INGREDIENTE_IDS",
+        "rating_avg":           "NU_RATING_AVG",
+        "review_count":         "NU_RESENAS",
+        "review_count_photo":   "NU_RESENAS_FOTO",
+        "launch_date":          "TX_FECHA_LANZAMIENTO",
+        "launch_year":          "NU_ANIO_LANZAMIENTO",
+        "rankings":             "DS_RANKINGS",
+        "variations":           "DS_VARIACIONES",
+        "regulation_class":     "TX_CLASE_REGULACION",
+        "is_official":          "FL_OFICIAL",
+        "has_mojibake":         "FL_MOJIBAKE",
+        "_name_source":         "TX_NOMBRE_FUENTE",
+        "scraped_date":         "DT_SCRAPING",
+        "input":                "DS_INPUT",
+    },
+    variant_fields={
+        "DS_CATEGORIA_IDS", "DS_CATEGORIA_NOMBRES", "DS_CATEGORIA_CADENAS",
+        "DS_EFECTO_IDS", "DS_EFECTO_NOMBRES", "DS_INGREDIENTE_IDS",
+        "DS_RANKINGS", "DS_VARIACIONES", "DS_INPUT",
+    },
+)

@@ -118,3 +118,26 @@ MAX_PAGES_HARD_CAP: int = 100
 # Estimated runtime, surfaced in trigger() as eta_seconds. Used by the agents
 # repo to size its polling cadence — not a contractual deadline.
 DEFAULT_ETA_SECONDS: int = 60 * 30  # 30 minutes for a typical 1000-article run.
+
+
+# ---- Snowflake mapper --------------------------------------------------------
+
+from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
+
+MAPPER = SnowflakeMapper(
+    table="DEV_STG.GNM_MEX.SRC_COSMEDESIGN_ART_HIST",
+    source="cosmetics_design",
+    field_map={
+        "article_title":    "TX_TITULO",
+        "article_url":      "URL_ARTICULO",
+        "publication_date": "DT_PUBLICACION",
+        "article_summary":  "TX_RESUMEN",
+        "article_content":  "TX_CONTENIDO",
+        "paywalled":        "FL_PAYWALL",
+        "lead_image_url":   "URL_IMAGEN",
+        "image_caption":    "TX_PIE_IMAGEN",
+        "related_topics":   "DS_TEMAS",
+        "input":            "DS_INPUT",
+    },
+    variant_fields={"DS_TEMAS", "DS_INPUT"},
+)

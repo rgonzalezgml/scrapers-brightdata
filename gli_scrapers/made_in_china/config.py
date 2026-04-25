@@ -298,3 +298,43 @@ STRUCTURE_DEGRADED_THRESHOLD: float = 0.5
 # default ``max_pages=3`` and ~20 products per page plus details sits in the
 # 30-60 minute band. 45 minutes is a safe middle estimate.
 DEFAULT_ETA_SECONDS: int = 60 * 45
+
+
+# ---- Snowflake mapper --------------------------------------------------------
+
+from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
+
+MAPPER = SnowflakeMapper(
+    table="DEV_STG.GNM_MEX.SRC_MADEINCHINA_PROV_HIST",
+    source="made_in_china",
+    field_map={
+        "product_id":           "ID_PRODUCTO",
+        "sku":                  "TX_SKU",
+        "product_url":          "URL_PRODUCTO",
+        "product_name_original":"NM_PRODUCTO_ORIGINAL",
+        "product_name_clean":   "NM_PRODUCTO_CLEAN",
+        "type":                 "TX_TIPO",
+        "category_mic":         "TX_CATEGORIA_MIC",
+        "category_path":        "DS_CATEGORIA_PATH",
+        "price_min_usd":        "DS_PRECIO_MIN_USD",
+        "price_max_usd":        "DS_PRECIO_MAX_USD",
+        "price_raw":            "TX_PRECIO_RAW",
+        "price_currency":       "TX_MONEDA",
+        "moq_quantity":         "NU_MOQ_CANTIDAD",
+        "moq_unit":             "TX_MOQ_UNIDAD",
+        "cas_no":               "TX_CAS",
+        "formula":              "TX_FORMULA",
+        "einecs":               "TX_EINECS",
+        "grade":                "TX_GRADO",
+        "appearance":           "TX_APARIENCIA",
+        "supplier_id":          "ID_PROVEEDOR",
+        "supplier_name_raw":    "NM_PROVEEDOR_RAW",
+        "image_primary":        "URL_IMAGEN",
+        "site_code":            "TX_SITIO",
+        "scraper_flags":        "DS_FLAGS",
+        "scraped_date":         "DT_SCRAPING",
+        "input":                "DS_INPUT",
+    },
+    variant_fields={"DS_CATEGORIA_PATH", "DS_PRECIO_MIN_USD", "DS_PRECIO_MAX_USD",
+                    "DS_FLAGS", "DS_INPUT"},
+)

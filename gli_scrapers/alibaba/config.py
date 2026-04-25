@@ -285,3 +285,28 @@ should fail loud rather than be cached by the agents repo."""
 # 2 detail fetch is the bottleneck at ~1-2s/card x 5 pages x ~40 cards x 5
 # terms). 10 minutes is a safe middle estimate.
 DEFAULT_ETA_SECONDS: int = 60 * 10
+
+
+# ---- Snowflake mapper --------------------------------------------------------
+
+from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
+
+MAPPER = SnowflakeMapper(
+    table="DEV_STG.GNM_MEX.SRC_ALIBABA_PROV_HIST",
+    source="alibaba",
+    field_map={
+        "product_url":           "URL_PRODUCTO",
+        "cleaned_product_name":  "NM_PRODUCTO",
+        "supplier_name":         "NM_PROVEEDOR",
+        "price_raw":             "TX_PRECIO_RAW",
+        "price_min_usd":         "NU_PRECIO_MIN_USD",
+        "price_max_usd":         "NU_PRECIO_MAX_USD",
+        "price_unit":            "TX_UNIDAD_PRECIO",
+        "minimum_order_quantity":"TX_MOQ",
+        "cas_number":            "TX_CAS",
+        "purity":                "TX_PUREZA",
+        "status_code":           "NU_STATUS_CODE",
+        "input":                 "DS_INPUT",
+    },
+    variant_fields={"DS_INPUT"},
+)

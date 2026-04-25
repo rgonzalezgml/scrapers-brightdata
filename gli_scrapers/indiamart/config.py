@@ -172,3 +172,45 @@ DEFAULT_INR_TO_USD: float = 0.012
 # is 90 minutes; a default run of 12 MCATs + 2 hubs + 500-1000 products fits
 # in 30-60 minutes. 45 minutes is a safe middle estimate.
 DEFAULT_ETA_SECONDS: int = 60 * 45
+
+
+# ---- Snowflake mapper --------------------------------------------------------
+
+from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
+
+MAPPER = SnowflakeMapper(
+    table="DEV_STG.GNM_MEX.SRC_INDIAMART_PROV_HIST",
+    source="indiamart",
+    field_map={
+        "product_id":          "ID_PRODUCTO",
+        "product_url":         "URL_PRODUCTO",
+        "product_name_original":"NM_PRODUCTO_ORIGINAL",
+        "product_name_clean":  "NM_PRODUCTO_CLEAN",
+        "product_description": "TX_DESCRIPCION",
+        "type":                "TX_TIPO",
+        "category_mic":        "TX_CATEGORIA_MIC",
+        "category_path":       "DS_CATEGORIA_PATH",
+        "price_min_usd":       "DS_PRECIO_MIN_USD",
+        "price_max_usd":       "DS_PRECIO_MAX_USD",
+        "price_raw":           "TX_PRECIO_RAW",
+        "price_value_raw":     "TX_PRECIO_VALOR_RAW",
+        "price_unit":          "TX_UNIDAD_PRECIO",
+        "price_currency":      "TX_MONEDA",
+        "availability":        "TX_DISPONIBILIDAD",
+        "supplier_id":         "ID_PROVEEDOR",
+        "supplier_name":       "NM_PROVEEDOR",
+        "supplier_url":        "URL_PROVEEDOR",
+        "supplier_city":       "TX_CIUDAD_PROVEEDOR",
+        "supplier_country":    "TX_PAIS_PROVEEDOR",
+        "verified":            "FL_VERIFICADO",
+        "trustseal":           "FL_TRUSTSEAL",
+        "member_since_year":   "NU_ANIO_MIEMBRO",
+        "image_primary":       "URL_IMAGEN",
+        "site_code":           "TX_SITIO",
+        "scraper_flags":       "DS_FLAGS",
+        "scraped_date":        "DT_SCRAPING",
+        "input":               "DS_INPUT",
+    },
+    variant_fields={"DS_CATEGORIA_PATH", "DS_PRECIO_MIN_USD", "DS_PRECIO_MAX_USD",
+                    "DS_FLAGS", "DS_INPUT"},
+)

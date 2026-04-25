@@ -151,3 +151,27 @@ BLOCK_SATURATION_THRESHOLD: float = 0.5
 # enrichments via Scraping Browser + up to 20 brand pages) sits around
 # 20-35 minutes. 25 minutes is the safe middle estimate.
 DEFAULT_ETA_SECONDS: int = 60 * 25
+
+
+# ---- Snowflake mapper --------------------------------------------------------
+
+from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
+
+MAPPER = SnowflakeMapper(
+    table="DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_RANK_HIST",
+    source="olive_young",
+    field_map={
+        "rank":           "NU_RANK",
+        "prdtNo":         "ID_PRODUCTO",
+        "brand":          "NM_MARCA",
+        "name":           "NM_PRODUCTO",
+        "name_kr":        "NM_PRODUCTO_KR",
+        "original_price": "TX_PRECIO_ORIGINAL",
+        "sale_price":     "TX_PRECIO_OFERTA",
+        "rating":         "NU_RATING",
+        "out_of_stock":   "FL_SIN_STOCK",
+        "image":          "URL_IMAGEN",
+        "input":          "DS_INPUT",
+    },
+    variant_fields={"DS_INPUT"},
+)

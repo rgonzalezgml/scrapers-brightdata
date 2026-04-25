@@ -1,0 +1,70 @@
+"""SnowflakeMapper — mapper universal raw-scraper → tabla Snowflake DDL.
+
+Uso por scraper:
+
+    from gli_scrapers.snowflake import SnowflakeMapper
+
+    MAPPER = SnowflakeMapper(
+        table="DEV_STG.GNM_MEX.SRC_ALIBABA_PROV_HIST",
+        source="alibaba",
+        field_map={"product_url": "URL_PRODUCTO", ...},
+        variant_fields={"DS_INPUT"},
+    )
+
+    inserted = MAPPER.insert(rows, conn, job_id="run-001")
+
+Contrato:
+- ``field_map``   : raw_key → nombre de columna DDL. Claves ausentes en el
+                    raw row se insertan como NULL.
+- ``variant_fields``: columnas tipo VARIANT — el valor se serializa a JSON
+                    string antes de enviarlo al conector.
+- Campos de auditoría (DT_CARGA, FT_FUENTE, ID_JOB) se agregan automáticamente.
+- Campos del raw que NO están en field_map se descartan silenciosamente.
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from typing import Any
+
+
+@dataclass
+class SnowflakeMapper:
+    table: str
+    source: str
+    field_map: dict[str, str]
+    variant_fields: set[str] = field(default_factory=set)
+
+    def map_row(self, raw: dict[str, Any], job_id: str | None = None) -> dict[str, Any]:
+        out: dict[str, Any] = {}
+        for raw_key, col in self.field_map.items():
+            val = raw.get(raw_key)
+            if col in self.variant_fields and val is not None:
+                val = json.dumps(val, ensure_ascii=False)
+            out[col] = val
+        out["DT_CARGA"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        out["FT_FUENTE"] = self.source
+        out["ID_JOB"] = job_id
+        return out
+
+    def insert(
+        self,
+        rows: list[dict[str, Any]],
+        conn,
+        job_id: str | None = None,
+    ) -> int:
+        if not rows:
+            return 0
+
+        mapped = [self.map_row(r, job_id) for r in rows]
+        cols = list(mapped[0].keys())
+        placeholders = ", ".join(["%s"] * len(cols))
+        col_names = ", ".join(f'"{c}"' for c in cols)
+        sql = f"INSERT INTO {self.table} ({col_names}) VALUES ({placeholders})"
+        data = [[row[c] for c in cols] for row in mapped]
+
+        cur = conn.cursor()
+        cur.executemany(sql, data)
+        return len(data)
