@@ -289,6 +289,7 @@ BRAND_LIST_FIELDS: frozenset[str] = frozenset({"scraper_flags"})
 # only rename keys that already exist in the raw row.
 RANKING_ALIASES: dict[str, str] = {
     # §4 prosa → §2 short name
+    "prdtNo": "prdt_no",       # BrightData emits camelCase; spec uses snake_case
     "region_code": "region",
     "category_id": "cat_id",
     "product_name_en": "name_en",

@@ -404,15 +404,23 @@ def _classify_entity(raw: dict[str, Any]) -> str | None:
         if explicit in ("ranking", "product", "brand"):
             return explicit
 
+    # BrightData emits camelCase; normalize before heuristic checks.
+    prdt_no = raw.get("prdt_no") or raw.get("prdtNo")
+
     # Ranking signals: ranking_id is a unique field per spec §4. Fallback:
     # rank + prdt_no + (region or region_code) => ranking.
+    # Secondary fallback: rank + prdt_no without product-only fields => ranking
+    # (BrightData v4 embeds region inside input{}, not at top level).
     if raw.get("ranking_id") is not None:
         return "ranking"
     if (
         raw.get("rank") is not None
-        and raw.get("prdt_no") is not None
+        and prdt_no is not None
         and (raw.get("region") is not None or raw.get("region_code") is not None)
     ):
+        return "ranking"
+    _product_only = {"category_ids", "ranks", "best_regions", "name_clean_en", "product_name_clean_en"}
+    if raw.get("rank") is not None and prdt_no is not None and not _product_only.intersection(raw):
         return "ranking"
 
     # Brand signals: brand_no + total counters, no prdt_no.
@@ -425,13 +433,13 @@ def _classify_entity(raw: dict[str, Any]) -> str | None:
     if (
         raw.get("brand_no") is not None
         and has_brand_totals
-        and raw.get("prdt_no") is None
+        and prdt_no is None
     ):
         return "brand"
 
     # Product signals: prdt_no + product-only fields (category_ids, ranks,
     # best_regions, or the clean name).
-    if raw.get("prdt_no") is not None and (
+    if prdt_no is not None and (
         "category_ids" in raw
         or "ranks" in raw
         or "best_regions" in raw

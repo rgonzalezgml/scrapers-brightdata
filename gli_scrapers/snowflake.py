@@ -41,6 +41,7 @@ class SnowflakeMapper:
         out: dict[str, Any] = {}
         for raw_key, col in self.field_map.items():
             val = raw.get(raw_key)
+            # VARIANT: serializar a JSON string — el SQL usará parse_json(%s)
             if col in self.variant_fields and val is not None:
                 val = json.dumps(val, ensure_ascii=False)
             out[col] = val
@@ -60,11 +61,17 @@ class SnowflakeMapper:
 
         mapped = [self.map_row(r, job_id) for r in rows]
         cols = list(mapped[0].keys())
-        placeholders = ", ".join(["%s"] * len(cols))
+
+        # parse_json() no es válido en VALUES con executemany → usar SELECT
+        select_exprs = ", ".join(
+            f"parse_json(%s)" if col in self.variant_fields else "%s"
+            for col in cols
+        )
         col_names = ", ".join(f'"{c}"' for c in cols)
-        sql = f"INSERT INTO {self.table} ({col_names}) VALUES ({placeholders})"
+        sql = f"INSERT INTO {self.table} ({col_names}) SELECT {select_exprs}"
         data = [[row[c] for c in cols] for row in mapped]
 
         cur = conn.cursor()
-        cur.executemany(sql, data)
+        for row_data in data:
+            cur.execute(sql, row_data)
         return len(data)

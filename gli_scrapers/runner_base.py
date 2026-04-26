@@ -63,22 +63,34 @@ async def run_scraper(
         await asyncio.sleep(poll_interval)
         elapsed += poll_interval
 
-        res = await client.get_result(job_id)
-        status = res.get("status")
+        # Usar _get_progress (no get_result) para evitar que los saturation
+        # checks del cliente conviertan runs válidos en "failed" antes de
+        # insertar. El runner persiste lo que haya; la calidad la evalúa el
+        # agente vía get_result().
+        try:
+            progress = await client._get_progress(job_id)
+        except Exception as e:
+            log.error("[%s] poll error: %s", name, e)
+            return {"status": "failed", "reason": f"poll failed: {e}", "job_id": job_id}
+
+        status = progress.get("status")
 
         if status == "running":
-            pct = res.get("progress_pct", 0)
+            pct = progress.get("progress_pct") or 0
             log.info("[%s] running %d%%  (%ds elapsed)", name, pct, elapsed)
             continue
 
         if status == "failed":
-            reason = str(res.get("error", "scraper failed"))
+            reason = str(progress.get("message", "scraper failed"))
             log.error("[%s] failed: %s", name, reason)
             return {"status": "failed", "reason": reason, "job_id": job_id}
 
-        if status == "done":
-            envelope = res["data"]
-            rows = envelope.get("data", [])
+        if status == "ready":
+            try:
+                rows = await client._fetch_snapshot(job_id)
+            except Exception as e:
+                return {"status": "failed", "reason": f"fetch failed: {e}", "job_id": job_id}
+
             log.info("[%s] done — %d rows in %.1f min",
                      name, len(rows), elapsed / 60)
 
@@ -86,6 +98,7 @@ async def run_scraper(
             conn = _snowflake_conn()
             try:
                 inserted = mapper.insert(rows, conn, job_id=job_id)
+                conn.commit()
                 log.info("[%s] inserted %d rows → %s", name, inserted, mapper.table)
             finally:
                 conn.close()
