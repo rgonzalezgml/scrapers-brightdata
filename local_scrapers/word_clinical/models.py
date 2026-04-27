@@ -7,7 +7,8 @@ class Estudio(BaseModel):
     tipo_estudio: str | None = None
     agencia: str | None = None
     fecha: str | None = None
-    informe: str | None = None
+    informe: str | None = None        # nombre del archivo PDF extraído (si se extrajeron)
+    informe_paginas: int | None = None
 
 
 class Proclama(BaseModel):

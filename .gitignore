@@ -35,5 +35,7 @@ data/
 *.jpeg
 
 # ---- word_clinical ----------------------------------------------------------
-local_scrapers/word_clinical/input/
 local_scrapers/word_clinical/output/
+
+# Word temp files
+~$*

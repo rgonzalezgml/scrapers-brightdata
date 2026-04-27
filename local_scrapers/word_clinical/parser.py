@@ -15,16 +15,30 @@ _TIPOS_SOPORTE = {
 _WNS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
 
+def _tc_text(tc) -> str:
+    paragraphs = tc.findall(".//" + qn("w:p"))
+    return "\n".join(
+        "".join(r.text or "" for r in p.findall(".//" + qn("w:t")))
+        for p in paragraphs
+    ).strip()
+
+
 def _cell_texts(row) -> list[str]:
-    """Extract text from each <w:tc> in a table row using raw XML (handles merged cells)."""
+    """
+    Extract text from each column in a table row.
+    Handles both plain <w:tc> cells and <w:sdt>-wrapped cells
+    (Word content controls: dropdowns, date pickers).
+    """
     result = []
-    for tc in row._tr.findall(qn("w:tc")):
-        paragraphs = tc.findall(".//" + qn("w:p"))
-        text = "\n".join(
-            "".join(r.text or "" for r in p.findall(".//" + qn("w:t")))
-            for p in paragraphs
-        ).strip()
-        result.append(text)
+    for child in row._tr:
+        local = child.tag.split("}")[-1] if "}" in child.tag else child.tag
+        if local == "tc":
+            result.append(_tc_text(child))
+        elif local == "sdt":
+            sdt_content = child.find(qn("w:sdtContent"))
+            if sdt_content is not None:
+                for tc in sdt_content.findall(qn("w:tc")):
+                    result.append(_tc_text(tc))
     return result
 
 

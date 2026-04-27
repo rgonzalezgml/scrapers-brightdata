@@ -45,14 +45,14 @@ def test_intimo_estudios(intimo_doc):
 def test_intimo_proclamas(intimo_doc):
     assert len(intimo_doc.proclamas) == 9
     tipos = {p.tipo_soporte for p in intimo_doc.proclamas if p.tipo_soporte}
-    assert "Sensorial" in tipos
-    assert "Instrumental" in tipos
-    assert "Seguridad" in tipos
+    assert "Subjetivo" in tipos    # antes: Sensorial
+    assert "Objetivo" in tipos     # antes: Instrumental / Seguridad
+    assert "Bibliográfico" in tipos
 
 def test_intimo_proclamas_soporte_not_empty(intimo_doc):
-    # proclamas with Sensorial/Instrumental/Seguridad must have soporte text
+    # proclamas con evidencia real deben tener texto de soporte
     for p in intimo_doc.proclamas:
-        if p.tipo_soporte in ("Sensorial", "Instrumental", "Seguridad"):
+        if p.tipo_soporte in ("Subjetivo", "Objetivo", "Mixto"):
             assert p.soporte, f"Falta soporte en: {p.proclama[:40]}"
 
 def test_intimo_referencias(intimo_doc):
@@ -83,7 +83,8 @@ def test_tio_nacho_estudios(tio_nacho_doc):
 def test_tio_nacho_proclamas(tio_nacho_doc):
     assert len(tio_nacho_doc.proclamas) == 14
     tipos = {p.tipo_soporte for p in tio_nacho_doc.proclamas if p.tipo_soporte}
-    assert "Instrumental" in tipos
+    assert "Objetivo" in tipos
+    assert "Bibliográfico" in tipos
 
 def test_tio_nacho_modo_uso(tio_nacho_doc):
     assert tio_nacho_doc.modo_uso is not None
