@@ -22,5 +22,6 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "editor.codeActionsOnSaveTimeout": 1500
+  "editor.codeActionsOnSaveTimeout": 1500,
+  "cSpell.language": "en,es"
 }
