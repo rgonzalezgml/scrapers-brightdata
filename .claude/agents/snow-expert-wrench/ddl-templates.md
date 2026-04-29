@@ -38,10 +38,10 @@ CREATE OR REPLACE TABLE DEV_STG.VENTAS.VTA_PEDIDO (
     FECHA_PEDIDO    DATE                                       COMMENT 'Fecha de emisión del pedido',
     MONTO_TOTAL     NUMBER(18,4)                               COMMENT 'Monto total del pedido en moneda local',
     -- Auditoría estándar
-    CREATED_AT      TIMESTAMP_NTZ   DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Fecha y hora de creación del registro',
-    CREATED_USR     VARCHAR(100)                                 COMMENT 'Usuario que creó el registro',
-    UPDATED_AT      TIMESTAMP_NTZ                                COMMENT 'Fecha y hora de última modificación',
-    UPDATED_USR     VARCHAR(100)                                 COMMENT 'Usuario que modificó el registro',
+    CREATED_AT      TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
+    UPDATED_AT      TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de ultima actualizacion del registro',
+    CREATED_USR     VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que creo el registro',
+    UPDATED_USR     VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que realizo la ultima actualizacion del registro',
     -- Metadata ETL
     ETL_LOAD_TS     TIMESTAMP_NTZ   DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Timestamp de carga ETL',
     ETL_UPDATE_TS   TIMESTAMP_NTZ                                COMMENT 'Timestamp de última actualización ETL',

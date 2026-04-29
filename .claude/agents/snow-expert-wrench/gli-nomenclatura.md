@@ -169,10 +169,10 @@ FN_GET_DIAS_HABILES       -- Días hábiles entre fechas
 
 **Campos de auditoría estándar (obligatorios en TODAS las tablas):**
 ```sql
-CREATED_AT    TIMESTAMP_NTZ   DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Fecha y hora de creación del registro',
-CREATED_USR   VARCHAR(100)                                 COMMENT 'Usuario que creó el registro',
-UPDATED_AT    TIMESTAMP_NTZ                                COMMENT 'Fecha y hora de última modificación',
-UPDATED_USR   VARCHAR(100)                                 COMMENT 'Usuario que modificó el registro por última vez'
+CREATED_AT    TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
+UPDATED_AT    TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de ultima actualizacion del registro',
+CREATED_USR   VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que creo el registro',
+UPDATED_USR   VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que realizo la ultima actualizacion del registro'
 ```
 
 **Metadata ETL (adicional en LND/STG):**
