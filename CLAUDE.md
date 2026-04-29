@@ -93,6 +93,7 @@ Si el spec no menciona el caso → el spec está incompleto → actualizar prime
 | `analyst` | Crear o actualizar specs. Punto de entrada para features nuevas, cambios de comportamiento, o cuando hay que documentar antes de implementar. |
 | `analista-de-scrapers` | Todo cambio en `bd_scrapers/<name>/sc_browser/` y `sc_code/`: interaction code, parser code, selectores, paginación, entrega de datos. JS runtime de BrightData Scraper Studio, no Python. |
 | `middleware-python` | Todo cambio en `gli_scrapers/<name>/`: cliente Python stateless (httpx + pydantic v2) que envuelve un scraper de BrightData y expone `trigger` / `get_result` / `TOOL_SCHEMA`. Requiere handoff en `docs/fase3/<name>-handoff.md`. |
+| `snow-expert-wrench` | Todo lo relacionado con Snowflake: DDL, SPs, Dynamic Tables, Cortex AI, roles, warehouse sizing, nomenclatura GLI. Lee archivos de referencia desde `~/.claude/agents/snow-expert-wrench/`. |
 
 ---
 
