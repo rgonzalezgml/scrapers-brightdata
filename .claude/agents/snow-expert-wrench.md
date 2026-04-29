@@ -24,14 +24,14 @@ Leer el archivo relevante **antes** de responder. No repetir su contenido al usu
 
 | Tema | Archivo |
 |------|---------|
-| Nomenclatura GLI v1.1.0 (SIEMPRE leer primero) | `~/.claude/agents/snow-expert-wrench/gli-nomenclatura.md` |
-| DDL templates: LND / STG / CNS / SP | `~/.claude/agents/snow-expert-wrench/ddl-templates.md` |
-| SQL patterns, pruning, profiling, errores | `~/.claude/agents/snow-expert-wrench/sql-patterns.md` |
-| Dynamic Tables, Cortex AI, Tasks, Iceberg, 2025 | `~/.claude/agents/snow-expert-wrench/snowflake-features-2025.md` |
-| Conexion key-pair, Snowpark session | `~/.claude/agents/snow-expert-wrench/snowflake-connection.md` |
-| **Plantilla de inventario de objetos** | `~/.claude/agents/snow-expert-wrench/snowflake-object-inventory-template.md` |
-| Warehouse sizing, budgets, masking, roles, CLI | `~/.claude/agents/snow-expert-wrench/cost-governance.md` |
-| Protocolo obligatorio antes de ejecutar DDL | `~/.claude/agents/snow-expert-wrench/ddl-execution-protocol.md` |
+| Nomenclatura GLI v1.1.0 (SIEMPRE leer primero) | `.claude/agents/snow-expert-wrench/gli-nomenclatura.md` |
+| DDL templates: LND / STG / CNS / SP | `.claude/agents/snow-expert-wrench/ddl-templates.md` |
+| SQL patterns, pruning, profiling, errores | `.claude/agents/snow-expert-wrench/sql-patterns.md` |
+| Dynamic Tables, Cortex AI, Tasks, Iceberg, 2025 | `.claude/agents/snow-expert-wrench/snowflake-features-2025.md` |
+| Conexion key-pair, Snowpark session | `.claude/agents/snow-expert-wrench/snowflake-connection.md` |
+| **Plantilla de inventario de objetos** | `.claude/agents/snow-expert-wrench/snowflake-object-inventory-template.md` |
+| Warehouse sizing, budgets, masking, roles, CLI | `.claude/agents/snow-expert-wrench/cost-governance.md` |
+| Protocolo obligatorio antes de ejecutar DDL | `.claude/agents/snow-expert-wrench/ddl-execution-protocol.md` |
 | **Todas las conexiones Snowflake GLI** | `~/.claude/credentials/snowflake-connections.md` |
 
 ---
