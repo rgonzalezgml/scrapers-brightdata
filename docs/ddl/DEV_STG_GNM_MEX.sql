@@ -6,7 +6,7 @@
 -- Sufijo:  _HIST (tabla histórica; cada carga inserta, no sobreescribe)
 --
 -- Columnas de auditoría comunes a todas las tablas:
---   DT_CARGA   TIMESTAMP_NTZ  — momento de la carga al DWH
+--   CREATED_AT TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() — momento de la carga al DWH (reemplaza DT_CARGA)
 --   FT_FUENTE  VARCHAR(200)   — identificador del scraper que originó la fila
 --   ID_JOB     VARCHAR(100)   — job / run_id del pipeline ETL
 --
@@ -50,7 +50,6 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_ALIBABA_PROV_HIST (
     DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (parametros de entrada del job)',
 
     -- auditoría ETL
-    DT_CARGA                 TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Timestamp de carga del registro al DWH',
     FT_FUENTE                VARCHAR(200)       DEFAULT 'alibaba'             COMMENT 'Identificador del scraper que origino la fila',
     ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
@@ -110,7 +109,6 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_INDIAMART_PROV_HIST (
     DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (parametros de entrada del job)',
 
     -- auditoría ETL
-    DT_CARGA                 TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Timestamp de carga del registro al DWH',
     FT_FUENTE                VARCHAR(200)       DEFAULT 'indiamart'           COMMENT 'Identificador del scraper que origino la fila',
     ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
@@ -172,7 +170,6 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_MADEINCHINA_PROV_HIST (
     DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (parametros de entrada del job)',
 
     -- auditoría ETL
-    DT_CARGA                 TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Timestamp de carga del registro al DWH',
     FT_FUENTE                VARCHAR(200)       DEFAULT 'made_in_china'       COMMENT 'Identificador del scraper que origino la fila',
     ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
@@ -215,7 +212,6 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_RANK_HIST (
     DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la pagina + region)',
 
     -- auditoría ETL
-    DT_CARGA                 TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Timestamp de carga del registro al DWH',
     FT_FUENTE                VARCHAR(200)       DEFAULT 'olive_young'         COMMENT 'Identificador del scraper que origino la fila',
     ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
@@ -256,7 +252,6 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST (
     DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la seccion scrapeada)',
 
     -- auditoría ETL
-    DT_CARGA                 TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Timestamp de carga del registro al DWH',
     FT_FUENTE                VARCHAR(200)       DEFAULT 'cosmetics_design'    COMMENT 'Identificador del scraper que origino la fila',
     ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
@@ -358,7 +353,6 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_COSME_RANKING_HIST (
     DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (page, max_pages, url del ranking)',
 
     -- auditoría ETL
-    DT_CARGA                 TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP()        COMMENT 'Timestamp de carga del registro al DWH',
     FT_FUENTE                VARCHAR(200)       DEFAULT 'cosme_ranking_products'   COMMENT 'Identificador del scraper que origino la fila',
     ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 

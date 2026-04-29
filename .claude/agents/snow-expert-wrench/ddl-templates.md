@@ -96,6 +96,32 @@ COMMENT = 'Tabla de auditoría ETL. Registra todas las ejecuciones de SPs y pipe
 
 ---
 
+## Tabla SRC_*_HIST (Scrapers BrightData → STG)
+
+Convención para tablas de datos crudos provenientes de scrapers. `CREATED_AT` reemplaza a `DT_CARGA`.
+
+```sql
+CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_<SCRAPER>_HIST (
+    -- columnas de negocio del scraper
+    URL_PRODUCTO    VARCHAR(16777216)  COMMENT '...',
+    -- ...
+
+    -- auditoría ETL (scraper)
+    FT_FUENTE       VARCHAR(200)       DEFAULT '<nombre_scraper>'  COMMENT 'Identificador del scraper que origino la fila',
+    ID_JOB          VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
+    DS_INPUT        VARIANT            COMMENT 'Seed JSON enviado al scraper (parametros de entrada del job)',
+
+    -- auditoría GLI (CREATED_AT reemplaza DT_CARGA)
+    CREATED_AT      TIMESTAMP_NTZ(9)  DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Fecha y hora de creacion del registro (timestamp de carga al DWH)',
+    UPDATED_AT      TIMESTAMP_NTZ(9)  DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Fecha y hora de ultima actualizacion del registro',
+    CREATED_USR     VARCHAR(100)      DEFAULT CURRENT_USER()       COMMENT 'Usuario que creo el registro',
+    UPDATED_USR     VARCHAR(100)      DEFAULT CURRENT_USER()       COMMENT 'Usuario que realizo la ultima actualizacion del registro'
+)
+COMMENT = 'Tabla historica SRC_<SCRAPER>. Fuente: scraper BrightData <nombre>. Granularidad: 1 fila = 1 <entidad>. Append-only.';
+```
+
+---
+
 ## Vista CNS
 
 ```sql
