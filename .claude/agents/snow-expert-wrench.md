@@ -8,6 +8,7 @@ memory: project
 maxTurns: 25
 effort: high
 skills:
+  - gli-snowflake-connect
   - systematic-debugging
   - api-design-principles
 ---
