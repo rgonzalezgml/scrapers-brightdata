@@ -47,11 +47,12 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_ALIBABA_PROV_HIST (
 
     -- metadatos de la petición
     NU_STATUS_CODE           NUMBER(5,0)        COMMENT 'Codigo HTTP de respuesta del scraper',
-    DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (parametros de entrada del job)',
+    -- DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (parametros de entrada del job)',
 
     -- auditoría ETL
+    -- DT_CARGA  TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP()  -- renombrado a CREATED_AT (auditoría GLI)
     FT_FUENTE                VARCHAR(200)       DEFAULT 'alibaba'             COMMENT 'Identificador del scraper que origino la fila',
-    ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
+    -- ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
     -- auditoría GLI
     CREATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
@@ -106,11 +107,12 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_INDIAMART_PROV_HIST (
     TX_SITIO                 VARCHAR(50)        DEFAULT 'indiamart'  COMMENT 'Identificador del sitio fuente del scraper',
     DS_FLAGS                 VARIANT            COMMENT 'Flags internos del scraper (array)',
     DT_SCRAPING              DATE               COMMENT 'Fecha en que se realizo el scraping del producto',
-    DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (parametros de entrada del job)',
+    -- DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (parametros de entrada del job)',
 
     -- auditoría ETL
+    -- DT_CARGA  TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP()  -- renombrado a CREATED_AT (auditoría GLI)
     FT_FUENTE                VARCHAR(200)       DEFAULT 'indiamart'           COMMENT 'Identificador del scraper que origino la fila',
-    ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
+    -- ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
     -- auditoría GLI
     CREATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
@@ -167,11 +169,12 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_MADEINCHINA_PROV_HIST (
     TX_SITIO                 VARCHAR(50)        DEFAULT 'made-in-china'  COMMENT 'Identificador del sitio fuente del scraper',
     DS_FLAGS                 VARIANT            COMMENT 'Flags internos del scraper (array)',
     DT_SCRAPING              DATE               COMMENT 'Fecha en que se realizo el scraping del producto',
-    DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (parametros de entrada del job)',
+    -- DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (parametros de entrada del job)',
 
     -- auditoría ETL
+    -- DT_CARGA  TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP()  -- renombrado a CREATED_AT (auditoría GLI)
     FT_FUENTE                VARCHAR(200)       DEFAULT 'made_in_china'       COMMENT 'Identificador del scraper que origino la fila',
-    ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
+    -- ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
     -- auditoría GLI
     CREATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
@@ -209,11 +212,12 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_RANK_HIST (
     URL_IMAGEN               VARCHAR(16777216)  COMMENT 'URL de la imagen principal del producto',
 
     -- metadatos del scraper
-    DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la pagina + region)',
+    -- DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la pagina + region)',
 
     -- auditoría ETL
+    -- DT_CARGA  TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP()  -- renombrado a CREATED_AT (auditoría GLI)
     FT_FUENTE                VARCHAR(200)       DEFAULT 'olive_young'         COMMENT 'Identificador del scraper que origino la fila',
-    ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
+    -- ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
     -- auditoría GLI
     CREATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
@@ -249,11 +253,12 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST (
     DS_TEMAS                 VARIANT            COMMENT 'Temas y etiquetas editoriales del articulo como array de strings (related_topics)',
 
     -- metadatos del scraper
-    DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la seccion scrapeada)',
+    -- DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la seccion scrapeada)',
 
     -- auditoría ETL
+    -- DT_CARGA  TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP()  -- renombrado a CREATED_AT (auditoría GLI)
     FT_FUENTE                VARCHAR(200)       DEFAULT 'cosmetics_design'    COMMENT 'Identificador del scraper que origino la fila',
-    ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
+    -- ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
     -- auditoría GLI
     CREATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
@@ -350,11 +355,12 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_COSME_RANKING_HIST (
     TX_SOURCE                VARCHAR(100)       COMMENT 'Identificador de la fuente dentro del sitio (e.g. "cosme.net/ranking/products") (source)',
     TX_PAIS                  VARCHAR(10)        COMMENT 'Codigo de pais ISO-2 del sitio scrapeado (e.g. "JP") (country)',
     TX_RANKING_POR           VARCHAR(20)        COMMENT 'Criterio de agrupacion del ranking (e.g. "product") (ranking_by)',
-    DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (page, max_pages, url del ranking)',
+    -- DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (page, max_pages, url del ranking)',
 
     -- auditoría ETL
+    -- DT_CARGA  TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP()  -- renombrado a CREATED_AT (auditoría GLI)
     FT_FUENTE                VARCHAR(200)       DEFAULT 'cosme_ranking_products'   COMMENT 'Identificador del scraper que origino la fila',
-    ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
+    -- ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
     -- auditoría GLI
     CREATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
