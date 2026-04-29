@@ -81,6 +81,7 @@ GNM_CT_CHI        -- Catálogos exclusivos de Chile
 | `CTE`   | Clientes |
 | `PROV`  | Proveedores |
 | `MKT`   | Marketing |
+| `SRC`   | Fuentes externas / scrapers (datos crudos de origen) |
 
 **Sufijos de tipo:**
 ```
