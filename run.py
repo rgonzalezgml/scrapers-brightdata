@@ -3,7 +3,7 @@
 Uso:
     python run.py all
     python run.py alibaba
-    python run.py alibaba indiamart cosme
+    python run.py alibaba indiamart cosme_ranking
 """
 
 import asyncio
@@ -33,7 +33,7 @@ RUNNERS = {
     "made_in_china":     "gli_scrapers.made_in_china.runner",
     "olive_young":       "gli_scrapers.olive_young.runner",
     "cosmetics_design":  "gli_scrapers.cosmetics_design.runner",
-    "cosme":             "gli_scrapers.cosme.runner",
+    "cosme_ranking":     "gli_scrapers.cosme_ranking_products.runner",
 }
 
 

@@ -1,5 +1,5 @@
-# cosme.net — spec
-https://www.cosme.net/
+# cosme — spec
+https://www.cosme.net/ranking/products
 Proveedor: istyle Inc.
 Categoría: I+D
 Función: Tendencias de belleza Japón, rankings de productos
@@ -7,65 +7,181 @@ Función: Tendencias de belleza Japón, rankings de productos
 ## databrightdata
 
 ### 1.
-Scraper @cosme.net (I+D cosmético). Tendencias y rankings Japón. Entidades: `product`, `ranking`, `brand`. Señales: awards bestcosme (grand/hall/rookie + 24 cat.), rating 0-7, review_count, categorías, effects, ingredients, launch_date, regulation_class (quasi_drug/cosmetic). NO precios/disponibilidad/reviews.
+Scraper @cosme.net (I+D). Rankings semanales de belleza JP. Entidades: ranking_entry (listing + detail, 2 stages). Señales: rank, rank_change, rating, review_count, price_text/yen, release_date, description, ingredients. NO brands standalone, reviews individuales.
 
 ### 2.
 ```json
-{"product":["product_id","url","name_raw","brand_id","category_ids","effect_ids","ingredient_tag_ids","rating_avg","review_count","launch_date","regulation_class","variants"],"ranking":["source_type","year","group","category_slug","rank","product_id"],"brand":["brand_id","name","url","total_products","total_reviews"]}
+{"ranking_entry":["rank","rank_change","product_id","product_name","product_img","brand_name","brand_id","brand_url","category","category_url","rating","review_count","price_text","price_yen","size","is_open_price","tax_included","release_date","is_best_cosme","is_new","description","all_images","ingredients","shop_url","period_start","period_end","total_products","scraped_at"]}
 ```
+`product_url` ausente (bug, ver §4).
 
 ### 3.
-- `/products/{id}/`
-- `/brands/{id}/?nt=1` (nt=1 obligatorio; sin él redirige a tieup PR)
-- `/bestcosme/archive/{year}/{grand|hall|rookie}/`
-- `/bestcosme/archive/{year}/category/{slug}/` (24+ slugs)
-- `/categories/item/{id}/ranking`
-- `/maker/maker_id/{id}`, `/variations/{id}/`
+- /ranking/products + /page/{N} (N=1..9, 10/page, 100 total)
+- /ranking/products/week/{W} (W=2 pasada, W=3 hace 2)
+- /categories/item/{id}/ranking/?page={N}
+- /categories/effect|skin|age|ingredient|pchannel/{id}/ranking/
+- robots.txt: Disallow /api/ /categories/api/
 
 ## genomma lab
 
 ### 1.
-Scraper de @cosme.net para investigacion y desarrollo (I+D) cosmetico. Objetivo unico: detectar tendencias de belleza en Japon y rankings de productos. NO es un scraper de precios: ignoramos pricing, disponibilidad en tienda, ingredientes en texto libre y reviews individuales. Buscamos senales de tendencia agregadas: que productos ganan awards (bestcosme grand, hall, rookie y sus 24+ categorias anuales), popularidad (rating promedio en escala 0-7 y conteo de reviews), clasificacion del producto (marca, categorias, effect ids, ingredient tag ids como proxy de activos y claims), cuando fue lanzado (launch date y launch year para distinguir novedad vs clasico) y clase regulatoria japonesa (quasi_drug o cosmetic, senal relevante para formulacion). Output: JSON estructurado por entidades. Fuente autoritaria de propiedades tecnicas: BrightData Scraping Browser con salida JP residencial, decodificacion Shift_JIS forzada. Los detalles de cada area vienen en los puntos siguientes.
+Propósito: capturar el ranking semanal de productos de belleza de @cosme.net para detectar tendencias del mercado japonés en tiempo real. @cosme es el mayor portal de reviews de cosmética en Japón (~20M usuarios). El ranking se actualiza semanalmente (periodo visible en la página: `集計期間：YYYY/M/D〜YYYY/M/D`). Señales clave: posición en el ranking (rank), variación semanal (rank_movement), popularidad por reviews (rating 0–7, review_count), precio de referencia, fecha de lanzamiento, categoría del producto, y presencia de badge bestcosme. El scraper recolecta el ranking general y puede recolectar rankings filtrados por categoría de item, efecto, tipo de piel, edad, ingrediente y canal de compra. Output para GeommaAI: inteligencia de mercado de belleza JP, alertas de producto trending, análisis de tendencias semanales.
 
 ### 2.
-Infraestructura, decoding y bloqueo. BrightData Scraping Browser con JS render y sesion residencial JP. Delay 1-2 segundos entre requests. Precondicion de decoding antes de extraer: pedir el body como buffer crudo, decodificar como UTF-8 y validar que contenga al menos un caracter en rango hiragana katakana o kanji Y cero U+FFFD; si falla re-decodificar como Shift_JIS con iconv-lite y emitir flag shift_jis_fallback. Rutas mas bloqueadas: /products/{id}/, /categories/item/{id}/ranking, /brands/{id}/product/. Firma de bloqueo: body menor a 10 KB Y contiene el string literal ご利用の環境からはアクセスできません. Ante bloqueo reintentar hasta 3 veces con nueva session id. Si al tercer intento sigue bloqueado emitir la fila con blocked=true y flag blocked_retried. Nunca continuar con pagina sospechosa de bloqueo aunque el status sea 200.
+Infraestructura. La URL canónica devuelve HTML con `charset=Shift_JIS`. Curl con `--compressed` devuelve el cuerpo; decodificar con `iconv-lite` como `shift_jis`. En BrightData Scraping Browser: `request(url, {encoding: null})` + `iconv.decode(buffer, 'shift_jis')`. Firma de bloqueo: body < 10 KB o contiene `アクセスできません`. Ante bloqueo: reintentar hasta 3 veces con nueva sesión. Proxy: residencial JP. No hay Cloudflare ni consent wall documentado. ClaudeBot no listado en robots.txt. robots.txt Disallow relevante: `/api/`, `/categories/api/`; no hay Crawl-Delay para bots genéricos. Encoding doble: el MCP/markdown puede mostrar el texto correctamente, pero el DOM real está en Shift_JIS — validar que el body contiene al menos un carácter hiragana/katakana/kanji y cero U+FFFD antes de parsear.
 
 ### 3.
-Entidad product fuente /products/{id}/. Campos presentes null si faltan: product_id entero PK, product_url, product_name_raw, product_name_clean, brand_id, brand_name, category_primary_id ultimo id de la primera chain, category_ids flat dedup, category_names paralela, category_chains lista de chains cada una lista de objetos id name, effect_ids, effect_names, ingredient_tag_ids, rating_avg 0-7, review_count, review_count_photo, launch_date YYYY-MM-DD, launch_year, regulation_class quasi_drug cosmetic medical_device other o null, official_name, is_official bool o null, maker_id entero desde /maker/maker_id/{id}, maker_name, price_text bruto de la fila 容量・税込価格 (validado en HTML Shift-JIS; la conversion a markdown del MCP lo muestra como 希望小売価格 pero el DOM real usa 税込価格; parser prueba ambos), variants objetos volume_raw volume_value volume_unit price_jpy price_tax_included sku_note derivados de price_text, variations objetos variation_id label desde a href=/variations/{id}/, rankings ranking_name position year scope annual H1 H2, scraped_date, scraper_flags.
+URLs canónicas.
+
+Ranking general (todas las categorías):
+```
+https://www.cosme.net/ranking/products              ← semana actual
+https://www.cosme.net/ranking/products/page/{N}     ← N=1..9 (página 2..10)
+https://www.cosme.net/ranking/products/week/2       ← semana pasada
+https://www.cosme.net/ranking/products/week/3       ← hace 2 semanas
+```
+
+Rankings filtrados (misma estructura de paginación con `?page={N}`):
+```
+https://www.cosme.net/categories/item/{item_id}/ranking/
+https://www.cosme.net/categories/effect/{effect_id}/ranking/
+https://www.cosme.net/categories/skin/{skin_id}/ranking/
+https://www.cosme.net/categories/age/{age_id}/ranking/
+https://www.cosme.net/categories/ingredient/{ingredient_id}/ranking/
+https://www.cosme.net/categories/pchannel/{channel_id}/ranking/
+```
+
+Seeds de referencia:
+- `https://www.cosme.net/ranking/products` — ranking general esta semana
+- `https://www.cosme.net/categories/item/800/ranking/` — skincare (item_id=800)
+- `https://www.cosme.net/categories/item/802/ranking/` — makeup (item_id=802)
 
 ### 4.
-Entidad ranking. Dos fuentes: bestcosme archive en /bestcosme/archive/{year}/{group}/ con group en grand, hall, rookie, y bestcosme por categoria en /bestcosme/archive/{year}/category/{slug}/ con al menos 24 slugs conocidos como serum, toner, lotion, lipstick, sunscreen, face-cream, face-mask, face-wash, cleansing, exfoliating, sheet-mask, booster-serum, liquid-foundation, powder-foundation, cushion-foundation, cream-foundation, bb-cc-cream, makeup-base, concealer, highlighter, shading, lip-care, eye-care, eyelash-serum, shampoo-treatment. Segunda fuente: /categories/item/{id}/ranking para rankings por categoria interna. Campos por fila: source_type con valores bestcosme o category_ranking, award_year, award_group, award_category_slug, category_id, rank, product_id, product_url, product_name_raw, product_name_clean, brand_name_raw, ai_highlights lista de strings, scraped_date. Una fila por combinacion year, group, category_slug, rank.
+Entidad principal: `ranking_entry`. Una fila por producto por ranking (combinación de page URL + rank position). El output final combina datos del listing (Stage 1) y datos de la página de detalle del producto (Stage 2).
+
+Campos Stage 1 (listing):
+
+- `rank` (int): posición en el ranking. Ranks 1–3: leer `dl.top3 dt span.rank-num img[alt]` → strip no-dígitos, cast int. Ranks 4+: `dl dt span.rank-num span.num` → texto, cast int. Fallback: posición por índice en página (`page * 10 + i + 1`).
+- `rank_change` (string): variación respecto a la semana anterior. Valores: `"up"`, `"down"`, `"hot"` (subió 10+ posiciones), `"new"` (entrada nueva), `"same"` (sin cambio). Derivado del atributo `src` del `img` en `dt span.status img`.
+- `product_id` (string): regex `/products/(\d+)/` sobre `href` del `dd.summary span.item a`. Skip si vacío.
+- `product_name` (string): `dd.summary span.item a` → texto. (Spec anterior: `name`.)
+- `product_img` (string URL): `dd.pic img[src]` → URL del thumbnail del listing. Campo nuevo.
+- `product_url` (string URL): **AUSENTE en el output actual por bug de key mismatch.** Stage 1 emite la clave `url` (variable `prod_url`) en el objeto de input para Stage 2, pero `parser_code_v1.js` la lee como `input.prod_url` → resulta `undefined` → campo no emitido en el JSON final. Fix pendiente: renombrar `url` → `prod_url` en Stage 1, o `input.prod_url` → `input.url` en Stage 2.
+- `brand_name` (string): `dd.summary span.brand a:first-child` → texto. Nota: algunos `span.brand` tienen segundo `<a class="icon-cmn-tieup">` — ignorarlo.
+- `brand_id` (string): regex `/brands/(\d+)/` sobre href del `span.brand a:first-child`.
+- `brand_url` (string URL): href absoluto del `span.brand a:first-child`. Campo nuevo.
+- `category` (string): `dd.summary .category a` → texto. (Spec anterior: `category_name`.)
+- `category_url` (string URL): href absoluto del `dd.summary .category a`. (Spec anterior: `category_id` int; ahora es URL string.)
+- `rating` (float): clase CSS `p.rating` → regex `arg-(\d+)(?:_(\d+))?`. Ej: `arg-5_5` → 5.5, `arg-6` → 6. Rango 0–7. Fuera de rango → null + flag `rating_invalid`.
+- `review_count` (int): `p.votes a.count` → strip no-dígitos, cast int.
+- `price_text` (string): `p.price` → texto completo, ej. `"税込価格：924円"` o `"30mL・9,900円"`. (Spec anterior: `price_raw`.)
+- `price_yen` (float | null): precio numérico extraído de `price_text` — regex `([\d,]+)\s*円`, strip comas, cast int. Null si no aplica.
+- `size` (string): volumen/cantidad extraído de `price_text` — regex `([\d,.]+\s*(?:mL|ml|g|kg|個入り|枚|本))`. Cadena vacía si no aplica.
+- `is_open_price` (bool): true si `price_text` contiene `オープン価格` o `open` (case-insensitive).
+- `tax_included` (bool): true si `price_text` contiene `税込`.
+- `release_date` (string): `p.onsale` → texto completo incluyendo label, ej. `"発売日：2017/2/8"`. Emitido como texto raw — sin normalizar a ISO. (Spec anterior: `launch_date`; spec anterior proponía normalización YYYY-MM-DD, no implementada.)
+- `is_best_cosme` (bool): presencia de `span.icon-cmn-bestcosme`. (Spec anterior: `is_bestcosme`.)
+- `is_new` (bool): presencia de `span.icon-cmn-new`. Campo nuevo.
+- `shop_url` (string URL): `a.btn-cmn-buy[href]` del listing. Emitido como input para Stage 2 y re-emitido en el output final.
+- `period_start` (string `"YYYY/M/D"`): primer componente del período `集計期間：{date1}〜{date2}` extraído de `#nav-rank-header p`. Formato source preservado, sin normalizar a ISO. (Spec anterior: `week_start` YYYY-MM-DD normalizado.)
+- `period_end` (string `"YYYY/M/D"`): segundo componente del período. (Spec anterior: `week_end`.)
+- `total_products` (int): total de productos en el ranking extraído del paginador (`(\d+)件中`). Típicamente 100 para el ranking general. Campo nuevo.
+- `input` (object): snapshot de los parámetros de entrada del run (`page`, `max_pages`, `url`). Metadato de debug — presente en el JSON del run real.
+
+Campos Stage 2 (detalle del producto — scrape de `/products/{product_id}/`):
+
+- `description` (string): texto de la descripción del producto. Selector: `[class*="description"], .product-detail-text, .product-info` → primer match → `text_sane()`.
+- `all_images` (array de strings URL): todas las URLs de imágenes `img[src*="media/product"], img[src*="skuimg"]` encontradas en la página de detalle, deduplicadas.
+- `ingredients` (string): texto de ingredientes. Selector: `[class*="ingredient"], .product-ingredient` → primer match → `text_sane()`.
+
+Campos de metadato:
+
+- `scraped_at` (string ISO 8601): timestamp de ejecución de Stage 2, `new Date().toISOString()`. (Spec anterior: `scraped_date` YYYY-MM-DD.)
+
+Campos del spec anterior NO implementados:
+- `filter_type`, `filter_id` — no implementados. Pendiente para cuando se soporten rankings filtrados por categoría.
+- `scraper_flags` — no implementado.
 
 ### 5.
-Entidad brand. Fuente canonica /brands/{id}/?nt=1. IMPORTANTE: la ruta desnuda /brands/{id}/ sin el parametro nt=1 redirige a un tieup PR advertorial; nunca usar esa forma. Para paginacion de productos de marca usar /brands/{id}/product/. Campos: brand_id entero, brand_name, brand_url normalizada a la forma /brands/{id}/?nt=1, brand_total_products entero leido de la pestana 商品 (N), brand_total_reviews entero leido de la pestana クチコミ (N), brand_official_site url, brand_country string aunque suele estar ausente, scraped_date. No extraer logos ni descripciones libres de marca. Solo marcas que aporten al menos 20 productos entre los rankings de la corrida seran visitadas para listado completo de productos; el resto aparece solo por referencia desde product.
+Paginación.
+
+**Ranking general**: página 1 en `/ranking/products`, páginas 2–10 en `/ranking/products/page/{N}` con N=1..9. Total 100 productos (10 por página). Detectar última página: último `li:not(.next) a` en `div.cmn-modules-paging ul`.
+
+**Rankings filtrados**: página 1 en `/categories/{type}/{id}/ranking/`, páginas siguientes en `?page={N}`. Mismo paginador DOM.
+
+**Semanas anteriores**: sufijo `/week/2` (semana pasada) o `/week/3` (hace 2 semanas) en la URL base, antes de `/page/{N}` si aplica. Para filtrados: `/categories/item/{id}/ranking/week2/` y `/week3/`.
+
+Límite por corrida: máximo 10 páginas por ranking URL (100 productos). Hard cap total: 5000 filas o 60 minutos.
 
 ### 6.
-Reglas de parsing. Product name raw: cascada de 5 fuentes en orden, primera no vacia gana. F1 breadcrumb (#header-sub o nav.breadcrumb), ultimo nodo de texto distinto de アットコスメ y no link a /brands/. F2 header anchor a href=/products/{product_id}/ match estricto del path, filtrar navegacion 商品情報 口コミ ブログ 写真 動画. F3 title split por ／ o /, primer segmento brand, resto name con strip de sufijo (の公式商品情報, の口コミ一覧, の口コミ写真・動画一覧, のブログ記事, の写真一覧, o cualquier の.*). F4 meta og:title mismo split. F5 img[alt] del carrusel, split por /, primer segmento con strip de variation suffix (2-3 digitos o unidades ml g 個 本 枚 trailing). Si las 5 fallan product_name_raw=null y flag name_extract_failed. Rating 0-7 un decimal, fuera de rango null + rating_invalid. Review count regex (\d+(?:,\d+)*)件 a int sin comas.
+Skip rules. No emitir fila cuando:
+- No se puede extraer `product_id` (fila totalmente inválida).
+- Página bloqueada tras 3 retries.
+- HTTP 404.
+- El `<dl>` no contiene `dd.summary` (nodo incompleto).
 
 ### 7.
-Mas reglas de parsing. Launch date acepta YYYY/MM/DD, YYYY-MM-DD, YYYY年MM月DD日; solo YYYY年MM月 asumir dia 01 y flag launch_day_missing; solo YYYY年 dejar launch_date null y completar launch_year; fecha futura nulificar y flag launch_date_future. IDs dobles: aceptar /products/{id}/ y legacy /products/detail.php?product_id={id}; brand acepta /brands/{id}/ y /brand/brand_id/{id}/top. Name clean sobre raw: colapsar whitespace, quitar sufijos 【限定】 【数量限定】 【新発売】 【NEW】 【リニューアル】 y hashtags, si hay separador ／ o | quedarse con texto antes, preservar kanji katakana hiragana, max 100 chars, si queda vacio usar raw y flag name_clean_fallback. Limites por corrida: bestcosme grand/hall/rookie 1 pagina cada uno, categoria 24+ slugs x 1 pagina, category ranking max 5 x 30 cats, product detail max 3000 unicos con dedupe, brand listing max 10 paginas con >=20 productos, cache 24h por product_id, hard cap 10000 requests o 120 minutos.
+Flags permitidos en `scraper_flags[]`:
+- `rating_invalid` — rating fuera de rango 0–7.
+- `launch_day_missing` — fecha de lanzamiento solo YYYY/M, asumido día 01.
+- `launch_date_future` — fecha de lanzamiento futura, nullificada.
+- `blocked_retried` — página bloqueada, reintentada 3 veces.
+- `shift_jis_fallback` — body re-decodificado como Shift_JIS.
+- `rank_movement_unknown` — img de status presente pero title no reconocido.
+- `name_missing` — `span.item a` vacío o ausente.
+
+No inventar flags fuera de esta lista.
 
 ### 8.
-Output y reglas finales. Emitir tres arrays JSON y un summary: cosme_products_{YYYYMMDD}.json, cosme_rankings_{YYYYMMDD}.json, cosme_brands_{YYYYMMDD}.json, cosme_run_{YYYYMMDD}.json. El run summary contiene started_at, ended_at, requests, blocked, retried, errors, emitted_by_entity, skipped_by_reason. Todo en UTF-8, fechas ISO 8601, numeros como numeros, claves siempre presentes con null explicito; listas que no aplican van como [] nunca null. SKIP cuando: no se pueda extraer product_id, pagina siga bloqueada tras 3 retries, 404, o fila totalmente null. Flags permitidos: rating_invalid, launch_date_future, launch_day_missing, blocked_retried, shift_jis_fallback, name_clean_fallback, name_extract_failed. No inventar campos fuera de los puntos 3, 4, 5. Fixture de regresion obligatorio: product_id 10248076 debe devolver product_name_raw ルース パウダー y brand_name コスメデコルテ.
+Output y naming.
+
+Archivo de salida: `cosme_ranking_{YYYYMMDD}.json` — array de `ranking_entry` objects. El run real de referencia es `bd_scrapers/cosme-ranking-products/results/j_moi6iped88egk7mwf.json` (100 filas, periodo 2026/4/16–2026/4/22, ejecutado 2026-04-28).
+
+Reglas: UTF-8, `scraped_at` como ISO 8601 timestamp, `period_start`/`period_end` como string `"YYYY/M/D"` (no ISO), `product_id` como string, `brand_id` como string, números numéricos, `all_images` como array nunca null.
+
+Scope de corrida estándar: ranking general esta semana (10 páginas, 100 productos). Scope ampliado opcional: ranking general + 3 semanas (esta + 2 anteriores) = hasta 300 filas.
 
 ### 9.
-URLs de ejemplo con IDs reales para fixtures antes del crawl completo.
+Fixtures de regresión.
 
-Product detail formato moderno id largo: https://www.cosme.net/products/10264676/ (SK-II Genoptics Infinite Aura Essence, Grand Prize 2025 rank 1).
-Product detail id corto 7 digitos legacy: https://www.cosme.net/products/2893546/ (SK-II Facial Treatment Essence).
+Semana 2026/4/16–2026/4/22 (run ejecutado 2026-04-28, archivo `j_moi6iped88egk7mwf.json`, 100 filas):
 
-Fixture obligatorio post v5 (decoding + name cascade): https://www.cosme.net/products/10248076/ (コスメデコルテ / ルース パウダー).
+| rank | product_id | product_name | brand_name | rating | review_count | rank_change |
+|------|-----------|-------------|-----------|--------|-------------|-------------|
+| 1 | 10147158 | クリーミータッチライナー | キャンメイク | 5.5 | 26102 | (confirmar) |
+| 2 | 10289905 | アプソリュ ザ UV クリーム | ランコム | 5.1 | 1419 | (confirmar) |
+| 3 | 10264676 | ジェノプティクス インフィニットオーラ エッセンス | SK-II | 5.8 | 6164 | (confirmar) |
+| 4 | 10268965 | プードルトランスパラントｎ Ｍ | クレ・ド・ポー ボーテ | 5.9 | 1391 | (confirmar) |
+| 7 | 10259468 | ジェニフィック アルティメ セラム | (confirmar) | (confirmar) | (confirmar) | hot |
+| 9 | 10124096 | スピーディーマスカラリムーバー | ヒロインメイク | 6 | 16183 | hot |
+| 11 | 10248076 | ルース パウダー | コスメデコルテ | 5.6 | 10297 | (confirmar) |
 
-Bestcosme awards anuales grand: https://www.cosme.net/bestcosme/archive/2025/grand/
-Bestcosme por categoria: https://www.cosme.net/bestcosme/archive/2025/category/serum/
-Category ranking interno: https://www.cosme.net/categories/item/800/ranking (id 800 = skincare).
+Campos validados del objeto rank=9 (product_id 10124096) extraído del JSON real:
+- `price_text`: `"税込価格：924円"`, `price_yen`: 924, `tax_included`: true, `is_open_price`: false
+- `release_date`: `"発売日：2017/2/8"` (texto raw)
+- `is_best_cosme`: true, `is_new`: false
+- `period_start`: `"2026/4/16"`, `period_end`: `"2026/4/22"`
+- `scraped_at`: `"2026-04-28T05:22:33.969Z"`
+- `total_products`: 100
+- `brand_url`: `"https://www.cosme.net/brands/11624/"`, `brand_id`: `"11624"`
+- `category`: `"ポイントメイクリムーバー"`, `category_url`: `"https://www.cosme.net/categories/item/1045/"`
+- `shop_url`: `"https://www.cosme.com/products/detail.php?product_id=302195"`
+- `all_images`: array de 29 URLs
+- `description` e `ingredients`: strings con texto japonés
 
-Brand page canonica con nt=1 obligatorio: https://www.cosme.net/brands/73/?nt=1 (SK-II brand_id=73). Listado paginado: https://www.cosme.net/brands/73/product/.
-
-Todos estos IDs confirmados por muestreo en exploracion previa.
+product_id 10248076 (rank 11) es el fixture de regresión heredado del scraper anterior.
 
 ### 10.
-Arquitectura 2-stage. Stage 1 sc_browser Chrome: DESCUBRIMIENTO en /bestcosme/archive/{year}/ y award/category, emite URL hija con next_stage. Stage 2 sc_code HTTP sin browser: FETCH via request(encoding:null) + Shift_JIS + parse. PROHIBIDO navigate() en Stage 2. R1: navigate() async interno, solo plano top-level; prohibido en sync (rebota async code is not allowed in sync functions). R4: parse() valida input contra schema y rechaza campos no declarados (rebota parse validation error: [0].<field> is not allowed); default parse() SIN args, derivar del DOM o location.href. Stage 1 parser deriva award_year con regex /bestcosme\/archive\/(\d+)\// sobre location.href, fallback new Date().getFullYear(). next_stage: {url, page_type in [grand,hall,rookie,category,product], award_year, award_group, award_category_slug o null} — sidecar NO pasa por parse(). award_year al integration viene de input; si falta o invalido fallback con warn award_year_defaulted o award_year_invalid.
+Notas de arquitectura. Este scraper usa **sc_code worker con 2 stages**:
+
+- **Stage 1** (`sc_browser/parser_code_v1.js` en lógica, pero el worker activo es `sc_code`): HTTP puro, scrape del listing `/ranking/products/page/{N}`. Parsea el DOM con cheerio/jQuery-like DSL. Emite un objeto por producto con todos los campos del listing más `meta_*` de período y paginación. La URL del producto se emite bajo la clave `url` (no `prod_url`).
+- **Stage 2** (`sc_code/interaction_code_v1.js` + `sc_code/parser_code_v1.js`): navega a la URL de cada producto (vía `input.url`), espera carga, extrae `description`, `all_images`, `ingredients`. Combina con los campos de Stage 1 (recibidos como `input.*`) y emite el objeto final.
+
+La página de ranking es HTML estático (Shift_JIS) — no requiere JS execution (no es SPA). BrightData sc_code con `request(url, {encoding: null})` + iconv es suficiente para Stage 1. Stage 2 puede requerir renderizado JS según la página de detalle de cada producto.
+
+El directorio `bd_scrapers/cosme-ranking-products/sc_browser/` contiene versiones paralelas de los mismos archivos (interaction_code_v1.js, parser_code_v1.js) pero el worker principal en producción es **sc_code**, no sc_browser. No usar sc_browser a menos que se detecte anti-bot que requiera JS en el listing.
+
+Comparar con scraper cosme_deprecated (sc_browser) que apuntaba a `/bestcosme/archive/{year}/` — ese target es distinto y no aplica aquí.
 
 ### 11.
-Resiliencia y rate limit. Stage 1 navigate() PLANO top-level una sola vez sin retry interno (R1). Si falla el worker termina sin parcial; orquestacion externa detecta, aplica backoff y reencola. No sleep/jitter antes de next_stage(): presion sobre Stage 2 se controla via concurrencia de plataforma. Recordatorio R4: parser_code Stage 1 NO recibe variables via parse({...}); canal seguro es derivar del DOM o location.href (ver punto 10 award_year). Stage 2 request() SI mantiene retry 3 intentos backoff 3s 8s 15s (HTTP puro, R1 no aplica): reintenta en excepciones, 429 y 5xx; no reintenta en 4xx distintos de 429. Tras 3 intentos collect minimal {product_id, product_url, scraper_flags:[rate_limit_blocked], fetch_error, fetch_attempts}. Flags agregados al punto 8: rate_limit_blocked, unexpected_page_type, award_year_defaulted, award_year_invalid. Eliminado v5.3: nav_failed_rate_limit. v5.4 sin nuevos flags (R4 fix es patron de invocacion).
+Nota sobre cosme_deprecated. El directorio `bd_scrapers/cosme_deprecated/` apuntaba a premios anuales bestcosme (`/bestcosme/archive/{year}/`) — rankings estáticos anuales, no semanales. Este spec cubre un target distinto: rankings semanales dinámicos en `/ranking/products`. Si en el futuro se necesita volver a scrapear los awards anuales, ese es un scraper separado con spec propia.

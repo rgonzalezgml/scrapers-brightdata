@@ -6,7 +6,13 @@ from .decryptor import decrypt_docx
 from .models import SustentoProclamasDoc
 from .parser import parse_document
 from .password import derive_password
-from .pdf_extractor import extract_informes, get_informe_page_counts
+from .formula_parser import parse_formula_pdf
+from .pdf_extractor import (
+    extract_informes,
+    extract_referencias_informes,
+    get_informe_page_counts,
+    get_referencia_page_counts,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -40,11 +46,30 @@ def process_file(
         for estudio, (fname, pages) in zip(result.estudios, extracted):
             estudio.informe = fname
             estudio.informe_paginas = pages
+
+        ref_numeros = [r.numero for r in result.referencias]
+        ref_extracted = extract_referencias_informes(buf, doc, ref_numeros, doc_output)
+        for ref, (fname, pages) in zip(result.referencias, ref_extracted):
+            ref.informe = fname
+            ref.informe_paginas = pages
+
+        # Parse formula from the reference whose description contains "fórmula"
+        for ref in result.referencias:
+            if ref.informe and "fórmula" in ref.descripcion.lower():
+                formula_path = doc_output / ref.informe
+                if formula_path.exists():
+                    result.formula = parse_formula_pdf(formula_path.read_bytes())
+                    logger.info("Fórmula parseada: %d ingredientes", len(result.formula))
+                break
+
         logger.info("PDFs extraídos en %s", doc_output)
     else:
         page_counts = get_informe_page_counts(buf, doc)
         for estudio, pages in zip(result.estudios, page_counts):
             estudio.informe_paginas = pages
+        ref_page_counts = get_referencia_page_counts(buf, doc)
+        for ref, pages in zip(result.referencias, ref_page_counts):
+            ref.informe_paginas = pages
 
     # Guardar JSON nombrado con el código de fórmula
     json_path = doc_output / f"{result.codigo_formula}.json"
@@ -92,6 +117,6 @@ def run(
 if __name__ == "__main__":
     import sys
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-    extract = "--extract-pdfs" in sys.argv
+    extract = "--no-extract" not in sys.argv
     docs = run(extract_pdfs=extract)
     print(json.dumps([d.model_dump() for d in docs], ensure_ascii=False, indent=2))

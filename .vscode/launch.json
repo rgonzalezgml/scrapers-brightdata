@@ -2,6 +2,21 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "run.py (scraper)",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "/usr/local/bin/python3",
+      "program": "${workspaceFolder}/run.py",
+      "args": [
+        "cosme_ranking"
+      ], // ['alibaba', 'indiamart', 'made_in_china', 'olive_young', 'cosmetics_design', 'cosme_ranking']
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    },
+    {
       "name": "Archivo actual",
       "type": "debugpy",
       "request": "launch",
@@ -10,28 +25,28 @@
       "console": "integratedTerminal",
       "cwd": "${fileDirname}" // <-- agrega esto
     },
-    {
-      "name": "API (Uvicorn)",
-      "type": "debugpy",
-      "request": "launch",
-      "python": "/usr/local/bin/python3",
-      "module": "uvicorn",
-      "args": [
-        "main:app",
-        "--reload",
-        "--log-level",
-        "debug",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8009"
-      ],
-      "cwd": "${workspaceFolder}/server",
-      "console": "integratedTerminal",
-      "env": {
-        "PYTHONPATH": "${workspaceFolder}/server"
-      }
-    },
+    // {
+    //   "name": "API (Uvicorn)",
+    //   "type": "debugpy",
+    //   "request": "launch",
+    //   "python": "/usr/local/bin/python3",
+    //   "module": "uvicorn",
+    //   "args": [
+    //     "main:app",
+    //     "--reload",
+    //     "--log-level",
+    //     "debug",
+    //     "--host",
+    //     "0.0.0.0",
+    //     "--port",
+    //     "8009"
+    //   ],
+    //   "cwd": "${workspaceFolder}/server",
+    //   "console": "integratedTerminal",
+    //   "env": {
+    //     "PYTHONPATH": "${workspaceFolder}/server"
+    //   }
+    // },
     // {
     //   "name": "Streamlit",
     //   "type": "debugpy",
@@ -52,21 +67,21 @@
     //   "cwd": "${workspaceFolder}",
     //   "console": "integratedTerminal"
     // },
-    {
-      "name": "Angular (pnpm start)",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "pnpm start",
-      "cwd": "${workspaceFolder}/client/web"
-    }
+    // {
+    //   "name": "Angular (pnpm start)",
+    //   "type": "node-terminal",
+    //   "request": "launch",
+    //   "command": "pnpm start",
+    //   "cwd": "${workspaceFolder}/client/web"
+    // }
   ],
   "compounds": [
-    {
-      "name": "API + Angular",
-      "configurations": [
-        "API (Uvicorn)",
-        "Angular (pnpm start)"
-      ]
-    }
+    // {
+    //   "name": "API + Angular",
+    //   "configurations": [
+    //     "API (Uvicorn)",
+    //     "Angular (pnpm start)"
+    //   ]
+    // }
   ]
 }

@@ -79,6 +79,14 @@ class Proclama(BaseModel):
 class Referencia(BaseModel):
     numero: str
     descripcion: str
+    informe: str | None           # nombre del PDF extraído (e.g. "ref_1.pdf")
+    informe_paginas: int | None   # número de páginas del PDF
+
+class FormulaIngrediente(BaseModel):
+    ingrediente: str              # nombre INCI del ingrediente
+    funcion: str | None           # función cosmética (Solvente, Surfactante, …)
+    porcentaje: float | None      # % (n/n)
+    es_base: bool | None          # columna BASE* presente solo en algunos docs (CAN)
 
 class SustentoProclamasDoc(BaseModel):
     archivo: str                  # nombre del .docx fuente
@@ -92,6 +100,7 @@ class SustentoProclamasDoc(BaseModel):
     estudios: list[Estudio]
     proclamas: list[Proclama]
     referencias: list[Referencia]
+    formula: list[FormulaIngrediente]  # extraído del PDF de la ref con "fórmula" en descripcion
 ```
 
 ---
@@ -105,6 +114,7 @@ local_scrapers/word_clinical/
 ├── password.py        # derivación de contraseña del nombre de archivo
 ├── decryptor.py       # msoffcrypto-tool: descifrar .docx → BytesIO
 ├── parser.py          # extracción XML de las 5 tablas → SustentoProclamasDoc
+├── formula_parser.py  # parse del PDF de fórmula (fitz tables) → list[FormulaIngrediente]
 ├── pdf_extractor.py   # extrae PDFs incrustados (OLE) y cuenta páginas
 ├── runner.py          # orquesta input/ → output/; guarda JSON + PDFs
 ├── preguntas_nancy.md # preguntas pendientes al stakeholder
@@ -135,10 +145,12 @@ Archivos con nombre `~$*` se ignoran (temps de Word).
 
 ## 6. Resultados con los 2 docs de muestra
 
-| Documento | Estudios | Proclamas | PDFs extraídos |
-|-----------|----------|-----------|----------------|
-| `008MB33B` Íntimo By Lomecan | 5 | 9 | 5 |
-| `058IH51B` Tío Nacho Shampoo | 9 | 14 | 9 |
+| Documento | Estudios | Proclamas | PDFs estudios | PDFs bibliografía |
+|-----------|----------|-----------|---------------|-------------------|
+| `008MB33B` Íntimo By Lomecan | 5 | 9 | 5 | 6 |
+| `058IH51B` Tío Nacho Shampoo | 9 | 14 | 9 | 10 |
+
+PDFs de bibliografía se guardan como `ref_{numero}.pdf` en la misma carpeta que los estudios.
 
 ---
 

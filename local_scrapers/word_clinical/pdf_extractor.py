@@ -57,23 +57,24 @@ def _pdf_page_count(pdf_bytes: bytes) -> int | None:
         return None
 
 
-def _informe_rids_from_doc(doc: Document) -> list[str | None]:
-    """
-    Returns one rId per data row in Tabla 2 (studies table).
-    None if a row has no embedded PDF.
-    """
-    t2 = doc.tables[2]
+def _ole_rids_from_table(doc: Document, table_idx: int, skip_header: bool = False) -> list[str | None]:
+    """Returns one rId per row in doc.tables[table_idx]. None if no OLE in that row."""
+    rows = doc.tables[table_idx].rows
+    if skip_header:
+        rows = rows[1:]
     rids = []
-    for row in t2.rows[1:]:  # skip header
+    for row in rows:
         rid = None
-        for child in list(row._tr):
-            local = child.tag.split("}")[-1]
-            if local == "tc":
-                for ole_el in child.findall(f".//{{{NS_O}}}OLEObject"):
-                    rid = ole_el.get(f"{{{NS_R2}}}id")
-                    break
+        for ole_el in row._tr.findall(f".//{{{NS_O}}}OLEObject"):
+            rid = ole_el.get(f"{{{NS_R2}}}id")
+            break
         rids.append(rid)
     return rids
+
+
+def _informe_rids_from_doc(doc: Document) -> list[str | None]:
+    """Returns one rId per data row in Tabla 2 (studies table)."""
+    return _ole_rids_from_table(doc, table_idx=2, skip_header=True)
 
 
 def extract_informes(
@@ -130,3 +131,53 @@ def get_informe_page_counts(
         pdf_bytes = _extract_pdf_bytes(zip_buf, rid_map[rid])
         counts.append(_pdf_page_count(pdf_bytes) if pdf_bytes else None)
     return counts
+
+
+def get_referencia_page_counts(
+    zip_buf: io.BytesIO,
+    doc: Document,
+) -> list[int | None]:
+    """Returns page count for each bibliography reference PDF (without saving to disk)."""
+    rid_map = _build_rid_map(zip_buf)
+    rids = _ole_rids_from_table(doc, table_idx=4, skip_header=False)
+    counts = []
+    for rid in rids:
+        if not rid or rid not in rid_map:
+            counts.append(None)
+            continue
+        pdf_bytes = _extract_pdf_bytes(zip_buf, rid_map[rid])
+        counts.append(_pdf_page_count(pdf_bytes) if pdf_bytes else None)
+    return counts
+
+
+def extract_referencias_informes(
+    zip_buf: io.BytesIO,
+    doc: Document,
+    refs_numeros: list[str],
+    output_dir: str | Path,
+) -> list[tuple[str | None, int | None]]:
+    """Extract one PDF per bibliography reference from Tabla 4 OLE objects.
+
+    Saves files as ref_{numero}.pdf in output_dir.
+    Returns list of (filename, page_count) per reference.
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    rid_map = _build_rid_map(zip_buf)
+    rids = _ole_rids_from_table(doc, table_idx=4, skip_header=False)
+
+    results: list[tuple[str | None, int | None]] = []
+    for rid, numero in zip(rids, refs_numeros):
+        if not rid or rid not in rid_map:
+            results.append((None, None))
+            continue
+        pdf_bytes = _extract_pdf_bytes(zip_buf, rid_map[rid])
+        if not pdf_bytes:
+            results.append((None, None))
+            continue
+        filename = f"ref_{_safe_filename(numero)}.pdf"
+        (output_dir / filename).write_bytes(pdf_bytes)
+        results.append((filename, _pdf_page_count(pdf_bytes)))
+
+    return results

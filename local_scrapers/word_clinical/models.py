@@ -1,6 +1,13 @@
 from pydantic import BaseModel
 
 
+class FormulaIngrediente(BaseModel):
+    ingrediente: str
+    funcion: str | None = None
+    porcentaje: float | None = None
+    es_base: bool | None = None  # columna BASE* presente solo en algunos docs
+
+
 class Estudio(BaseModel):
     codigo: str
     nombre: str
@@ -20,6 +27,8 @@ class Proclama(BaseModel):
 class Referencia(BaseModel):
     numero: str
     descripcion: str
+    informe: str | None = None
+    informe_paginas: int | None = None
 
 
 class SustentoProclamasDoc(BaseModel):
@@ -34,3 +43,4 @@ class SustentoProclamasDoc(BaseModel):
     estudios: list[Estudio] = []
     proclamas: list[Proclama] = []
     referencias: list[Referencia] = []
+    formula: list[FormulaIngrediente] = []

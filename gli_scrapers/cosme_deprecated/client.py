@@ -163,8 +163,10 @@ class CosmeClient(BaseScraperClient):
             "url": f"{archive_root_url(year)}grand/",
             "crawl_limit": int(public_inputs.max_categories),
         }
-        if public_inputs.category:
-            seed["category"] = public_inputs.category
+        # if public_inputs.category:
+        #     seed["category"] = public_inputs.category
+        seed["category"] = public_inputs.category or "skincare"
+
         return [seed]
 
     # ---- envelope construction --------------------------------------------

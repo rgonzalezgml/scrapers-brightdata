@@ -200,14 +200,14 @@ CREATE TABLE IF NOT EXISTS DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_RANK_HIST (
 
 
 -- ---------------------------------------------------------------------------
--- 5. MKT_COSMEDESIGN_ART_HIST
+-- 5. MKT_COSMETICDESIGN_ART_HIST
 --    Fuente: scrapers/cosmetics-design  (nutraingredients.com, artículos de
 --            beauty & wellness — I+D de tendencias e ingredientes activos)
 --    Granularidad: 1 fila = 1 artículo de la revista
 --    Nota: ~40% de artículos tienen paywalled=true (contenido completo bloqueado);
 --          article_content llegará vacío en esos casos.
 -- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS DEV_STG.GNM_MEX.SRC_COSMEDESIGN_ART_HIST (
+CREATE TABLE IF NOT EXISTS DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST (
     -- artículo
     TX_TITULO                TEXT,          -- article_title
     URL_ARTICULO             TEXT,          -- article_url
@@ -234,66 +234,104 @@ CREATE TABLE IF NOT EXISTS DEV_STG.GNM_MEX.SRC_COSMEDESIGN_ART_HIST (
 
 
 -- ---------------------------------------------------------------------------
--- 6. MKT_COSME_AWARD_HIST
---    Fuente: scrapers/cosme  (cosme.net, premios bestcosme anuales)
---    Granularidad: 1 fila = 1 producto ganador / nominado
---    Nota: el scraper emite 3 entity-types (product/ranking/brand);
---          esta tabla almacena sólo las filas entity="product".
---          Ver MKT_COSME_RANKING_HIST y MKT_COSME_BRAND_HIST si se requieren.
+-- 6. MKT_COSME_RANKING_HIST
+--    Fuente: scrapers/cosme-ranking-products  (cosme.net, ranking semanal)
+--    Granularidad: 1 fila = 1 producto en el ranking semanal
+--    Periodo: DT_PERIODO_INICIO + DT_PERIODO_FIN (集計期間 visible en la página)
+--    Detalle: incluye Stage 2 (descripción, ingredientes, imágenes del producto)
 -- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS DEV_STG.GNM_MEX.SRC_COSME_AWARD_HIST (
-    -- identificación
-    ID_PRODUCTO              TEXT,
-    URL_PRODUCTO             TEXT,
-    NM_PRODUCTO_RAW          TEXT,          -- product_name_raw (japonés)
-    NM_PRODUCTO_CLEAN        TEXT,          -- normalizado post-mojibake
+CREATE TABLE IF NOT EXISTS DEV_STG.GNM_MEX.SRC_COSME_RANKING_HIST (
+    -- ranking
+    NU_RANK                  NUMBER(3,0),
+    TX_RANK_CAMBIO           TEXT,          -- rank_change: "hot", "up", "down", "new", "same"
 
-    -- marca / fabricante
+    -- producto
+    ID_PRODUCTO              TEXT,
+    NM_PRODUCTO              TEXT,
+    NM_PRODUCTO_JP           TEXT,          -- product_name_jp (nombre original japonés)
+    URL_PRODUCTO             TEXT,          -- product_url (cosme.net/products/{id}/)
+    URL_IMG_PRINCIPAL        TEXT,          -- product_img (thumbnail del listing)
+
+    -- marca
     ID_MARCA                 TEXT,
     NM_MARCA                 TEXT,
-    ID_FABRICANTE            TEXT,
-    NM_FABRICANTE            TEXT,
+    NM_MARCA_JP              TEXT,          -- brand_name_jp
+    URL_MARCA                TEXT,
+    NM_FABRICANTE            TEXT,          -- manufacturer (メーカー)
+    URL_FABRICANTE           TEXT,          -- manufacturer_url
 
-    -- categorías
-    ID_CATEGORIA_PRIMARIA    TEXT,
-    DS_CATEGORIA_IDS         VARIANT,       -- array de IDs
-    DS_CATEGORIA_NOMBRES     VARIANT,       -- array de strings
-    DS_CATEGORIA_CADENAS     VARIANT,       -- array de arrays de objetos (breadcrumb)
+    -- categoría
+    NM_CATEGORIA             TEXT,          -- category (Stage 1, categoría del ranking)
+    URL_CATEGORIA            TEXT,
+    TX_CATEGORIA_FULL        TEXT,          -- category_full (jerarquía completa: "A > B > C")
+    DS_CATEGORIA_PATH        VARIANT,       -- category_path (array [{name, url}])
 
-    -- efectos / ingredientes
-    DS_EFECTO_IDS            VARIANT,
-    DS_EFECTO_NOMBRES        VARIANT,
-    DS_INGREDIENTE_IDS       VARIANT,
+    -- precio
+    TX_PRECIO_RAW            TEXT,          -- price_text (texto completo: volumen + precio)
+    NU_PRECIO_YEN            FLOAT,         -- precio numérico extraído
+    TX_TALLA                 TEXT,          -- size (volumen/tamaño, ej. "30mL")
+    FL_PRECIO_ABIERTO        BOOLEAN,       -- is_open_price
+    FL_INCLUYE_IVA           BOOLEAN,       -- tax_included
+
+    -- métricas de ranking y valoración
+    NU_RATING                FLOAT,         -- rating (Stage 1, 0.0–7.0)
+    NU_RATING_DETAIL         FLOAT,         -- rating_detail (Stage 2, p.average)
+    NU_PUNTOS                FLOAT,         -- points (p.point, ej. 59.1)
+    NU_RANK_CATEGORIA        NUMBER(5,0),   -- cat_rank (posición en su categoría)
+    NM_CATEGORIA_RANK        TEXT,          -- cat_rank_name (nombre de la categoría rankeada)
+    DS_RANKING_EN            VARIANT,       -- ranking_in (array de strings: "美容液ランキング 1位", …)
 
     -- métricas de comunidad
-    NU_RATING_AVG            FLOAT,
     NU_RESENAS               NUMBER(12,0),  -- review_count
-    NU_RESENAS_FOTO          NUMBER(12,0),  -- review_count_photo
+    NU_FOTOS                 NUMBER(12,0),  -- photo_count (fotos de usuarias)
+    NU_QA                    NUMBER(12,0),  -- qa_count (preguntas y respuestas)
+    NU_LIKES                 NUMBER(12,0),  -- likes
+    NU_HAVES                 NUMBER(12,0),  -- haves (usuarias que "tienen" el producto)
 
     -- lanzamiento
-    TX_FECHA_LANZAMIENTO     TEXT,          -- launch_date (formato variable)
-    NU_ANIO_LANZAMIENTO      NUMBER(4,0),
+    TX_FECHA_LANZAMIENTO     TEXT,          -- release_date (texto japonés: 発売日：YYYY/M/D)
 
-    -- rankings bestcosme embebidos en el producto
-    DS_RANKINGS              VARIANT,       -- array de objetos {year, group, rank…}
+    -- flags del producto
+    FL_BEST_COSME            BOOLEAN,       -- is_best_cosme (badge bestcosme)
+    FL_NUEVO                 BOOLEAN,       -- is_new (badge nuevo)
 
-    -- variaciones de producto
-    DS_VARIACIONES           VARIANT,
+    -- detalle del producto (Stage 2 — cosme.net/products/{id}/)
+    TX_DESCRIPCION           TEXT,          -- description (商品説明)
+    TX_MODO_USO              TEXT,          -- how_to_use (使い方)
+    TX_INGREDIENTES          TEXT,          -- ingredients (全成分)
+    TX_CLASIFICACION         TEXT,          -- classification (分類, ej. 医薬部外品)
+    TX_JAN_CODE              TEXT,          -- jan_code
+    URL_OFICIAL              TEXT,          -- official_url (公式サイト)
+    DS_IMAGENES              VARIANT,       -- all_images (array de URLs)
+    URL_TIENDA               TEXT,          -- shop_url (cosme.com redirect)
+    DS_TIENDAS               VARIANT,       -- stores (array de nombres de tiendas físicas)
+    DS_PRODUCTOS_RELACIONADOS VARIANT,      -- related_products (array [{name, url}])
 
-    -- clasificación regulatoria
-    TX_CLASE_REGULACION      TEXT,
+    -- periodo del ranking (集計期間)
+    DT_PERIODO_INICIO        DATE,          -- period_start
+    DT_PERIODO_FIN           DATE,          -- period_end
 
-    -- flags de calidad del scraper
-    FL_OFICIAL               BOOLEAN,       -- is_official
-    FL_MOJIBAKE              BOOLEAN,       -- has_mojibake (señal de encoding roto)
-    TX_NOMBRE_FUENTE         TEXT,          -- _name_source (debug: de dónde viene el nombre)
+    -- totales
+    NU_TOTAL_RANKING         NUMBER(6,0),   -- total_products en el ranking
 
     -- metadatos del scraper
-    DT_SCRAPING              DATE,
-    DS_INPUT                 VARIANT,
+    DT_SCRAPING              TIMESTAMP_NTZ, -- scraped_at (ISO 8601)
+    TX_SOURCE                VARCHAR(100),  -- source (ej. 'cosme.net/ranking/products')
+    TX_PAIS                  VARCHAR(10),   -- country (ISO-2, ej. 'JP')
+    TX_RANKING_POR           VARCHAR(20),   -- ranking_by (ej. 'product')
+    DS_INPUT                 VARIANT,       -- inputs del job (page, max_pages, url)
 
     -- auditoría
     DT_CARGA                 TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP,
-    FT_FUENTE                VARCHAR(200)   DEFAULT 'cosme',
+    FT_FUENTE                VARCHAR(200)   DEFAULT 'cosme_ranking_products',
     ID_JOB                   VARCHAR(100)
 );
+
+
+-- =============================================================================
+-- Permisos externos — STREAMLIT_DEVELOPER
+-- Ejecutar con un rol que tenga MANAGE GRANTS sobre DEV_STG.GNM_MEX
+-- =============================================================================
+
+GRANT SELECT ON TABLE DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST TO ROLE STREAMLIT_DEVELOPER;
+GRANT SELECT ON TABLE DEV_STG.GNM_MEX.SRC_COSME_RANKING_HIST TO ROLE STREAMLIT_DEVELOPER;
