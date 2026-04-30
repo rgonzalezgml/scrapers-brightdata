@@ -77,10 +77,13 @@ def _try_parse_date(value: str):
 
 
 def _try_parse_ts(value: str):
+    # Retorna string formateado, no datetime — write_pandas serializa datetime
+    # como nanosegundos enteros que Snowflake TIMESTAMP_NTZ no reconoce.
     if not isinstance(value, str):
         return value
     try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00")).replace(tzinfo=None)
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00")).replace(tzinfo=None)
+        return dt.strftime("%Y-%m-%d %H:%M:%S.%f")
     except ValueError:
         return value
 
@@ -238,7 +241,10 @@ def main():
     if not isinstance(data, list) or not data:
         print("ERROR: El JSON debe ser un array no vacío de objetos.")
         sys.exit(1)
-    print(f"Archivo  : {file_path}  ({len(data)} registros)")
+    total = len(data)
+    data = [r for r in data if not r.get("error")]
+    discarded = total - len(data)
+    print(f"Archivo  : {file_path}  ({total} registros, {discarded} descartados por error, {len(data)} a insertar)")
 
     # Parsear tabla
     table_parts = args.table.split(".")

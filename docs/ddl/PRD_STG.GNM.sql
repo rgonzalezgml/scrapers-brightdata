@@ -1,5 +1,5 @@
 -- =============================================================================
--- Schema:  DEV_STG.GNM_MEX
+-- Schema:  PRD_STG.GNM
 -- Norma:   GLI Nomenclatura v1.1.0 (MAYUSCULAS, sin acentos, prefijos de dominio)
 -- Fuente:  scrapers BrightData → middlewares Python → agentes GeommaAI
 -- Prefijo: MKT  (inteligencia de mercado / I+D / precios de proveedores)
@@ -26,7 +26,7 @@
 --    Fuente: scrapers/alibaba  (alibaba.com, búsqueda de químicos industriales)
 --    Granularidad: 1 fila = 1 producto listado en alibaba
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_ALIBABA_PROV_HIST (
+CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_ALIBABA_PROV_HIST (
     -- identificación
     URL_PRODUCTO             VARCHAR(16777216)  COMMENT 'URL del producto en alibaba.com',
     NM_PRODUCTO              VARCHAR(16777216)  COMMENT 'Nombre del producto normalizado (cleaned_product_name)',
@@ -68,7 +68,7 @@ COMMENT = 'Historico de productos de proveedores quimicos scrapeados de alibaba.
 --    Fuente: scrapers/indiamart  (indiamart.com, directorios de proveedores)
 --    Granularidad: 1 fila = 1 producto / proveedor listado
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_INDIAMART_PROV_HIST (
+CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_INDIAMART_PROV_HIST (
     -- identificación
     ID_PRODUCTO              VARCHAR(16777216)  COMMENT 'Identificador unico del producto en indiamart.com',
     URL_PRODUCTO             VARCHAR(16777216)  COMMENT 'URL del producto en indiamart.com',
@@ -128,7 +128,7 @@ COMMENT = 'Historico de productos y proveedores scrapeados de indiamart.com. Fue
 --    Fuente: scrapers/made_in_china  (made-in-china.com, catálogos de químicos)
 --    Granularidad: 1 fila = 1 producto de proveedor chino
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_MADEINCHINA_PROV_HIST (
+CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_MADEINCHINA_PROV_HIST (
     -- identificación
     ID_PRODUCTO              VARCHAR(16777216)  COMMENT 'Identificador unico del producto en made-in-china.com (product_id)',
     TX_SKU                   VARCHAR(16777216)  COMMENT 'SKU del producto; coincide con product_id en la version v8 del scraper',
@@ -185,47 +185,47 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_MADEINCHINA_PROV_HIST (
 COMMENT = 'Historico de productos de proveedores quimicos scrapeados de made-in-china.com. Fuente: scraper made_in_china (BrightData). Granularidad: 1 fila = 1 producto de proveedor chino. Tabla append-only (cada carga inserta, no sobreescribe).';
 
 
--- ---------------------------------------------------------------------------
--- 4. SRC_OLIVEYOUNG_RANK_HIST
---    Fuente: scrapers/olive_young  (global.oliveyoung.com, best-seller ranking)
---    Granularidad: 1 fila = 1 producto en el ranking de best-sellers
--- ---------------------------------------------------------------------------
-CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_RANK_HIST (
-    -- ranking
-    NU_RANK                  NUMBER(5,0)        COMMENT 'Posicion del producto en el ranking de best-sellers de OliveYoung',
-    ID_PRODUCTO              VARCHAR(16777216)  COMMENT 'SKU del producto en OliveYoung (prdtNo)',
+-- -- ---------------------------------------------------------------------------
+-- -- 4. SRC_OLIVEYOUNG_RANK_HIST
+-- --    Fuente: scrapers/olive_young  (global.oliveyoung.com, best-seller ranking)
+-- --    Granularidad: 1 fila = 1 producto en el ranking de best-sellers
+-- -- ---------------------------------------------------------------------------
+-- CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_OLIVEYOUNG_RANK_HIST (
+--     -- ranking
+--     NU_RANK                  NUMBER(5,0)        COMMENT 'Posicion del producto en el ranking de best-sellers de OliveYoung',
+--     ID_PRODUCTO              VARCHAR(16777216)  COMMENT 'SKU del producto en OliveYoung (prdtNo)',
 
-    -- producto
-    NM_MARCA                 VARCHAR(16777216)  COMMENT 'Nombre de la marca del producto (brand)',
-    NM_PRODUCTO              VARCHAR(16777216)  COMMENT 'Nombre del producto en ingles (name)',
-    NM_PRODUCTO_KR           VARCHAR(16777216)  COMMENT 'Nombre del producto en coreano (name_kr)',
+--     -- producto
+--     NM_MARCA                 VARCHAR(16777216)  COMMENT 'Nombre de la marca del producto (brand)',
+--     NM_PRODUCTO              VARCHAR(16777216)  COMMENT 'Nombre del producto en ingles (name)',
+--     NM_PRODUCTO_KR           VARCHAR(16777216)  COMMENT 'Nombre del producto en coreano (name_kr)',
 
-    -- precio (texto con símbolo de moneda, e.g. "US$27.00")
-    TX_PRECIO_ORIGINAL       VARCHAR(16777216)  COMMENT 'Precio original del producto con simbolo de moneda, sin descuento',
-    TX_PRECIO_OFERTA         VARCHAR(16777216)  COMMENT 'Precio de oferta o con descuento del producto con simbolo de moneda',
+--     -- precio (texto con símbolo de moneda, e.g. "US$27.00")
+--     TX_PRECIO_ORIGINAL       VARCHAR(16777216)  COMMENT 'Precio original del producto con simbolo de moneda, sin descuento',
+--     TX_PRECIO_OFERTA         VARCHAR(16777216)  COMMENT 'Precio de oferta o con descuento del producto con simbolo de moneda',
 
-    -- métricas
-    NU_RATING                NUMBER(5,2)        COMMENT 'Calificacion promedio del producto (escala de la plataforma)',
-    FL_SIN_STOCK             BOOLEAN            COMMENT 'Indica si el producto esta agotado (out_of_stock)',
+--     -- métricas
+--     NU_RATING                NUMBER(5,2)        COMMENT 'Calificacion promedio del producto (escala de la plataforma)',
+--     FL_SIN_STOCK             BOOLEAN            COMMENT 'Indica si el producto esta agotado (out_of_stock)',
 
-    -- imagen
-    URL_IMAGEN               VARCHAR(16777216)  COMMENT 'URL de la imagen principal del producto',
+--     -- imagen
+--     URL_IMAGEN               VARCHAR(16777216)  COMMENT 'URL de la imagen principal del producto',
 
-    -- metadatos del scraper
-    -- DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la pagina + region)',
+--     -- metadatos del scraper
+--     -- DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la pagina + region)',
 
-    -- auditoría ETL
-    -- DT_CARGA  TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP()  -- renombrado a CREATED_AT (auditoría GLI)
-    FT_FUENTE                VARCHAR(200)       DEFAULT 'olive_young'         COMMENT 'Identificador del scraper que origino la fila',
-    -- ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
+--     -- auditoría ETL
+--     -- DT_CARGA  TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP()  -- renombrado a CREATED_AT (auditoría GLI)
+--     FT_FUENTE                VARCHAR(200)       DEFAULT 'olive_young'         COMMENT 'Identificador del scraper que origino la fila',
+--     -- ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
 
-    -- auditoría GLI
-    CREATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
-    UPDATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de ultima actualizacion del registro',
-    CREATED_USR VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que creo el registro',
-    UPDATED_USR VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que realizo la ultima actualizacion del registro'
-)
-COMMENT = 'Historico del ranking de best-sellers scrapeado de global.oliveyoung.com. Fuente: scraper olive_young (BrightData). Granularidad: 1 fila = 1 producto en el ranking de best-sellers. Tabla append-only (cada carga inserta, no sobreescribe).';
+--     -- auditoría GLI
+--     CREATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
+--     UPDATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de ultima actualizacion del registro',
+--     CREATED_USR VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que creo el registro',
+--     UPDATED_USR VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que realizo la ultima actualizacion del registro'
+-- )
+-- COMMENT = 'Historico del ranking de best-sellers scrapeado de global.oliveyoung.com. Fuente: scraper olive_young (BrightData). Granularidad: 1 fila = 1 producto en el ranking de best-sellers. Tabla append-only (cada carga inserta, no sobreescribe).';
 
 
 -- ---------------------------------------------------------------------------
@@ -236,7 +236,7 @@ COMMENT = 'Historico del ranking de best-sellers scrapeado de global.oliveyoung.
 --    Nota: ~40% de artículos tienen paywalled=true (contenido completo bloqueado);
 --          article_content llegará vacío en esos casos.
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST (
+CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_COSMETICDESIGN_ART_HIST (
     -- artículo
     TX_TITULO                VARCHAR(16777216)  COMMENT 'Titulo del articulo tal como aparece en la publicacion (article_title)',
     URL_ARTICULO             VARCHAR(16777216)  COMMENT 'URL canonica del articulo en cosmeticdesign.com (article_url)',
@@ -276,7 +276,7 @@ COMMENT = 'Historico de articulos de beauty & wellness scrapeados de cosmeticdes
 --    Periodo: DT_PERIODO_INICIO + DT_PERIODO_FIN (集計期間 visible en la página)
 --    Detalle: incluye Stage 2 (descripción, ingredientes, imágenes del producto)
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_COSME_RANKING_HIST (
+CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_COSME_RANKING_HIST (
     -- ranking
     NU_RANK                  NUMBER(3,0)        COMMENT 'Posicion del producto en el ranking de la categoria scrapeada',
     TX_RANK_CAMBIO           VARCHAR(16777216)  COMMENT 'Variacion de posicion respecto al periodo anterior: "hot", "up", "down", "new", "same" (rank_change)',
@@ -372,31 +372,31 @@ COMMENT = 'Historico del ranking semanal de productos scrapeado de cosme.net. Fu
 
 
 -- =============================================================================
--- Permisos externos — STREAMLIT_DEVELOPER
--- Ejecutar con un rol que tenga MANAGE GRANTS sobre DEV_STG.GNM_MEX
+-- Permisos externos — DEVELOPER_ROLE
+-- Ejecutar con un rol que tenga MANAGE GRANTS sobre PRD_STG.GNM
 -- =============================================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_ALIBABA_PROV_HIST         TO ROLE STREAMLIT_DEVELOPER;
-GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_INDIAMART_PROV_HIST       TO ROLE STREAMLIT_DEVELOPER;
-GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_MADEINCHINA_PROV_HIST     TO ROLE STREAMLIT_DEVELOPER;
-GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_RANK_HIST      TO ROLE STREAMLIT_DEVELOPER;
-GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST   TO ROLE STREAMLIT_DEVELOPER;
-GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_COSME_RANKING_HIST        TO ROLE STREAMLIT_DEVELOPER;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE PRD_STG.GNM.SRC_ALIBABA_PROV_HIST         TO ROLE DEVELOPER_ROLE;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE PRD_STG.GNM.SRC_INDIAMART_PROV_HIST       TO ROLE DEVELOPER_ROLE;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE PRD_STG.GNM.SRC_MADEINCHINA_PROV_HIST     TO ROLE DEVELOPER_ROLE;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE PRD_STG.GNM.SRC_OLIVEYOUNG_RANK_HIST      TO ROLE DEVELOPER_ROLE;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE PRD_STG.GNM.SRC_COSMETICDESIGN_ART_HIST   TO ROLE DEVELOPER_ROLE;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE PRD_STG.GNM.SRC_COSME_RANKING_HIST        TO ROLE DEVELOPER_ROLE;
 
 
 
 
   
---   ALTER TABLE DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST
+--   ALTER TABLE PRD_STG.GNM.SRC_COSMETICDESIGN_ART_HIST
 --   MODIFY COLUMN CREATED_AT SET DEFAULT CURRENT_TIMESTAMP();
 
--- ALTER TABLE DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST
+-- ALTER TABLE PRD_STG.GNM.SRC_COSMETICDESIGN_ART_HIST
 --   MODIFY COLUMN UPDATED_AT SET DEFAULT CURRENT_TIMESTAMP();
 
--- ALTER TABLE DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST
+-- ALTER TABLE PRD_STG.GNM.SRC_COSMETICDESIGN_ART_HIST
 --   MODIFY COLUMN CREATED_USR SET DEFAULT CURRENT_USER();
 
--- ALTER TABLE DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST
+-- ALTER TABLE PRD_STG.GNM.SRC_COSMETICDESIGN_ART_HIST
 --   MODIFY COLUMN UPDATED_USR SET DEFAULT CURRENT_USER();
 
 
@@ -421,3 +421,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_COSM
 -- 	CREATED_USR VARCHAR(100) DEFAULT CURRENT_USER() COMMENT 'Usuario que creo el registro',
 -- 	UPDATED_USR VARCHAR(100) DEFAULT CURRENT_USER() COMMENT 'Usuario que realizo la ultima actualizacion del registro'
 -- )COMMENT='Historico de ranking de productos best-seller de Olive Young'; 
+
+
+
+-- TRUNCATE PRD_STG.GNM.SRC_COSME_RANKING_HIST;
