@@ -4,6 +4,19 @@ Generado 2026-04-24 mediante curl SSR (Chrome UA, Accept-Language en-US).
 
 ---
 
+## Via-1 — Search page (`/products-search/hot-china-products/{KW}.html`) — keyword search
+
+> **Usada para búsqueda por keyword** (p. ej. `search_keyword: "citric acid"`).
+> Slug: `"citric acid anhydrous"` → `"Citric_Acid_Anhydrous"` (Title_Case, guiones bajos).
+> Página 1: `/products-search/hot-china-products/{Slug}.html`
+> Página 2+: `/products-search/find-china-products/0b0nolimit/{Slug}-{N}.html` (href de `a.main.nextpage`).
+>
+> **NOTA — multi-search URL descartada (v11):**
+> `/multi-search/{slug}/F0/pg-{N}.html` fue probada en v11.
+> La página responde HTTP 200 pero no contiene `.products-item` ni `.list-node` ni `.prod-item`.
+> Causa: DOM distinto (posiblemente modal de login o estructura diferente).
+> Via-1 es el path correcto para búsqueda por keyword.
+
 ## Via-1 — Search page (`/products-search/hot-china-products/{KW}.html`)
 
 Fixture: `https://www.made-in-china.com/products-search/hot-china-products/Industrial_Chemicals.html`

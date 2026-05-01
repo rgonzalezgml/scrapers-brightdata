@@ -10,7 +10,13 @@
       "mcp__brightdata__scrape_as_markdown",
       "mcp__brightdata__scrape_batch",
       "mcp__brightdata__search_engine",
-      "mcp__brightdata__ask_brightdata_assistant"
+      "mcp__brightdata__ask_brightdata_assistant",
+      "Bash(mkdir -p ~/.claude/agents/snow-expert-wrench)",
+      "Bash(python3 -c ' *)",
+      "Bash(cp /tmp/snow-expert-wrench-new.md /workspace/.claude/agents/snow-expert-wrench.md)",
+      "Bash(rm /workspace/.claude/agents/wrench.md)",
+      "Bash(mkdir -p /workspace/.claude/agents/snow-expert-wrench)",
+      "Bash(cp ~/.claude/agents/snow-expert-wrench/*.md /workspace/.claude/agents/snow-expert-wrench/)"
     ]
   },
   "model": "claude-sonnet-4-6"

@@ -103,12 +103,15 @@ Regex útiles:
 
 ---
 
-## Template: impcat listing (Stage 1 MCAT)
+## MAPA 1 — Categoría (impcat listing, Stage 1)
 
-`last_verified: STALE — spec-only evidence, no curl verificado en 2026-04-23`
+`last_verified: 2026-04-30`
 
 - **URL pattern**: `https://dir.indiamart.com/impcat/{slug}.html`
-- **Fixture URLs** (spec §11): `impcat/caustic-soda.html`, `impcat/caustic-soda-pearl.html`, `impcat/caustic-soda-flakes.html`, `impcat/adhesive-chemical.html`, `impcat/industrial-drums.html`
+- **Slug**: nombre de categoría en minúsculas con guiones (`citric-acid`, `caustic-soda`, `glycerin`)
+- **Estado**: ✓ ACTIVO — verificado 2026-04-30, devuelve 1000+ productos
+- **Fixture URLs verificadas**: `impcat/citric-acid.html`, `impcat/citric-acid-anhydrous.html`
+- **Variante por ciudad**: `dir.indiamart.com/{ciudad}/{slug}.html` (ej: `dir.indiamart.com/mumbai/citric-acid.html`) — mismo contenido filtrado por ciudad
 
 ### Selectores
 
@@ -118,8 +121,21 @@ Regex útiles:
 
 ### Pagination
 
-- NO existe `?page=N` (errors.md E3). El listing muestra top-N del MCAT.
-- Discovery adicional via: subcats hijas (`caustic-soda-pearl.html`, etc.), sitemaps `dir.indiamart.com/*-sitemap*.xml`, supplier drill-down.
+- **NO existe `?page=N`** — usa "Show More Results" (infinite scroll / lazy load).
+- No hay botón `next` paginado tradicional.
+- Discovery adicional via: subcats hijas (`citric-acid-anhydrous.html`, etc.), sitemaps `dir.indiamart.com/*-sitemap*.xml`.
+
+---
+
+## MAPA 2 — Keyword Search (search.mp, Stage 1)
+
+`last_verified: 2026-04-30 — ROTO`
+
+- **URL original**: `https://dir.indiamart.com/search.mp?ss={keyword}&prdsrc=1`
+- **Estado actual**: ✗ ROTO — redirige 302 a `https://export.indiamart.com/search.php?ss={keyword}`
+- **Destino del redirect**: `export.indiamart.com` muestra **proveedores/exportadores verificados**, NO productos individuales — no sirve para product scraping
+- **Alternativa pendiente**: `https://www.indiamart.com/search/?ss={keyword}` — sin verificar selectores DOM
+- **Acción requerida**: inspeccionar DOM de `www.indiamart.com/search/?ss=citric+acid` en BrightData browser para encontrar selectores correctos antes de implementar v10+
 
 ---
 

@@ -1,0 +1,19 @@
+[
+  {
+    "cleaned_product_name": "Coated Citric Acid Anhydrous Available in Stock",
+    "product_url": "https://www.alibaba.com/product-detail/High-Quality-Coated-Citric-Acid-Anhydrous_60010486297.html",
+    "supplier_name": "Hangzhou Gaocheng Biotech & Health Co., Ltd.",
+    "minimum_order_quantity": "kilograms 100 Minimum order quantity: $ 74",
+    "cas_number": "77-92-9",
+    "input": {
+      "url": "https://www.alibaba.com/trade/search?SearchText=industrial+chemicals&has4Tab=true",
+      "search_keyword": "citric acid anhydrous",
+      "max_pages": 5,
+      "min_order_quantity": 100,
+      "supplier_country": "CN",
+      "min_price": 10.5,
+      "max_price": 500
+    },
+    "status_code": 200
+  }
+]

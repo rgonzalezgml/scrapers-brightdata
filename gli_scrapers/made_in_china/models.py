@@ -54,6 +54,11 @@ class MadeInChinaInputs(BaseModel):
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
+    search_terms: list[Annotated[str, Field(min_length=1, max_length=120)]] | None = None
+    """Optional list of keyword search terms. Each term is converted to a
+    ``multi-search`` URL: ``/multi-search/{slug}/F0/pg-1.html``. Takes
+    precedence over ``urls`` when both are provided."""
+
     urls: list[str] | None = None
     """Optional list of seed URLs (spec §3). Each may be a listing
     (via-1 ``/products-search/...`` or via-2 ``/{Chem|Packaging-Printing}-Catalog/...``),

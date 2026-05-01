@@ -154,6 +154,15 @@ class MadeInChinaClient(BaseScraperClient):
         ``include_suppliers`` and ``require_price`` are middleware-side knobs
         — never forwarded to the seed.
         """
+        if public_inputs.search_terms:
+            def _kw_to_url(kw: str) -> str:
+                # Via-1: /products-search/hot-china-products/{Title_Slug}.html
+                # "citric acid anhydrous" → "Citric_Acid_Anhydrous"
+                # multi-search URL (/multi-search/…) tried in v11: zero cards — abandoned.
+                slug = '_'.join(w.capitalize() for w in kw.strip().split())
+                return f"https://www.made-in-china.com/products-search/hot-china-products/{slug}.html"
+            return [{"url": _kw_to_url(kw), "search_keyword": kw} for kw in public_inputs.search_terms]
+
         urls = public_inputs.urls if public_inputs.urls else [DEFAULT_LISTING_URL]
         return [{"url": url} for url in urls]
 

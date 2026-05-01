@@ -102,7 +102,7 @@ class IndiamartClient(BaseScraperClient):
 
     SOURCE_NAME = SOURCE_NAME
     CREDENTIAL_HINT = CREDENTIAL_HINT
-    DCA_TRIGGER_PARAMS: ClassVar[dict[str, str]] = {"confirm_cancel": "1"}
+    DCA_TRIGGER_PARAMS: ClassVar[dict[str, str]] = {"confirm_cancel": "1", "override_incompatible_input_schema": "1"}
 
     def __init__(
         self,

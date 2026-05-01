@@ -1,0 +1,25 @@
+[
+    {
+        "url": "https://www.alibaba.com",
+        "search_keyword": "industrial chemicals",
+        "max_pages": -1,
+        "min_order_quantity": 100,
+        "supplier_country": "",
+        "min_price": 0,
+        "max_price": 5000,
+        "search_keywords": [
+            "Dextromethorphan Hydrobromide",
+            "Guaifenesin Granules",
+            "Citric Acid Anhydrous",
+            "Sodium Citrate Dihydrate",
+            "FD&C Red No. 40",
+            "Raspberry Flavor",
+            "Pharmaceutical Sucrose",
+            "Ethyl Alcohol USP",
+            "Glycerin USP",
+            "Methylparaben USP",
+            "Propylparaben USP",
+            "Purified Water pharmaceutical"
+        ]
+    }
+]

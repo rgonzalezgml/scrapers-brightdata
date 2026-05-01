@@ -1,0 +1,37 @@
+[
+    {
+        "url": "https://www.alibaba.com/trade/search?SearchText=industrial+chemicals&has4Tab=true",
+        "search_keyword": "industrial chemicals",
+        "max_pages": 5,
+        "min_price": 1.0,
+        "max_price": 10000.0
+    },
+    {
+        "url": "https://www.alibaba.com/trade/search?SearchText=industrial+packaging+drums+barrels&has4Tab=true",
+        "search_keyword": "industrial packaging drums barrels",
+        "max_pages": 5,
+        "min_price": 1.0,
+        "max_price": 10000.0
+    },
+    {
+        "url": "https://www.alibaba.com/trade/search?SearchText=sodium+hydroxide+industrial&has4Tab=true",
+        "search_keyword": "sodium hydroxide industrial",
+        "max_pages": 5,
+        "min_price": 1.0,
+        "max_price": 10000.0
+    },
+    {
+        "url": "https://www.alibaba.com/trade/search?SearchText=hydrochloric+acid+industrial&has4Tab=true",
+        "search_keyword": "hydrochloric acid industrial",
+        "max_pages": 5,
+        "min_price": 1.0,
+        "max_price": 10000.0
+    },
+    {
+        "url": "https://www.alibaba.com/trade/search?SearchText=chemical+packaging+containers&has4Tab=true",
+        "search_keyword": "chemical packaging containers",
+        "max_pages": 5,
+        "min_price": 1.0,
+        "max_price": 10000.0
+    }
+]
