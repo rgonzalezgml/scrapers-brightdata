@@ -278,7 +278,7 @@ COMMENT = 'Historico de articulos de beauty & wellness scrapeados de cosmeticdes
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_COSME_RANKING_HIST (
     -- ranking
-    NU_RANK                  NUMBER(3,0)        COMMENT 'Posicion del producto en el ranking de la categoria scrapeada',
+    NU_RANK                  NUMBER(10,0)       COMMENT 'Posicion del producto en el ranking de la categoria scrapeada',
     TX_RANK_CAMBIO           VARCHAR(16777216)  COMMENT 'Variacion de posicion respecto al periodo anterior: "hot", "up", "down", "new", "same" (rank_change)',
 
     -- producto
@@ -312,8 +312,8 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_COSME_RANKING_HIST (
     -- métricas de ranking y valoración
     NU_RATING                NUMBER(5,2)        COMMENT 'Calificacion promedio del producto en Stage 1 del scraper (escala 0.0 a 7.0)',
     NU_RATING_DETAIL         NUMBER(5,2)        COMMENT 'Calificacion promedio detallada del producto obtenida en Stage 2 (p.average)',
-    NU_PUNTOS                NUMBER(8,2)        COMMENT 'Puntaje del producto en el ranking de cosme.net (p.point, e.g. 1539.7)',
-    NU_RANK_CATEGORIA        NUMBER(5,0)        COMMENT 'Posicion del producto dentro de su propia categoria (cat_rank)',
+    NU_PUNTOS                NUMBER(38,2)       COMMENT 'Puntaje del producto en el ranking de cosme.net (p.point, e.g. 1539.7)',
+    NU_RANK_CATEGORIA        NUMBER(10,0)       COMMENT 'Posicion del producto dentro de su propia categoria (cat_rank)',
     NM_CATEGORIA_RANK        VARCHAR(16777216)  COMMENT 'Nombre de la categoria en la que el producto tiene posicion de ranking (cat_rank_name)',
     DS_RANKING_EN            VARIANT            COMMENT 'Lista de rankings en los que aparece el producto como array de strings (e.g. "美容液ランキング 1位") (ranking_in)',
 
