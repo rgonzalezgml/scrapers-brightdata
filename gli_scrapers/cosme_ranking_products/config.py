@@ -146,4 +146,5 @@ MAPPER = SnowflakeMapper(
         "DS_IMAGENES", "DS_INPUT", "DS_CATEGORIA_PATH",
         "DS_RANKING_EN", "DS_TIENDAS", "DS_PRODUCTOS_RELACIONADOS",
     },
+    date_fields={"DT_PERIODO_INICIO", "DT_PERIODO_FIN", "DT_SCRAPING"},
 )

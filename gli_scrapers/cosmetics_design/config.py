@@ -143,4 +143,5 @@ MAPPER = SnowflakeMapper(
         "input":            "DS_INPUT",
     },
     variant_fields={"DS_TEMAS", "DS_INPUT"},
+    date_fields={"DT_PUBLICACION"},
 )
