@@ -86,6 +86,34 @@ Si el spec no menciona el caso → el spec está incompleto → actualizar prime
 
 ---
 
+## Snowflake — Scope y reglas de seguridad
+
+### Regla de confirmación obligatoria
+
+**NUNCA ejecutar un query en Snowflake sin antes mostrárselo al usuario y recibir un "sí" explícito.**
+Aplica a todo: DDL, DML, GRANT, TRUNCATE, DROP, ALTER, INSERT. Sin excepciones.
+Si se delega a `snow-expert-wrench`, el brief debe indicar explícitamente que muestre el SQL y espere confirmación antes de ejecutar.
+
+### Tablas autorizadas
+
+Solo se pueden tocar las siguientes tablas, en DEV y en PROD:
+
+| Tabla | Scraper |
+|-------|---------|
+| `SRC_OLIVEYOUNG_RANK_HIST` | olive_young |
+| `SRC_ALIBABA_PROV_HIST` | alibaba |
+| `SRC_INDIAMART_PROV_HIST` | indiamart |
+| `SRC_MADEINCHINA_PROV_HIST` | made_in_china |
+| `SRC_COSMETICDESIGN_ART_HIST` | cosmetics_design |
+| `SRC_COSME_RANKING_HIST` | cosme_ranking_products |
+
+**DEV:** `DEV_STG.GNM_MEX.<tabla>`
+**PROD:** `PRD_STG.GNM.<tabla>`
+
+Cualquier operación sobre una tabla fuera de esta lista requiere confirmación explícita del usuario antes de proceder.
+
+---
+
 ## Available Agents (`.claude/agents/`)
 
 | Agent | Dominio — delegar SIEMPRE que la tarea caiga aquí |
