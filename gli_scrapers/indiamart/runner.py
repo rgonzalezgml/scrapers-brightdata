@@ -3,7 +3,7 @@ from gli_scrapers.indiamart.config import MAPPER
 from gli_scrapers.runner_base import run_scraper
 
 POLL_INTERVAL = 45
-POLL_TIMEOUT  = 5400  # 90 min
+POLL_TIMEOUT  = 18000  # 5 horas
 
 
 async def main():

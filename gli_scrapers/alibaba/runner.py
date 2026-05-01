@@ -2,8 +2,8 @@ from gli_scrapers.alibaba.client import AlibabaClient
 from gli_scrapers.alibaba.config import MAPPER
 from gli_scrapers.runner_base import run_scraper
 
-POLL_INTERVAL = 20
-POLL_TIMEOUT  = 900   # 15 min
+POLL_INTERVAL = 30
+POLL_TIMEOUT  = 18000  # 5 horas
 
 
 async def main():

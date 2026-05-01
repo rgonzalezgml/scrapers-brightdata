@@ -68,6 +68,10 @@ class SnowflakeMapper:
     def map_row(self, raw: dict[str, Any]) -> dict[str, Any]:
         out: dict[str, Any] = {}
         for raw_key, col in self.field_map.items():
+            # Si la columna ya tiene un valor no-null, no sobreescribir.
+            # Permite definir fallbacks poniendo la clave preferida primero.
+            if out.get(col) is not None:
+                continue
             val = raw.get(raw_key)
             if col in self.variant_fields and val is not None:
                 val = json.dumps(val, ensure_ascii=False)
