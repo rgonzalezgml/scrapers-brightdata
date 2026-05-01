@@ -114,7 +114,7 @@ DELIVERY_COUNTRY_CODE: str = "10"
 # Scraper v4 listing URL (interaction_code_v4.js LISTING_URL constant).
 # The JS scraper uses this as the default when input.url is empty.
 # The middleware passes it explicitly so the seed is always unambiguous.
-DEFAULT_LISTING_URL: str = "https://global.oliveyoung.com/display/page/best-seller?target=pillsTab1Nav1"
+DEFAULT_LISTING_URL: str = "https://global.oliveyoung.com/display/page/best-seller?target=pillsTab1Nav2"
 
 # Default pagination budget forwarded to the JS scraper (input.max_pages).
 DEFAULT_MAX_PAGES: int = 3
@@ -157,8 +157,11 @@ DEFAULT_ETA_SECONDS: int = 60 * 25
 
 from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
 
+_DB     = os.getenv("SNOWFLAKE_DATABASE", "DEV_STG")
+_SCHEMA = os.getenv("SNOWFLAKE_SCHEMA", "GNM_MEX")
+
 MAPPER = SnowflakeMapper(
-    table="DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_RANK_HIST",
+    table=f"{_DB}.{_SCHEMA}.SRC_OLIVEYOUNG_RANK_HIST",
     source="olive_young",
     field_map={
         "rank":           "NU_RANK",

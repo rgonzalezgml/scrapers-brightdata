@@ -212,7 +212,7 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_RANK_HIST (
     URL_IMAGEN               VARCHAR(16777216)  COMMENT 'URL de la imagen principal del producto',
 
     -- metadatos del scraper
-    -- DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la pagina + region)',
+    DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la pagina + region)',
 
     -- auditoría ETL
     -- DT_CARGA  TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP()  -- renombrado a CREATED_AT (auditoría GLI)

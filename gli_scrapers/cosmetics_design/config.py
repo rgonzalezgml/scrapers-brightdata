@@ -124,8 +124,11 @@ DEFAULT_ETA_SECONDS: int = 60 * 30  # 30 minutes for a typical 1000-article run.
 
 from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
 
+_DB     = os.getenv("SNOWFLAKE_DATABASE", "DEV_STG")
+_SCHEMA = os.getenv("SNOWFLAKE_SCHEMA", "GNM_MEX")
+
 MAPPER = SnowflakeMapper(
-    table="DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST",
+    table=f"{_DB}.{_SCHEMA}.SRC_COSMETICDESIGN_ART_HIST",
     source="cosmetics_design",
     field_map={
         "article_title":    "TX_TITULO",

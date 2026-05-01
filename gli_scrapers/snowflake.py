@@ -18,7 +18,7 @@ Contrato:
                     raw row se insertan como NULL.
 - ``variant_fields``: columnas tipo VARIANT — el valor se serializa a JSON
                     string antes de enviarlo al conector.
-- Campos de auditoría (DT_CARGA, FT_FUENTE, ID_JOB) se agregan automáticamente.
+- Campo de auditoría FT_FUENTE se agrega automáticamente. CREATED_AT la pone Snowflake vía DEFAULT.
 - Campos del raw que NO están en field_map se descartan silenciosamente.
 """
 
@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from typing import Any
 
 
@@ -37,7 +36,7 @@ class SnowflakeMapper:
     field_map: dict[str, str]
     variant_fields: set[str] = field(default_factory=set)
 
-    def map_row(self, raw: dict[str, Any], job_id: str | None = None) -> dict[str, Any]:
+    def map_row(self, raw: dict[str, Any]) -> dict[str, Any]:
         out: dict[str, Any] = {}
         for raw_key, col in self.field_map.items():
             val = raw.get(raw_key)
@@ -45,9 +44,7 @@ class SnowflakeMapper:
             if col in self.variant_fields and val is not None:
                 val = json.dumps(val, ensure_ascii=False)
             out[col] = val
-        out["DT_CARGA"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         out["FT_FUENTE"] = self.source
-        out["ID_JOB"] = job_id
         return out
 
     def insert(
@@ -59,7 +56,7 @@ class SnowflakeMapper:
         if not rows:
             return 0
 
-        mapped = [self.map_row(r, job_id) for r in rows]
+        mapped = [self.map_row(r) for r in rows]
         cols = list(mapped[0].keys())
 
         # parse_json() no es válido en VALUES con executemany → usar SELECT

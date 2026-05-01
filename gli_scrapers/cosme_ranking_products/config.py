@@ -88,8 +88,11 @@ MAX_PAGES: int = 10
 
 from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
 
+_DB     = os.getenv("SNOWFLAKE_DATABASE", "DEV_STG")
+_SCHEMA = os.getenv("SNOWFLAKE_SCHEMA", "GNM_MEX")
+
 MAPPER = SnowflakeMapper(
-    table="DEV_STG.GNM_MEX.SRC_COSME_RANKING_HIST",
+    table=f"{_DB}.{_SCHEMA}.SRC_COSME_RANKING_HIST",
     source="cosme_ranking_products",
     field_map={
         "rank":              "NU_RANK",

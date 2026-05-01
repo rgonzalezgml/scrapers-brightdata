@@ -291,18 +291,21 @@ DEFAULT_ETA_SECONDS: int = 60 * 10
 
 from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
 
+_DB     = os.getenv("SNOWFLAKE_DATABASE", "DEV_STG")
+_SCHEMA = os.getenv("SNOWFLAKE_SCHEMA", "GNM_MEX")
+
 MAPPER = SnowflakeMapper(
-    table="DEV_STG.GNM_MEX.SRC_ALIBABA_PROV_HIST",
+    table=f"{_DB}.{_SCHEMA}.SRC_ALIBABA_PROV_HIST",
     source="alibaba",
     field_map={
         "product_url":           "URL_PRODUCTO",
-        "cleaned_product_name":  "NM_PRODUCTO",
+        "product_name_clean":    "NM_PRODUCTO",
         "supplier_name":         "NM_PROVEEDOR",
         "price_raw":             "TX_PRECIO_RAW",
         "price_min_usd":         "NU_PRECIO_MIN_USD",
         "price_max_usd":         "NU_PRECIO_MAX_USD",
         "price_unit":            "TX_UNIDAD_PRECIO",
-        "minimum_order_quantity":"TX_MOQ",
+        "moq_quantity":          "TX_MOQ",
         "cas_number":            "TX_CAS",
         "purity":                "TX_PUREZA",
         "status_code":           "NU_STATUS_CODE",

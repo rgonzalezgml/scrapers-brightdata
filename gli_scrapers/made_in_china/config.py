@@ -304,8 +304,11 @@ DEFAULT_ETA_SECONDS: int = 60 * 45
 
 from gli_scrapers.snowflake import SnowflakeMapper  # noqa: E402
 
+_DB     = os.getenv("SNOWFLAKE_DATABASE", "DEV_STG")
+_SCHEMA = os.getenv("SNOWFLAKE_SCHEMA", "GNM_MEX")
+
 MAPPER = SnowflakeMapper(
-    table="DEV_STG.GNM_MEX.SRC_MADEINCHINA_PROV_HIST",
+    table=f"{_DB}.{_SCHEMA}.SRC_MADEINCHINA_PROV_HIST",
     source="made_in_china",
     field_map={
         "product_id":           "ID_PRODUCTO",
