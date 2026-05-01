@@ -186,6 +186,7 @@ MAPPER = SnowflakeMapper(
     source="indiamart",
     field_map={
         "product_id":          "ID_PRODUCTO",
+        "product_url":         "URL_PRODUCTO",
         "url":                 "URL_PRODUCTO",
         "product_name_original":"NM_PRODUCTO_ORIGINAL",
         "product_name_clean":  "NM_PRODUCTO_CLEAN",
