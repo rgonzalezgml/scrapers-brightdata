@@ -185,47 +185,48 @@ CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_MADEINCHINA_PROV_HIST (
 COMMENT = 'Historico de productos de proveedores quimicos scrapeados de made-in-china.com. Fuente: scraper made_in_china (BrightData). Granularidad: 1 fila = 1 producto de proveedor chino. Tabla append-only (cada carga inserta, no sobreescribe).';
 
 
--- -- ---------------------------------------------------------------------------
--- -- 4. SRC_OLIVEYOUNG_RANK_HIST
--- --    Fuente: scrapers/olive_young  (global.oliveyoung.com, best-seller ranking)
--- --    Granularidad: 1 fila = 1 producto en el ranking de best-sellers
--- -- ---------------------------------------------------------------------------
--- CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_OLIVEYOUNG_RANK_HIST (
---     -- ranking
---     NU_RANK                  NUMBER(5,0)        COMMENT 'Posicion del producto en el ranking de best-sellers de OliveYoung',
---     ID_PRODUCTO              VARCHAR(16777216)  COMMENT 'SKU del producto en OliveYoung (prdtNo)',
+-- ---------------------------------------------------------------------------
+-- 4. SRC_OLIVEYOUNG_RANK_HIST
+--    Fuente: scrapers/olive_young  (global.oliveyoung.com, best-seller ranking)
+--    Granularidad: 1 fila = 1 producto en el ranking de best-sellers
+--    Nota: NU_RATING es FLOAT (tipo original heredado; Snowflake no permite FLOAT→NUMBER sin recrear)
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_OLIVEYOUNG_RANK_HIST (
+    -- ranking
+    NU_RANK                  NUMBER(5,0)        COMMENT 'Posicion del producto en el ranking de best-sellers de OliveYoung',
+    ID_PRODUCTO              VARCHAR(16777216)  COMMENT 'SKU del producto en OliveYoung (prdtNo)',
 
---     -- producto
---     NM_MARCA                 VARCHAR(16777216)  COMMENT 'Nombre de la marca del producto (brand)',
---     NM_PRODUCTO              VARCHAR(16777216)  COMMENT 'Nombre del producto en ingles (name)',
---     NM_PRODUCTO_KR           VARCHAR(16777216)  COMMENT 'Nombre del producto en coreano (name_kr)',
+    -- producto
+    NM_MARCA                 VARCHAR(16777216)  COMMENT 'Nombre de la marca del producto (brand)',
+    NM_PRODUCTO              VARCHAR(16777216)  COMMENT 'Nombre del producto en ingles (name)',
+    NM_PRODUCTO_KR           VARCHAR(16777216)  COMMENT 'Nombre del producto en coreano (name_kr)',
 
---     -- precio (texto con símbolo de moneda, e.g. "US$27.00")
---     TX_PRECIO_ORIGINAL       VARCHAR(16777216)  COMMENT 'Precio original del producto con simbolo de moneda, sin descuento',
---     TX_PRECIO_OFERTA         VARCHAR(16777216)  COMMENT 'Precio de oferta o con descuento del producto con simbolo de moneda',
+    -- precio (texto con símbolo de moneda, e.g. "US$27.00")
+    TX_PRECIO_ORIGINAL       VARCHAR(16777216)  COMMENT 'Precio original del producto con simbolo de moneda, sin descuento',
+    TX_PRECIO_OFERTA         VARCHAR(16777216)  COMMENT 'Precio de oferta o con descuento del producto con simbolo de moneda',
 
---     -- métricas
---     NU_RATING                NUMBER(5,2)        COMMENT 'Calificacion promedio del producto (escala de la plataforma)',
---     FL_SIN_STOCK             BOOLEAN            COMMENT 'Indica si el producto esta agotado (out_of_stock)',
+    -- métricas
+    NU_RATING                FLOAT              COMMENT 'Calificacion promedio del producto (escala de la plataforma); tipo FLOAT heredado',
+    FL_SIN_STOCK             BOOLEAN            COMMENT 'Indica si el producto esta agotado (out_of_stock)',
 
---     -- imagen
---     URL_IMAGEN               VARCHAR(16777216)  COMMENT 'URL de la imagen principal del producto',
+    -- imagen
+    URL_IMAGEN               VARCHAR(16777216)  COMMENT 'URL de la imagen principal del producto',
 
---     -- metadatos del scraper
---     -- DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la pagina + region)',
+    -- metadatos del scraper
+    DS_INPUT                 VARIANT            COMMENT 'Seed JSON enviado al scraper (url de la pagina + region)',
 
---     -- auditoría ETL
---     -- DT_CARGA  TIMESTAMP_NTZ  DEFAULT CURRENT_TIMESTAMP()  -- renombrado a CREATED_AT (auditoría GLI)
---     FT_FUENTE                VARCHAR(200)       DEFAULT 'olive_young'         COMMENT 'Identificador del scraper que origino la fila',
---     -- ID_JOB                   VARCHAR(100)       COMMENT 'Job ID / run_id del pipeline ETL que genero la fila',
+    -- auditoría ETL
+    -- DT_CARGA  — eliminada 2026-05-01 (reemplazada por CREATED_AT)
+    FT_FUENTE                VARCHAR(200)       DEFAULT 'olive_young'         COMMENT 'Identificador del scraper que origino la fila',
+    -- ID_JOB    — eliminada 2026-05-01 (no se usa en la carga actual)
 
---     -- auditoría GLI
---     CREATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
---     UPDATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de ultima actualizacion del registro',
---     CREATED_USR VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que creo el registro',
---     UPDATED_USR VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que realizo la ultima actualizacion del registro'
--- )
--- COMMENT = 'Historico del ranking de best-sellers scrapeado de global.oliveyoung.com. Fuente: scraper olive_young (BrightData). Granularidad: 1 fila = 1 producto en el ranking de best-sellers. Tabla append-only (cada carga inserta, no sobreescribe).';
+    -- auditoría GLI
+    CREATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de creacion del registro',
+    UPDATED_AT  TIMESTAMP_NTZ(9) DEFAULT CURRENT_TIMESTAMP() COMMENT 'Fecha y hora de ultima actualizacion del registro',
+    CREATED_USR VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que creo el registro',
+    UPDATED_USR VARCHAR(100)     DEFAULT CURRENT_USER()      COMMENT 'Usuario que realizo la ultima actualizacion del registro'
+)
+COMMENT = 'Historico del ranking de best-sellers scrapeado de global.oliveyoung.com. Fuente: scraper olive_young (BrightData). Granularidad: 1 fila = 1 producto en el ranking de best-sellers. Tabla append-only (cada carga inserta, no sobreescribe).';
 
 
 -- ---------------------------------------------------------------------------
@@ -278,7 +279,7 @@ COMMENT = 'Historico de articulos de beauty & wellness scrapeados de cosmeticdes
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_COSME_RANKING_HIST (
     -- ranking
-    NU_RANK                  NUMBER(3,0)        COMMENT 'Posicion del producto en el ranking de la categoria scrapeada',
+    NU_RANK                  NUMBER(10,0)       COMMENT 'Posicion del producto en el ranking de la categoria scrapeada',
     TX_RANK_CAMBIO           VARCHAR(16777216)  COMMENT 'Variacion de posicion respecto al periodo anterior: "hot", "up", "down", "new", "same" (rank_change)',
 
     -- producto
@@ -312,8 +313,8 @@ CREATE OR REPLACE TABLE PRD_STG.GNM.SRC_COSME_RANKING_HIST (
     -- métricas de ranking y valoración
     NU_RATING                NUMBER(5,2)        COMMENT 'Calificacion promedio del producto en Stage 1 del scraper (escala 0.0 a 7.0)',
     NU_RATING_DETAIL         NUMBER(5,2)        COMMENT 'Calificacion promedio detallada del producto obtenida en Stage 2 (p.average)',
-    NU_PUNTOS                NUMBER(8,2)        COMMENT 'Puntaje del producto en el ranking de cosme.net (p.point, e.g. 1539.7)',
-    NU_RANK_CATEGORIA        NUMBER(5,0)        COMMENT 'Posicion del producto dentro de su propia categoria (cat_rank)',
+    NU_PUNTOS                NUMBER(38,2)       COMMENT 'Puntaje del producto en el ranking de cosme.net (p.point, e.g. 1539.7)',
+    NU_RANK_CATEGORIA        NUMBER(10,0)       COMMENT 'Posicion del producto dentro de su propia categoria (cat_rank)',
     NM_CATEGORIA_RANK        VARCHAR(16777216)  COMMENT 'Nombre de la categoria en la que el producto tiene posicion de ranking (cat_rank_name)',
     DS_RANKING_EN            VARIANT            COMMENT 'Lista de rankings en los que aparece el producto como array de strings (e.g. "美容液ランキング 1位") (ranking_in)',
 

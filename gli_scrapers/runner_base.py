@@ -1,7 +1,10 @@
 """Base runner logic compartida por todos los scrapers.
 
-Flujo:
+Flujo normal:
     trigger() → poll hasta done/failed/timeout → MAPPER.insert() a Snowflake
+
+Flujo alternativo (job ya existente):
+    load_job(job_id) → _fetch_snapshot() → MAPPER.insert() a Snowflake
 """
 
 from __future__ import annotations
@@ -9,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import sys
 from datetime import datetime, timezone
 from typing import Any
 
@@ -108,3 +112,49 @@ async def run_scraper(
     # Timeout
     log.error("[%s] timeout after %ds (job_id=%s)", name, poll_timeout, job_id)
     return {"status": "failed", "reason": f"timeout after {poll_timeout}s", "job_id": job_id}
+
+
+async def load_job(
+    *,
+    name: str,
+    client,
+    mapper,
+    job_id: str,
+) -> dict[str, Any]:
+    """Carga un job ya existente en BrightData directo a Snowflake.
+
+    Salta el trigger y el poll — va directo a _fetch_snapshot().
+    Útil para recuperar un job que terminó pero cuyo runner hizo timeout.
+
+    Returns:
+        {"status": "ok", "inserted": N, "job_id": str}
+        {"status": "failed", "reason": str, "job_id": str}
+    """
+    log.info("[%s] loading existing job_id=%s", name, job_id)
+
+    try:
+        rows = await client._fetch_snapshot(job_id)
+    except Exception as e:
+        return {"status": "failed", "reason": f"fetch failed: {e}", "job_id": job_id}
+
+    log.info("[%s] fetched %d rows", name, len(rows))
+
+    conn = _snowflake_conn()
+    try:
+        inserted = mapper.insert(rows, conn)
+        conn.commit()
+        log.info("[%s] inserted %d rows → %s", name, inserted, mapper.table)
+    finally:
+        conn.close()
+
+    return {"status": "ok", "inserted": inserted, "job_id": job_id, "_name": name}
+
+
+def parse_job_id_arg() -> str | None:
+    """Lee --job-id <id> de sys.argv. Retorna None si no se pasó."""
+    args = sys.argv[1:]
+    if "--job-id" in args:
+        idx = args.index("--job-id")
+        if idx + 1 < len(args):
+            return args[idx + 1]
+    return None
