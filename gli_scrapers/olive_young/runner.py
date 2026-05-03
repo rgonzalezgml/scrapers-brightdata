@@ -6,7 +6,7 @@ from gli_scrapers.olive_young.config import MAPPER
 from gli_scrapers.runner_base import load_job, parse_job_id_arg, run_scraper
 
 POLL_INTERVAL = 30
-POLL_TIMEOUT  = 2700  # 45 min
+POLL_TIMEOUT  = 18000  # 5 horas
 
 
 async def main():

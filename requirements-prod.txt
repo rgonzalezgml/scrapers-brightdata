@@ -1,0 +1,9 @@
+httpx
+requests
+pandas
+pydantic>=2
+pydantic-settings
+python-dotenv
+structlog
+snowflake-connector-python
+apscheduler>=3.10,<4

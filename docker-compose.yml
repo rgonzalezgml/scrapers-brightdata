@@ -1,0 +1,12 @@
+services:
+  gli_scrapers:
+    build: .
+    image: gli_scrapers:latest
+    container_name: gli_scrapers_prod
+    env_file: .env.prod
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

@@ -1,6 +1,9 @@
 # ---- Secrets & credentials --------------------------------------------------
 .env
 **/.env
+.env.prod
+.env.dev
+docker_packages/
 
 # ---- Repos externos y carpetas descartadas ----------------------------------
 GeommaAI/

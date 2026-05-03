@@ -14,6 +14,12 @@ python-dotenv
 # Middleware logging (structured)
 structlog
 
+# Snowflake
+snowflake-connector-python
+
+# Scheduler (prod container)
+apscheduler>=3.10,<4
+
 # Dev / debug
 debugpy
 pytest
