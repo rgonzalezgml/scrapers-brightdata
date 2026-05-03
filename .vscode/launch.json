@@ -8,7 +8,13 @@
       "python": "/usr/local/bin/python3",
       "program": "${workspaceFolder}/run.py",
       "args": [
-        "olive_young"
+        // "olive_young",
+        // "cosme_ranking",
+        // "cosmetics_design",
+        // "alibaba",
+        // "indiamart",
+        // "made_in_china",
+        "all"
       ], // ['alibaba', 'indiamart', 'made_in_china', 'olive_young', 'cosmetics_design', 'cosme_ranking']
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
