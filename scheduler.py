@@ -47,9 +47,9 @@ def main() -> None:
     from apscheduler.schedulers.blocking import BlockingScheduler
 
     scheduler = BlockingScheduler(timezone="America/Mexico_City")
-    scheduler.add_job(run_scrapers, "cron", hour=18, minute=25)
+    scheduler.add_job(run_scrapers, "cron", hour=4, minute=0)
 
-    log.info("Scheduler activo — ejecutará a las 18:25 America/Mexico_City")
+    log.info("Scheduler activo — ejecutará a las 04:00 America/Mexico_City")
 
     try:
         scheduler.start()
