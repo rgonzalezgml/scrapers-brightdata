@@ -31,9 +31,11 @@ RUNNERS = {
     "alibaba":           "gli_scrapers.alibaba.runner",
     "indiamart":         "gli_scrapers.indiamart.runner",
     "made_in_china":     "gli_scrapers.made_in_china.runner",
-    "olive_young":       "gli_scrapers.olive_young.runner",
-    "cosmetics_design":  "gli_scrapers.cosmetics_design.runner",
+    "olive_young":                "gli_scrapers.olive_young.runner",
+    "olive_young_new_arrivals":   "gli_scrapers.olive_young_new_arrivals.runner",
+    "cosmetics_design":           "gli_scrapers.cosmetics_design.runner",
     "cosme_ranking":     "gli_scrapers.cosme_ranking_products.runner",
+    "cosme_new_arrivals": "gli_scrapers.cosme_new_arrivals.runner",
 }
 
 
@@ -52,7 +54,8 @@ async def run_targets(targets: list[str]) -> None:
         if isinstance(res, Exception):
             print(f"  {name:20s}  ERROR    {res}")
         elif res.get("status") == "ok":
-            print(f"  {name:20s}  OK       inserted={res['inserted']}  job={res['job_id']}")
+            extra = f"  deleted={res['deleted']}" if "deleted" in res else ""
+            print(f"  {name:20s}  OK       inserted={res['inserted']}{extra}  job={res['job_id']}")
         else:
             print(f"  {name:20s}  FAILED   {res.get('reason', '?')}")
     print("────────────────────────────────────────────")

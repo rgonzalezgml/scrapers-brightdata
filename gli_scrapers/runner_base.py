@@ -32,6 +32,24 @@ def _snowflake_conn():
     )
 
 
+def _clean_insert(name: str, mapper, rows: list, conn, job_id: str | None) -> int:
+    """DELETE toda la tabla + INSERT rows en la misma transacción.
+
+    Lanza RuntimeError si rows está vacío (el caller hace rollback).
+    El caller es responsable de commit/rollback/close.
+    """
+    if not rows:
+        raise RuntimeError("no rows returned by scraper — aborting clean replace")
+    cur = conn.cursor()
+    cur.execute(f"DELETE FROM {mapper.table}")
+    deleted = cur.rowcount if cur.rowcount is not None else 0
+    log.info("[%s] clean: deleted %s rows from %s", name, deleted, mapper.table)
+    inserted = mapper.insert(rows, conn, job_id=job_id)
+    if inserted == 0:
+        raise RuntimeError("mapper.insert returned 0 rows — aborting clean replace")
+    return deleted, inserted
+
+
 async def run_scraper(
     *,
     name: str,
@@ -40,6 +58,7 @@ async def run_scraper(
     inputs: dict[str, Any] | None = None,
     poll_interval: int = 30,
     poll_timeout: int = 3600,
+    clean: bool = False,
 ) -> dict[str, Any]:
     """Ejecuta un scraper end-to-end y carga el resultado en Snowflake.
 
@@ -101,13 +120,24 @@ async def run_scraper(
             # 3. Insert
             conn = _snowflake_conn()
             try:
-                inserted = mapper.insert(rows, conn, job_id=job_id)
+                deleted = None
+                if clean:
+                    deleted, inserted = _clean_insert(name, mapper, rows, conn, job_id=job_id)
+                else:
+                    inserted = mapper.insert(rows, conn, job_id=job_id)
                 conn.commit()
                 log.info("[%s] inserted %d rows → %s", name, inserted, mapper.table)
+            except Exception as e:
+                conn.rollback()
+                log.error("[%s] rollback: %s", name, e)
+                return {"status": "failed", "reason": str(e), "job_id": job_id}
             finally:
                 conn.close()
 
-            return {"status": "ok", "inserted": inserted, "job_id": job_id}
+            result = {"status": "ok", "inserted": inserted, "job_id": job_id}
+            if deleted is not None:
+                result["deleted"] = deleted
+            return result
 
     # Timeout
     log.error("[%s] timeout after %ds (job_id=%s)", name, poll_timeout, job_id)
@@ -120,6 +150,7 @@ async def load_job(
     client,
     mapper,
     job_id: str,
+    clean: bool = False,
 ) -> dict[str, Any]:
     """Carga un job ya existente en BrightData directo a Snowflake.
 
@@ -140,14 +171,25 @@ async def load_job(
     log.info("[%s] fetched %d rows", name, len(rows))
 
     conn = _snowflake_conn()
+    deleted = None
     try:
-        inserted = mapper.insert(rows, conn)
+        if clean:
+            deleted, inserted = _clean_insert(name, mapper, rows, conn, job_id=job_id)
+        else:
+            inserted = mapper.insert(rows, conn)
         conn.commit()
         log.info("[%s] inserted %d rows → %s", name, inserted, mapper.table)
+    except Exception as e:
+        conn.rollback()
+        log.error("[%s] rollback: %s", name, e)
+        return {"status": "failed", "reason": str(e), "job_id": job_id}
     finally:
         conn.close()
 
-    return {"status": "ok", "inserted": inserted, "job_id": job_id, "_name": name}
+    result = {"status": "ok", "inserted": inserted, "job_id": job_id, "_name": name}
+    if deleted is not None:
+        result["deleted"] = deleted
+    return result
 
 
 def parse_job_id_arg() -> str | None:

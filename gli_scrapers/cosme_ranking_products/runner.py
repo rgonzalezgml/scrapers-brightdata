@@ -14,10 +14,11 @@ async def main():
     try:
         job_id = parse_job_id_arg()
         if job_id:
-            return await load_job(name="cosme_ranking_products", client=client, mapper=MAPPER, job_id=job_id)
+            return await load_job(name="cosme_ranking_products", client=client, mapper=MAPPER, job_id=job_id, clean=True)
         return await run_scraper(
             name="cosme_ranking_products", client=client, mapper=MAPPER,
             poll_interval=POLL_INTERVAL, poll_timeout=POLL_TIMEOUT,
+            clean=True,
         )
     finally:
         await client.aclose()
