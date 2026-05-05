@@ -116,7 +116,6 @@ MAPPER = SnowflakeMapper(
         # Marca
         "brand_no":         "TX_BRAND_NO",
         "brand_name_en":    "NM_MARCA_EN",
-        "brand_name_kr":    "NM_MARCA_KR",
         "brand_url":        "URL_MARCA",
         "brand_image_url":  "URL_IMAGEN_MARCA",
         # Precio
@@ -136,9 +135,6 @@ MAPPER = SnowflakeMapper(
         # Flags
         "is_new":           "FL_NEW",
         "is_best":          "FL_BEST",
-        "is_soldout":       "FL_AGOTADO",
-        "is_flash":         "FL_FLASH",
-        "has_coupon":       "FL_CUPON",
         "has_gift":         "FL_REGALO",
         # Corner y metadata
         "corner_name":      "NM_CORNER",

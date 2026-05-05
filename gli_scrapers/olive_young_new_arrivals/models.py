@@ -56,7 +56,6 @@ class NewArrivalRow(BaseModel):
     # Marca
     brand_no: str | None = None
     brand_name_en: str | None = None
-    brand_name_kr: str | None = None
     brand_url: str | None = None
     brand_image_url: str | None = None
 
@@ -81,9 +80,6 @@ class NewArrivalRow(BaseModel):
     # Flags
     is_new: bool | None = None
     is_best: bool | None = None
-    is_soldout: bool | None = None
-    is_flash: bool | None = None
-    has_coupon: bool | None = None
     has_gift: bool | None = None
 
     # Metadata

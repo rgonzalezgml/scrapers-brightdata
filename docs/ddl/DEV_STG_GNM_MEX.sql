@@ -403,7 +403,7 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_NEWARRIVALS (
     -- marca
     TX_BRAND_NO              VARCHAR(16777216)  COMMENT 'Identificador unico de la marca en Olive Young (brand_no)',
     NM_MARCA_EN              VARCHAR(16777216)  COMMENT 'Nombre de la marca en ingles (brand_name_en)',
-    NM_MARCA_KR              VARCHAR(16777216)  COMMENT 'Nombre de la marca en coreano (brand_name_kr)',
+    -- NM_MARCA_KR           VARCHAR(16777216)  COMMENT '100% NULL — Olive Young no expone nombre de marca en coreano a nivel producto (brand_name_kr)',
     URL_MARCA                VARCHAR(16777216)  COMMENT 'URL del perfil de la marca en Olive Young (brand_url)',
     URL_IMAGEN_MARCA         VARCHAR(16777216)  COMMENT 'URL de la imagen/logo de la marca (brand_image_url)',
 
@@ -428,9 +428,9 @@ CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_NEWARRIVALS (
     -- flags
     FL_NEW                   BOOLEAN            COMMENT 'Badge New en Olive Young (is_new)',
     FL_BEST                  BOOLEAN            COMMENT 'Badge Best en Olive Young (is_best)',
-    FL_AGOTADO               BOOLEAN            COMMENT 'Producto sin stock (is_soldout)',
-    FL_FLASH                 BOOLEAN            COMMENT 'Badge Flash sale (is_flash)',
-    FL_CUPON                 BOOLEAN            COMMENT 'Tiene cupon disponible (has_coupon)',
+    -- FL_AGOTADO            BOOLEAN            COMMENT '100% NULL — el scraper no extrae is_soldout en new-arrivals (is_soldout)',
+    -- FL_FLASH              BOOLEAN            COMMENT '100% NULL — badge flash sale no aparece en new-arrivals (is_flash)',
+    -- FL_CUPON              BOOLEAN            COMMENT '100% NULL — has_coupon no disponible en new-arrivals (has_coupon)',
     FL_REGALO                BOOLEAN            COMMENT 'Incluye regalo con compra (has_gift)',
 
     -- corner y metadata
