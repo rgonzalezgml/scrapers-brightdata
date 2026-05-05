@@ -14,8 +14,16 @@
         // "alibaba",
         // "indiamart",
         // "made_in_china",
-        "all"
+        "cosme_new_arrivals",
+        // "olive_young_new_arrivals",
+        // "all"
       ], // ['alibaba', 'indiamart', 'made_in_china', 'olive_young', 'cosmetics_design', 'cosme_ranking']
+      // # Solo cosme new arrivals                                                                                                             
+      // python run.py cosme_new_arrivals                                                                                                      
+      // # Solo olive young new arrivals                                                                                                       
+      // python run.py olive_young_new_arrivals
+      // # Los dos juntos                                          
+      // python run.py cosme_new_arrivals olive_young_new_arrivals
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "env": {

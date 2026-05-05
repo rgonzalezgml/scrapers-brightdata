@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Decodo Web Scraping API</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f5; --bg3: #ececec;
+    --text: #1a1a1a; --text2: #555; --text3: #888;
+    --border: #e0e0e0; --border2: #ccc;
+    --blue: #1a56db; --blue-bg: #eff6ff; --blue-text: #1e40af;
+    --green-bg: #f0fdf4; --green-text: #166534;
+    --amber-bg: #fffbeb; --amber-text: #92400e;
+    --red-bg: #fef2f2; --red-text: #991b1b;
+    --mono: 'Courier New', monospace;
+    --radius: 8px; --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#1a1a1a; --bg2:#232323; --bg3:#2d2d2d;
+      --text:#e8e8e8; --text2:#aaa; --text3:#666;
+      --border:#333; --border2:#444;
+      --blue:#60a5fa; --blue-bg:#1e3a5f; --blue-text:#93c5fd;
+      --green-bg:#052e16; --green-text:#86efac;
+      --amber-bg:#451a03; --amber-text:#fcd34d;
+      --red-bg:#450a0a; --red-text:#fca5a5;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 860px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  /* HEADER */
+  .header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 0.5px solid var(--border); }
+  .header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .header p  { font-size: 14px; color: var(--text2); }
+  .badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 99px; }
+  .badge-blue  { background: var(--blue-bg);  color: var(--blue-text); }
+  .badge-green { background: var(--green-bg); color: var(--green-text); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber-text); }
+  .badge-red   { background: var(--red-bg);   color: var(--red-text); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 2px; border-bottom: 0.5px solid var(--border);
+    margin-bottom: 24px; overflow-x: auto; }
+  .tab { padding: 9px 16px; font-size: 13px; font-weight: 500; color: var(--text2);
+    cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent;
+    margin-bottom: -0.5px; white-space: nowrap; transition: color .15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+  .section { display: none; } .section.active { display: block; }
+
+  /* TYPO */
+  h2 { font-size: 18px; font-weight: 600; margin-bottom: 8px; margin-top: 4px; }
+  h3 { font-size: 14px; font-weight: 600; color: var(--text); margin: 20px 0 6px; }
+  p  { font-size: 14px; color: var(--text2); margin-bottom: 10px; line-height: 1.65; }
+  code { font-family: var(--mono); font-size: 12px; background: var(--bg2);
+    padding: 2px 6px; border-radius: 4px; color: var(--text); }
+
+  /* STEPS */
+  .steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+  .step { display: flex; gap: 12px; align-items: flex-start;
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg); padding: 14px 16px; }
+  .step-n { width: 28px; height: 28px; border-radius: 50%; background: var(--bg);
+    border: 0.5px solid var(--border2); display: flex; align-items: center;
+    justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+  .step h4 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .step p  { font-size: 13px; margin-bottom: 0; }
+
+  /* CODE */
+  .code-wrap { border: 0.5px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; margin: 10px 0; }
+  .code-head { display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 12px; background: var(--bg2); border-bottom: 0.5px solid var(--border); }
+  .code-lang { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+  .copy-btn { font-size: 11px; color: var(--text2); background: none;
+    border: 0.5px solid var(--border2); border-radius: 4px;
+    padding: 2px 9px; cursor: pointer; transition: background .15s; }
+  .copy-btn:hover { background: var(--bg3); }
+  pre { padding: 14px 16px; overflow-x: auto; font-size: 12.5px; line-height: 1.65;
+    font-family: var(--mono); color: var(--text); background: var(--bg); }
+  .kw  { color: #7c3aed; } .str { color: #16a34a; }
+  .com { color: var(--text3); font-style: italic; }
+  .key { color: var(--blue); } .num { color: #dc2626; }
+
+  /* TABLE */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  .tbl th { text-align: left; padding: 7px 10px; font-weight: 600; font-size: 11px;
+    color: var(--text2); border-bottom: 0.5px solid var(--border); }
+  .tbl td { padding: 9px 10px; border-bottom: 0.5px solid var(--border);
+    vertical-align: top; color: var(--text2); line-height: 1.45; }
+  .tbl td:first-child { font-family: var(--mono); font-size: 12px; color: var(--text); white-space: nowrap; }
+  .tbl tr:last-child td { border-bottom: none; }
+
+  /* ACTIONS GRID */
+  .actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 7px; margin: 10px 0; }
+  .act-card { background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 11px 13px; cursor: pointer;
+    transition: border-color .15s, background .15s; }
+  .act-card:hover, .act-card.active { border-color: var(--border2); background: var(--bg); }
+  .act-name { font-size: 12.5px; font-weight: 600; font-family: var(--mono);
+    color: var(--text); margin-bottom: 4px; }
+  .act-desc { font-size: 12px; color: var(--text2); line-height: 1.4; }
+  .act-detail { border: 0.5px solid var(--border); border-radius: var(--radius);
+    padding: 14px 16px; background: var(--bg); margin: 8px 0; min-height: 80px; }
+
+  /* FLOW BTNS */
+  .flow-btns { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .flow-btn { padding: 6px 15px; font-size: 12px; font-weight: 500;
+    background: none; border: 0.5px solid var(--border2); border-radius: 99px;
+    cursor: pointer; color: var(--text2); transition: all .15s; }
+  .flow-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  /* ALERT */
+  .alert { border-radius: var(--radius); padding: 11px 14px; font-size: 13px;
+    margin: 12px 0; border: 0.5px solid; display: flex; gap: 8px; }
+  .alert-warn { background: var(--amber-bg); border-color: var(--amber-text); color: var(--amber-text); }
+  .alert-info  { background: var(--blue-bg);  border-color: var(--blue-text);  color: var(--blue-text); }
+  .alert-red   { background: var(--red-bg);   border-color: var(--red-text);   color: var(--red-text); }
+
+  hr { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Guía: Decodo Web Scraping API</h1>
+    <p>Tutorial completo desde cero — autenticación, parámetros, browser actions, tipos de request y recetas listas.</p>
+    <div class="badges">
+      <span class="badge badge-blue">REST API</span>
+      <span class="badge badge-green">JS Rendering</span>
+      <span class="badge badge-amber">Browser Actions</span>
+      <span class="badge badge-red">Anti-bot bypass</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('start',this)">1. Inicio rápido</button>
+    <button class="tab" onclick="showTab('params',this)">2. Parámetros</button>
+    <button class="tab" onclick="showTab('actions',this)">3. Browser Actions</button>
+    <button class="tab" onclick="showTab('flow',this)">4. Tipos de request</button>
+    <button class="tab" onclick="showTab('recipes',this)">5. Recetas</button>
+  </div>
+
+  <!-- ==================== TAB 1: INICIO RÁPIDO ==================== -->
+  <div class="section active" id="tab-start">
+    <h2>¿Qué es la Decodo Web Scraping API?</h2>
+    <p>Una API REST totalmente administrada que se encarga de los proxies, el browser remoto, los CAPTCHAs y los mecanismos anti-bot. Tu trabajo es enviar un JSON con la URL y los parámetros, y Decodo te devuelve el HTML (o JSON, o screenshot).</p>
+
+    <h3>Pasos para empezar</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">1</div>
+        <div>
+          <h4>Crear cuenta y obtener tu token</h4>
+          <p>Entra a <strong>dashboard.decodo.com</strong> → activa un trial o plan → ve al <em>API Playground</em> para copiar tu <strong>Authorization Token</strong>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">2</div>
+        <div>
+          <h4>Endpoint único para todas las requests</h4>
+          <p><code>POST https://scraper-api.decodo.com/v2/scrape</code></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">3</div>
+        <div>
+          <h4>Autenticación: Basic Token</h4>
+          <p>Header: <code>Authorization: Basic TU_TOKEN</code> — el token se obtiene directo del dashboard, no es user:pass en base64.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Primera request — cURL</h3>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre>curl <span class="kw">--request</span> <span class="str">'POST'</span> \
+  <span class="kw">--url</span> <span class="str">'https://scraper-api.decodo.com/v2/scrape'</span> \
+  <span class="kw">--header</span> <span class="str">'Authorization: Basic TU_TOKEN'</span> \
+  <span class="kw">--header</span> <span class="str">'Content-Type: application/json'</span> \
+  <span class="kw">--data</span> <span class="str">'{
+    "url": "https://example.com"
+  }'</span></pre>
+    </div>
+
+    <h3>Respuesta típica</h3>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">JSON — Respuesta</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre>{
+  <span class="key">"results"</span>: [
+    {
+      <span class="key">"content"</span>: <span class="str">"&lt;html&gt;...&lt;/html&gt;"</span>,   <span class="com">// HTML de la página</span>
+      <span class="key">"status_code"</span>: <span class="num">200</span>,
+      <span class="key">"task_id"</span>: <span class="str">"7422278918918391809"</span>,
+      <span class="key">"created_at"</span>: <span class="str">"2026-01-28 14:06:33"</span>,
+      <span class="key">"updated_at"</span>: <span class="str">"2026-01-28 14:06:35"</span>
+    }
+  ]
+}</pre>
+    </div>
+
+    <h3>Ejemplo en Python</h3>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre><span class="kw">import</span> requests
+
+payload = {
+    <span class="str">"url"</span>: <span class="str">"https://example.com"</span>,
+    <span class="str">"headless"</span>: <span class="str">"html"</span>,  <span class="com"># activa JS rendering</span>
+    <span class="str">"geo"</span>: <span class="str">"United States"</span>,
+    <span class="str">"proxy_pool"</span>: <span class="str">"premium"</span>
+}
+
+response = requests.post(
+    <span class="str">"https://scraper-api.decodo.com/v2/scrape"</span>,
+    headers={
+        <span class="str">"Authorization"</span>: <span class="str">"Basic TU_TOKEN"</span>,
+        <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>
+    },
+    json=payload,
+    timeout=<span class="num">60</span>
+)
+
+data = response.json()
+html = data[<span class="str">"results"</span>][<span class="num">0</span>][<span class="str">"content"</span>]
+print(html[:<span class="num">500</span>])</pre>
+    </div>
+
+    <h3>Ejemplo en Node.js</h3>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">JavaScript / Node.js</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre><span class="kw">const</span> response = <span class="kw">await</span> fetch(<span class="str">'https://scraper-api.decodo.com/v2/scrape'</span>, {
+  method: <span class="str">'POST'</span>,
+  headers: {
+    <span class="str">'Authorization'</span>: <span class="str">'Basic TU_TOKEN'</span>,
+    <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>
+  },
+  body: JSON.stringify({
+    url: <span class="str">'https://example.com'</span>,
+    headless: <span class="str">'html'</span>,
+    geo: <span class="str">'Japan'</span>
+  })
+});
+
+<span class="kw">const</span> { results } = <span class="kw">await</span> response.json();
+console.log(results[<span class="num">0</span>].content);</pre>
+    </div>
+  </div>
+
+  <!-- ==================== TAB 2: PARÁMETROS ==================== -->
+  <div class="section" id="tab-params">
+    <h2>Parámetros principales</h2>
+    <p>Se pasan todos en el body JSON. Solo <code>url</code> es obligatorio (o <code>query</code> para algunos target templates).</p>
+
+    <table class="tbl">
+      <thead><tr><th>Parámetro</th><th>Default</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td>url</td><td>—</td><td><span class="badge badge-red">obligatorio</span> URL a scrapear</td></tr>
+        <tr><td>target</td><td>null</td><td>Plantilla específica: <code>google_search</code>, <code>amazon_product</code>, <code>universal</code>, etc.</td></tr>
+        <tr><td>proxy_pool</td><td>premium</td><td><code>standard</code> = páginas simples, más barato. <code>premium</code> = anti-bot avanzado.</td></tr>
+        <tr><td>headless</td><td>null</td><td><code>"html"</code> activa JS rendering. <code>"png"</code> devuelve screenshot.</td></tr>
+        <tr><td>geo</td><td>auto</td><td>País del proxy: <code>"United States"</code>, <code>"Japan"</code>, <code>"Germany"</code>…</td></tr>
+        <tr><td>locale</td><td>auto</td><td>Idioma de interfaz: <code>"ja-JP"</code>, <code>"en-US"</code>, <code>"en-GB"</code></td></tr>
+        <tr><td>device_type</td><td>desktop</td><td><code>"desktop"</code> o <code>"mobile"</code></td></tr>
+        <tr><td>session_id</td><td>null</td><td>Mantiene el mismo IP por hasta 10 minutos entre requests.</td></tr>
+        <tr><td>markdown</td><td>false</td><td>Convierte HTML a Markdown. Ideal para alimentar LLMs.</td></tr>
+        <tr><td>parse</td><td>false</td><td>Devuelve JSON estructurado (solo en target templates que lo soporten).</td></tr>
+        <tr><td>xhr</td><td>false</td><td>Devuelve lista de XHR/fetch requests capturadas.</td></tr>
+        <tr><td>cookies</td><td>null</td><td>Cookies personalizadas. Requiere <code>force_cookies: true</code> para enviarlas.</td></tr>
+        <tr><td>headers</td><td>null</td><td>Headers personalizados. Requiere <code>force_headers: true</code>.</td></tr>
+        <tr><td>http_method</td><td>GET</td><td>Cambiar a <code>"POST"</code> si el target lo requiere.</td></tr>
+        <tr><td>payload</td><td>null</td><td>Body en Base64 cuando <code>http_method</code> es <code>"POST"</code>.</td></tr>
+        <tr><td>successful_status_codes</td><td>null</td><td>Códigos HTTP adicionales que consideras exitosos: <code>[401, 404]</code></td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+    <h3>Pricing: combinaciones de proxy_pool + headless</h3>
+    <table class="tbl">
+      <thead><tr><th>proxy_pool</th><th>headless</th><th>Uso recomendado</th><th>Costo</th></tr></thead>
+      <tbody>
+        <tr><td>standard</td><td>no</td><td>HTML estático, sin anti-bot.</td><td>⬇ más bajo</td></tr>
+        <tr><td>standard</td><td>html</td><td>JS rendering sin protección avanzada.</td><td>↓</td></tr>
+        <tr><td>premium</td><td>no</td><td>Anti-bot avanzado, contenido estático.</td><td>↑</td></tr>
+        <tr><td>premium</td><td>html</td><td>Máxima compatibilidad. Anti-bot + JS.</td><td>⬆ más alto</td></tr>
+      </tbody>
+    </table>
+
+    <div class="alert alert-info">
+      <span>ℹ</span>
+      <span>Los <strong>Target Templates</strong> (Amazon, Google, etc.) siempre usan Premium. No puedes bajar a Standard en esos endpoints.</span>
+    </div>
+
+    <hr>
+    <h3>Target Templates disponibles</h3>
+    <p>Cuando usas un <code>target</code> específico, Decodo aplica un parser dedicado y devuelve JSON limpio con <code>parse: true</code>.</p>
+    <table class="tbl">
+      <thead><tr><th>target</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td>universal</td><td>Cualquier URL. Sin parser dedicado.</td></tr>
+        <tr><td>google_search</td><td>Resultados de búsqueda de Google.</td></tr>
+        <tr><td>amazon_product</td><td>Página de producto en Amazon.</td></tr>
+        <tr><td>amazon_search</td><td>Resultados de búsqueda en Amazon.</td></tr>
+        <tr><td>walmart_product</td><td>Producto de Walmart.</td></tr>
+        <tr><td>reddit_post</td><td>Post y comentarios de Reddit.</td></tr>
+        <tr><td>tiktok_post</td><td>Post individual de TikTok.</td></tr>
+        <tr><td>youtube_metadata</td><td>Metadata de video de YouTube.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ==================== TAB 3: BROWSER ACTIONS ==================== -->
+  <div class="section" id="tab-actions">
+    <h2>Browser Actions</h2>
+    <p>Acciones que el browser remoto ejecuta <em>antes</em> de devolverte el resultado. Se pasan en el array <code>browser_actions</code>. Requiere <code>headless: "html"</code>.</p>
+
+    <div class="actions-grid">
+      <div class="act-card active" onclick="showAction('click',this)">
+        <div class="act-name">click</div>
+        <div class="act-desc">Clic en un elemento</div>
+      </div>
+      <div class="act-card" onclick="showAction('input',this)">
+        <div class="act-name">input</div>
+        <div class="act-desc">Escribe en un campo</div>
+      </div>
+      <div class="act-card" onclick="showAction('scroll',this)">
+        <div class="act-name">scroll</div>
+        <div class="act-desc">Scroll a coordenadas</div>
+      </div>
+      <div class="act-card" onclick="showAction('scroll_bottom',this)">
+        <div class="act-name">scroll_to_bottom</div>
+        <div class="act-desc">Scroll continuo</div>
+      </div>
+      <div class="act-card" onclick="showAction('wait',this)">
+        <div class="act-name">wait</div>
+        <div class="act-desc">Pausa fija</div>
+      </div>
+      <div class="act-card" onclick="showAction('wait_element',this)">
+        <div class="act-name">wait_for_element</div>
+        <div class="act-desc">Espera que aparezca algo</div>
+      </div>
+      <div class="act-card" onclick="showAction('fetch',this)">
+        <div class="act-name">fetch_resource</div>
+        <div class="act-desc">Captura XHR / API calls</div>
+      </div>
+    </div>
+
+    <div class="act-detail" id="act-detail"></div>
+
+    <hr>
+    <h3>Tipos de selector</h3>
+    <table class="tbl">
+      <thead><tr><th>type</th><th>Ejemplo de value</th></tr></thead>
+      <tbody>
+        <tr><td>css</td><td><code>.btn-load-more</code> · <code>#search-input</code> · <code>button[type="submit"]</code></td></tr>
+        <tr><td>xpath</td><td><code>//button[@class='submit']</code> · <code>//input[@name='q']</code></td></tr>
+        <tr><td>text</td><td><code>Load more</code> (texto visible del elemento)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>on_error — manejo de errores por acción</h3>
+    <table class="tbl">
+      <thead><tr><th>valor</th><th>comportamiento</th></tr></thead>
+      <tbody>
+        <tr><td>error</td><td>Detiene toda la ejecución al primer error.</td></tr>
+        <tr><td>skip</td><td>Ignora esa acción y continúa con la siguiente. Útil para elementos opcionales.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Ejemplo: secuencia completa de acciones</h3>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">JSON — Secuencia combinada</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre>{
+  <span class="key">"url"</span>: <span class="str">"https://tienda.com/categoria"</span>,
+  <span class="key">"headless"</span>: <span class="str">"html"</span>,
+  <span class="key">"browser_actions"</span>: [
+    {
+      <span class="key">"type"</span>: <span class="str">"wait_for_element"</span>,       <span class="com">// 1. Esperar que cargue la grilla</span>
+      <span class="key">"selector"</span>: { <span class="key">"type"</span>: <span class="str">"css"</span>, <span class="key">"value"</span>: <span class="str">".product-grid"</span> },
+      <span class="key">"timeout_s"</span>: <span class="num">10</span>
+    },
+    {
+      <span class="key">"type"</span>: <span class="str">"scroll_to_bottom"</span>,          <span class="com">// 2. Scroll para cargar más items</span>
+      <span class="key">"timeout_s"</span>: <span class="num">4</span>
+    },
+    {
+      <span class="key">"type"</span>: <span class="str">"wait"</span>,                     <span class="com">// 3. Pausa para que carguen los nuevos items</span>
+      <span class="key">"wait_time_s"</span>: <span class="num">2</span>
+    },
+    {
+      <span class="key">"type"</span>: <span class="str">"click"</span>,                    <span class="com">// 4. Clic en "Ver más" si existe</span>
+      <span class="key">"selector"</span>: { <span class="key">"type"</span>: <span class="str">"css"</span>, <span class="key">"value"</span>: <span class="str">".load-more"</span> },
+      <span class="key">"on_error"</span>: <span class="str">"skip"</span>               <span class="com">// continúa si no existe el botón</span>
+    }
+  ]
+}</pre>
+    </div>
+  </div>
+
+  <!-- ==================== TAB 4: TIPOS DE REQUEST ==================== -->
+  <div class="section" id="tab-flow">
+    <h2>Tipos de request</h2>
+    <div class="flow-btns">
+      <button class="flow-btn active" onclick="showFlow('sync',this)">Síncrona (real-time)</button>
+      <button class="flow-btn" onclick="showFlow('async',this)">Asíncrona</button>
+      <button class="flow-btn" onclick="showFlow('batch',this)">Batch</button>
+    </div>
+
+    <div id="flow-sync">
+      <p>La request bloquea hasta recibir el resultado. Timeout máximo ~60 segundos. Ideal para scripts simples y requests individuales. La respuesta llega directamente en el body.</p>
+      <div class="code-wrap">
+        <div class="code-head"><span class="code-lang">Python — Síncrona</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre>response = requests.post(
+    <span class="str">"https://scraper-api.decodo.com/v2/scrape"</span>,
+    headers={
+        <span class="str">"Authorization"</span>: <span class="str">"Basic TU_TOKEN"</span>,
+        <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>
+    },
+    json={<span class="str">"url"</span>: <span class="str">"https://ejemplo.com"</span>, <span class="str">"headless"</span>: <span class="str">"html"</span>},
+    timeout=<span class="num">65</span>
+)
+html = response.json()[<span class="str">"results"</span>][<span class="num">0</span>][<span class="str">"content"</span>]</pre>
+      </div>
+    </div>
+
+    <div id="flow-async" style="display:none">
+      <p>Envías la request con el header <code>x-response-type: task</code>, recibes un <code>task_id</code>, y luego haces polling para recuperar el resultado. Permite correr muchas requests en paralelo sin bloquear.</p>
+      <div class="code-wrap">
+        <div class="code-head"><span class="code-lang">Python — Asíncrona (polling)</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><span class="kw">import</span> requests, time
+
+HEADERS_BASE = {
+    <span class="str">"Authorization"</span>: <span class="str">"Basic TU_TOKEN"</span>,
+    <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>
+}
+
+<span class="com"># 1. Encolar la tarea</span>
+r = requests.post(
+    <span class="str">"https://scraper-api.decodo.com/v2/scrape"</span>,
+    headers={**HEADERS_BASE, <span class="str">"x-response-type"</span>: <span class="str">"task"</span>},
+    json={<span class="str">"url"</span>: <span class="str">"https://ejemplo.com"</span>}
+)
+task_id = r.json()[<span class="str">"id"</span>]
+print(<span class="str">f"Task encolado: {task_id}"</span>)
+
+<span class="com"># 2. Polling hasta que esté listo</span>
+<span class="kw">while</span> <span class="kw">True</span>:
+    result = requests.get(
+        <span class="str">f"https://scraper-api.decodo.com/v2/task/{task_id}"</span>,
+        headers=HEADERS_BASE
+    ).json()
+
+    status = result.get(<span class="str">"status"</span>)
+    <span class="kw">if</span> status == <span class="str">"done"</span>:
+        html = result[<span class="str">"results"</span>][<span class="num">0</span>][<span class="str">"content"</span>]
+        print(<span class="str">f"Listo: {len(html)} chars"</span>)
+        <span class="kw">break</span>
+    <span class="kw">elif</span> status == <span class="str">"failed"</span>:
+        raise Exception(<span class="str">f"Task falló: {result}"</span>)
+
+    time.sleep(<span class="num">2</span>)  <span class="com"># esperar 2 segundos entre polling</span></pre>
+      </div>
+    </div>
+
+    <div id="flow-batch" style="display:none">
+      <p>Envías múltiples URLs en una sola request. Útil para scrapear listas de productos, páginas de categoría, etc. El endpoint de batch acepta un array de tareas.</p>
+      <div class="code-wrap">
+        <div class="code-head"><span class="code-lang">Python — Batch</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+        <pre><span class="kw">import</span> requests
+
+urls = [
+    <span class="str">"https://ejemplo.com/producto/1"</span>,
+    <span class="str">"https://ejemplo.com/producto/2"</span>,
+    <span class="str">"https://ejemplo.com/producto/3"</span>,
+]
+
+tasks = [
+    {<span class="str">"url"</span>: url, <span class="str">"headless"</span>: <span class="str">"html"</span>, <span class="str">"proxy_pool"</span>: <span class="str">"premium"</span>}
+    <span class="kw">for</span> url <span class="kw">in</span> urls
+]
+
+<span class="com"># Enviar batch</span>
+response = requests.post(
+    <span class="str">"https://scraper-api.decodo.com/v2/batch"</span>,
+    headers={
+        <span class="str">"Authorization"</span>: <span class="str">"Basic TU_TOKEN"</span>,
+        <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>
+    },
+    json={<span class="str">"tasks"</span>: tasks}
+)
+
+batch_id = response.json()[<span class="str">"batch_id"</span>]
+print(<span class="str">f"Batch ID: {batch_id}"</span>)
+<span class="com"># Luego hacer polling por cada task_id igual que en async...</span></pre>
+      </div>
+
+      <div class="alert alert-info" style="margin-top:12px">
+        <span>ℹ</span>
+        <span>Para volúmenes grandes de URLs, el modo batch es la forma más eficiente: envías todo junto y recuperas los resultados cuando están listos.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TAB 5: RECETAS ==================== -->
+  <div class="section" id="tab-recipes">
+    <h2>Recetas listas para usar</h2>
+    <p>Patrones comunes que puedes adaptar directamente a tus scrapers.</p>
+
+    <h3>1. Página con infinite scroll</h3>
+    <p>Para sitios que cargan más productos al bajar (como @cosme, Rakuten, etc.).</p>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre>{
+  <span class="key">"url"</span>: <span class="str">"https://tienda.com/categoria/serums"</span>,
+  <span class="key">"headless"</span>: <span class="str">"html"</span>,
+  <span class="key">"proxy_pool"</span>: <span class="str">"premium"</span>,
+  <span class="key">"geo"</span>: <span class="str">"Japan"</span>,
+  <span class="key">"browser_actions"</span>: [
+    { <span class="key">"type"</span>: <span class="str">"wait_for_element"</span>,
+      <span class="key">"selector"</span>: { <span class="key">"type"</span>: <span class="str">"css"</span>, <span class="key">"value"</span>: <span class="str">".product-list"</span> },
+      <span class="key">"timeout_s"</span>: <span class="num">10</span> },
+    { <span class="key">"type"</span>: <span class="str">"scroll_to_bottom"</span>, <span class="key">"timeout_s"</span>: <span class="num">5</span> },
+    { <span class="key">"type"</span>: <span class="str">"wait"</span>, <span class="key">"wait_time_s"</span>: <span class="num">2</span> },
+    { <span class="key">"type"</span>: <span class="str">"scroll_to_bottom"</span>, <span class="key">"timeout_s"</span>: <span class="num">5</span> }
+  ]
+}</pre>
+    </div>
+
+    <h3>2. Búsqueda con formulario</h3>
+    <p>Escribir en un campo de búsqueda, hacer submit y esperar los resultados.</p>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre>{
+  <span class="key">"url"</span>: <span class="str">"https://nutraingredients.com"</span>,
+  <span class="key">"headless"</span>: <span class="str">"html"</span>,
+  <span class="key">"browser_actions"</span>: [
+    { <span class="key">"type"</span>: <span class="str">"input"</span>,
+      <span class="key">"selector"</span>: { <span class="key">"type"</span>: <span class="str">"css"</span>, <span class="key">"value"</span>: <span class="str">"input[name='q']"</span> },
+      <span class="key">"value"</span>: <span class="str">"retinol 2026"</span> },
+    { <span class="key">"type"</span>: <span class="str">"click"</span>,
+      <span class="key">"selector"</span>: { <span class="key">"type"</span>: <span class="str">"css"</span>, <span class="key">"value"</span>: <span class="str">"button[type='submit']"</span> } },
+    { <span class="key">"type"</span>: <span class="str">"wait_for_element"</span>,
+      <span class="key">"selector"</span>: { <span class="key">"type"</span>: <span class="str">"css"</span>, <span class="key">"value"</span>: <span class="str">".search-results"</span> },
+      <span class="key">"timeout_s"</span>: <span class="num">10</span> }
+  ]
+}</pre>
+    </div>
+
+    <h3>3. Capturar API interna (XHR/fetch)</h3>
+    <p>Si el sitio carga datos vía XHR o fetch, puedes capturar esa respuesta directamente como JSON, evitando parsear HTML.</p>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre>{
+  <span class="key">"url"</span>: <span class="str">"https://sitio.com/productos"</span>,
+  <span class="key">"headless"</span>: <span class="str">"html"</span>,
+  <span class="key">"browser_actions"</span>: [
+    {
+      <span class="key">"type"</span>: <span class="str">"fetch_resource"</span>,
+      <span class="key">"filter"</span>: <span class="str">"/api/v1/products"</span>,  <span class="com">// regex que matchea la URL del XHR</span>
+      <span class="key">"on_error"</span>: <span class="str">"error"</span>
+    }
+  ]
+}
+<span class="com">// ⚠ fetch_resource NO puede combinarse con otras acciones en la misma request</span></pre>
+    </div>
+
+    <h3>4. Google Search con datos estructurados</h3>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre>{
+  <span class="key">"target"</span>: <span class="str">"google_search"</span>,
+  <span class="key">"query"</span>: <span class="str">"retinol skincare ingredients trends"</span>,
+  <span class="key">"geo"</span>: <span class="str">"Japan"</span>,
+  <span class="key">"locale"</span>: <span class="str">"ja-JP"</span>,
+  <span class="key">"parse"</span>: <span class="kw">true</span>   <span class="com">// devuelve JSON estructurado, no HTML</span>
+}</pre>
+    </div>
+
+    <h3>5. Respuesta en Markdown (para LLMs)</h3>
+    <p>Convierte el HTML en Markdown limpio, reduciendo tokens para procesamiento con modelos de lenguaje.</p>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre>{
+  <span class="key">"url"</span>: <span class="str">"https://nutraingredients.com/article/ejemplo"</span>,
+  <span class="key">"headless"</span>: <span class="str">"html"</span>,
+  <span class="key">"proxy_pool"</span>: <span class="str">"premium"</span>,
+  <span class="key">"markdown"</span>: <span class="kw">true</span>   <span class="com">// retorna Markdown en vez de HTML crudo</span>
+}</pre>
+    </div>
+
+    <h3>6. Mantener sesión entre requests (mismo IP)</h3>
+    <p>Útil cuando necesitas navegar varias páginas simulando el mismo usuario.</p>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">Python — Session ID</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre>session_id = <span class="str">"mi-sesion-123"</span>  <span class="com"># cualquier string fijo</span>
+
+<span class="kw">for</span> url <span class="kw">in</span> [<span class="str">"/pagina1"</span>, <span class="str">"/pagina2"</span>, <span class="str">"/pagina3"</span>]:
+    requests.post(
+        <span class="str">"https://scraper-api.decodo.com/v2/scrape"</span>,
+        headers={<span class="str">"Authorization"</span>: <span class="str">"Basic TU_TOKEN"</span>, ...},
+        json={
+            <span class="str">"url"</span>: <span class="str">f"https://sitio.com{url}"</span>,
+            <span class="str">"session_id"</span>: session_id  <span class="com"># mantiene el mismo IP</span>
+        }
+    )</pre>
+    </div>
+
+    <hr>
+    <div class="alert alert-red">
+      <span>⚠</span>
+      <span><strong>Límite importante:</strong> Decodo no soporta scraping de datos post-login (páginas que requieren autenticación). Solo funciona con contenido de acceso público.</span>
+    </div>
+
+    <div class="alert alert-warn">
+      <span>⚠</span>
+      <span><code>fetch_resource</code> solo puede usarse sola en una request. No puede combinarse con <code>click</code>, <code>scroll</code> u otras acciones.</span>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+const actionData = {
+  click: {
+    title: 'click — hacer clic en un elemento',
+    desc: 'Hace clic en el elemento especificado y espera a que la acción se procese.',
+    code: `{
+  <span class="key">"type"</span>: <span class="str">"click"</span>,
+  <span class="key">"selector"</span>: {
+    <span class="key">"type"</span>: <span class="str">"css"</span>,       <span class="com">// "css", "xpath" o "text"</span>
+    <span class="key">"value"</span>: <span class="str">".btn-load-more"</span>
+  },
+  <span class="key">"on_error"</span>: <span class="str">"skip"</span>   <span class="com">// opcional: continúa si el botón no existe</span>
+}`
+  },
+  input: {
+    title: 'input — escribir en un campo',
+    desc: 'Inserta texto en un input, textarea u otro campo editable.',
+    code: `{
+  <span class="key">"type"</span>: <span class="str">"input"</span>,
+  <span class="key">"selector"</span>: {
+    <span class="key">"type"</span>: <span class="str">"css"</span>,
+    <span class="key">"value"</span>: <span class="str">"input[name='search']"</span>
+  },
+  <span class="key">"value"</span>: <span class="str">"retinol serum"</span>
+}`
+  },
+  scroll: {
+    title: 'scroll — scroll a coordenadas específicas',
+    desc: 'Desplaza la página un número exacto de píxeles. Útil para revelar contenido lazy-loaded en posiciones específicas.',
+    code: `{
+  <span class="key">"type"</span>: <span class="str">"scroll"</span>,
+  <span class="key">"x"</span>: <span class="str">"0"</span>,
+  <span class="key">"y"</span>: <span class="str">"1500"</span>   <span class="com">// baja 1500px verticalmente</span>
+}`
+  },
+  scroll_bottom: {
+    title: 'scroll_to_bottom — scroll continuo hacia abajo',
+    desc: 'Hace scroll durante N segundos, activando la carga de contenido en páginas con infinite scroll.',
+    code: `{
+  <span class="key">"type"</span>: <span class="str">"scroll_to_bottom"</span>,
+  <span class="key">"timeout_s"</span>: <span class="num">5</span>   <span class="com">// hace scroll por 5 segundos</span>
+}`
+  },
+  wait: {
+    title: 'wait — pausa fija',
+    desc: 'Espera un tiempo determinado sin hacer nada. Útil para animaciones, transiciones o carga lenta.',
+    code: `{
+  <span class="key">"type"</span>: <span class="str">"wait"</span>,
+  <span class="key">"wait_time_s"</span>: <span class="num">3</span>   <span class="com">// espera 3 segundos</span>
+}`
+  },
+  wait_element: {
+    title: 'wait_for_element — espera a que aparezca un elemento',
+    desc: 'Espera hasta que un selector aparezca en el DOM. Si no aparece antes de timeout_s, aplica on_error.',
+    code: `{
+  <span class="key">"type"</span>: <span class="str">"wait_for_element"</span>,
+  <span class="key">"selector"</span>: {
+    <span class="key">"type"</span>: <span class="str">"css"</span>,
+    <span class="key">"value"</span>: <span class="str">".product-list"</span>
+  },
+  <span class="key">"timeout_s"</span>: <span class="num">10</span>,     <span class="com">// máximo 10 segundos de espera</span>
+  <span class="key">"on_error"</span>: <span class="str">"error"</span>   <span class="com">// falla si no aparece el elemento</span>
+}`
+  },
+  fetch: {
+    title: 'fetch_resource — capturar XHR / API call interna',
+    desc: '⚠ No puede combinarse con otras acciones. Captura la primera respuesta Fetch/XHR que coincida con el filtro (regex). El resultado llega como JSON en results[0].content.',
+    code: `{
+  <span class="key">"type"</span>: <span class="str">"fetch_resource"</span>,
+  <span class="key">"filter"</span>: <span class="str">"/api/v1/products"</span>,   <span class="com">// regex para la URL del XHR</span>
+  <span class="key">"on_error"</span>: <span class="str">"error"</span>
+}
+
+<span class="com">// La respuesta contiene el JSON de la API interna, no el HTML de la página.</span>
+<span class="com">// Ideal cuando el sitio usa un endpoint de datos separado.</span>`
+  }
+};
+
+function showAction(key, card) {
+  document.querySelectorAll('.act-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  const d = actionData[key];
+  document.getElementById('act-detail').innerHTML = `
+    <h4 style="font-size:13px;font-weight:600;margin-bottom:4px;font-family:var(--mono)">${d.title}</h4>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:10px">${d.desc}</p>
+    <div class="code-wrap">
+      <div class="code-head"><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+      <pre>${d.code}</pre>
+    </div>`;
+}
+
+function showTab(name, tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  tab.classList.add('active');
+}
+
+function showFlow(type, btn) {
+  ['sync','async','batch'].forEach(t => {
+    document.getElementById('flow-' + t).style.display = t === type ? '' : 'none';
+  });
+  document.querySelectorAll('.flow-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  const text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text.trim()).then(() => {
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = 'Copiar', 1800);
+  });
+}
+
+// init: mostrar primera acción
+showAction('click', document.querySelector('.act-card'));
+</script>
+</body>
+</html>

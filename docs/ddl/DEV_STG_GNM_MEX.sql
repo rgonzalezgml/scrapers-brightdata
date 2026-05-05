@@ -382,6 +382,125 @@ GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_MADE
 GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_RANK_HIST      TO ROLE STREAMLIT_DEVELOPER;
 GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_COSMETICDESIGN_ART_HIST   TO ROLE STREAMLIT_DEVELOPER;
 GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_COSME_RANKING_HIST        TO ROLE STREAMLIT_DEVELOPER;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_COSME_RANKING_NEWARRIVALS   TO ROLE STREAMLIT_DEVELOPER;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_NEWARRIVALS      TO ROLE STREAMLIT_DEVELOPER;
+
+-- ---------------------------------------------------------------------------
+-- 8. SRC_OLIVEYOUNG_NEWARRIVALS
+--    Fuente: scrapers/olive-young-new-arrivals  (global.oliveyoung.com)
+--    Granularidad: 1 fila = 1 producto en la página new-arrivals
+--    Incluye Stage 2: detalle enriquecido (brand, categoría, métricas, contenido)
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_OLIVEYOUNG_NEWARRIVALS (
+
+    -- producto
+    TX_PRDT_NO               VARCHAR(16777216)  COMMENT 'Identificador unico del producto en Olive Young Global (prdt_no)',
+    URL_PRODUCTO             VARCHAR(16777216)  COMMENT 'URL del detalle del producto (url)',
+    NM_PRODUCTO_EN           VARCHAR(16777216)  COMMENT 'Nombre del producto en ingles (product_name_en)',
+    NM_PRODUCTO_KR           VARCHAR(16777216)  COMMENT 'Nombre del producto en coreano (product_name_kr)',
+    URL_IMAGEN               VARCHAR(16777216)  COMMENT 'URL de la imagen principal del producto (image_url)',
+
+    -- marca
+    TX_BRAND_NO              VARCHAR(16777216)  COMMENT 'Identificador unico de la marca en Olive Young (brand_no)',
+    NM_MARCA_EN              VARCHAR(16777216)  COMMENT 'Nombre de la marca en ingles (brand_name_en)',
+    NM_MARCA_KR              VARCHAR(16777216)  COMMENT 'Nombre de la marca en coreano (brand_name_kr)',
+    URL_MARCA                VARCHAR(16777216)  COMMENT 'URL del perfil de la marca en Olive Young (brand_url)',
+    URL_IMAGEN_MARCA         VARCHAR(16777216)  COMMENT 'URL de la imagen/logo de la marca (brand_image_url)',
+
+    -- precio
+    TX_PRECIO_VENTA          VARCHAR(16777216)  COMMENT 'Precio de venta en USD (sale_amt)',
+    TX_PRECIO_NORMAL         VARCHAR(16777216)  COMMENT 'Precio normal sin descuento en USD (nrml_amt)',
+    TX_DESCUENTO             VARCHAR(16777216)  COMMENT 'Porcentaje de descuento aplicado (discount_rate)',
+
+    -- categoria
+    NM_CATEGORIA             VARCHAR(16777216)  COMMENT 'Categoria hoja del producto (category)',
+    DS_CATEGORIAS            VARIANT            COMMENT 'Array completo de categorias del producto (categories)',
+
+    -- metricas
+    NU_RATING                NUMBER(5,2)        COMMENT 'Calificacion promedio del producto (rating)',
+    NU_RESENAS               NUMBER(12,0)       COMMENT 'Cantidad de resenas del producto (review_count)',
+
+    -- contenido enriquecido
+    TX_DESCRIPCION           VARCHAR(16777216)  COMMENT 'Descripcion editorial del producto - why we love it (why_we_love_it)',
+    TX_MODO_USO              VARCHAR(16777216)  COMMENT 'Instrucciones de uso del producto (how_to_use)',
+    TX_IMAGENES_EXTRA        VARCHAR(16777216)  COMMENT 'URLs adicionales de imagenes separadas por pipe (extra_images)',
+
+    -- flags
+    FL_NEW                   BOOLEAN            COMMENT 'Badge New en Olive Young (is_new)',
+    FL_BEST                  BOOLEAN            COMMENT 'Badge Best en Olive Young (is_best)',
+    FL_AGOTADO               BOOLEAN            COMMENT 'Producto sin stock (is_soldout)',
+    FL_FLASH                 BOOLEAN            COMMENT 'Badge Flash sale (is_flash)',
+    FL_CUPON                 BOOLEAN            COMMENT 'Tiene cupon disponible (has_coupon)',
+    FL_REGALO                BOOLEAN            COMMENT 'Incluye regalo con compra (has_gift)',
+
+    -- corner y metadata
+    NM_CORNER                VARCHAR(16777216)  COMMENT 'Nombre del corner/coleccion editorial donde aparece el producto (corner_name)',
+    DT_SCRAPING              DATE               COMMENT 'Fecha del scraping YYYY-MM-DD (scraped_date)',
+    FT_FUENTE                VARCHAR(100)       COMMENT 'Identificador de la fuente: olive_young_new_arrivals',
+    CREATED_AT               TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Timestamp de insercion en Snowflake'
+);
+
+-- ---------------------------------------------------------------------------
+-- 7. SRC_COSME_RANKING_NEWARRIVALS
+--    Fuente: scrapers/cosme-new-arrivals  (cosme.net, calendario de lanzamientos)
+--    Granularidad: 1 fila = 1 producto nuevo en el calendario de @cosme.net
+--    Stage 2: campos base (todos los productos del mes)
+--    Stage 3: campos enriquecidos (solo productos con release_date >= fecha del run)
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE TABLE DEV_STG.GNM_MEX.SRC_COSME_RANKING_NEWARRIVALS (
+
+    -- producto (base — todos los registros)
+    ID_PRODUCTO              VARCHAR(16777216)  COMMENT 'Identificador unico del producto en cosme.net (product_id)',
+    NM_PRODUCTO              VARCHAR(16777216)  COMMENT 'Nombre del producto (product_name)',
+    URL_PRODUCTO             VARCHAR(16777216)  COMMENT 'URL del producto en cosme.net (cosme.net/products/{id}/)',
+
+    -- marca (base)
+    -- ID_MARCA              VARCHAR(16777216)  COMMENT 'Identificador unico de la marca en cosme.net (brand_id)' — 100% NULL, cosme new arrivals no emite brand_id
+    NM_MARCA                 VARCHAR(16777216)  COMMENT 'Nombre de la marca (brand_name)',
+    URL_MARCA                VARCHAR(16777216)  COMMENT 'URL del perfil de la marca en cosme.net (brand_url)',
+
+    -- lanzamiento (base)
+    DT_LANZAMIENTO           DATE               COMMENT 'Fecha oficial de lanzamiento del producto (release_date, YYYY-MM-DD)',
+    URL_TIENDA               VARCHAR(16777216)  COMMENT 'URL de compra en cosme.com; null si usa JS modal (shop_url)',
+
+    -- detalle del producto (Stage 3 — solo release_date >= fecha de run)
+    TX_DESCRIPCION           VARCHAR(16777216)  COMMENT 'Descripcion del producto (商品説明) (description)',
+    TX_MODO_USO              VARCHAR(16777216)  COMMENT 'Instrucciones de uso (使い方) (how_to_use)',
+    -- TX_INGREDIENTES       VARCHAR(16777216)  COMMENT 'Lista completa de ingredientes (全成分) (ingredients)' — 100% NULL, cosme new arrivals no expone ingredientes
+    -- TX_CLASIFICACION      VARCHAR(16777216)  COMMENT 'Clasificacion regulatoria (e.g. "医薬部外品") (classification)' — 100% NULL
+    -- TX_JAN_CODE           VARCHAR(16777216)  COMMENT 'Codigo JAN (codigo de barras japones) (jan_code)' — 100% NULL
+    -- URL_OFICIAL           VARCHAR(16777216)  COMMENT 'URL del sitio oficial del producto (公式サイト) (official_url)' — 100% NULL
+
+    -- fabricante (Stage 3)
+    NM_FABRICANTE            VARCHAR(16777216)  COMMENT 'Nombre del fabricante (メーカー) (manufacturer)',
+    URL_FABRICANTE           VARCHAR(16777216)  COMMENT 'URL del perfil del fabricante en cosme.net (manufacturer_url)',
+
+    -- categoria (Stage 3)
+    TX_CATEGORIA_FULL        VARCHAR(16777216)  COMMENT 'Jerarquia de categoria en texto (e.g. "A > B > C") (category_full)',
+    DS_CATEGORIA_PATH        VARIANT            COMMENT 'Jerarquia de categorias como array [{name, url}] (category_path)',
+
+    -- metricas de comunidad (Stage 3)
+    NU_RATING                NUMBER(5,2)        COMMENT 'Calificacion promedio del producto en cosme.net (rating_detail)',
+    NU_PUNTOS                NUMBER(38,2)       COMMENT 'Puntaje del producto en cosme.net (points)',
+    NU_RESENAS               NUMBER(12,0)       COMMENT 'Cantidad de resenas de usuarias (review_count)',
+    NU_FOTOS                 NUMBER(12,0)       COMMENT 'Cantidad de fotos de usuarias (photo_count)',
+    NU_QA                    NUMBER(12,0)       COMMENT 'Cantidad de preguntas y respuestas (qa_count)',
+    -- NU_RANK_CATEGORIA     NUMBER(10,0)       COMMENT 'Posicion del producto en su categoria (cat_rank)' — 100% NULL, campo de ranking no aplica a new arrivals
+    -- NM_CATEGORIA_RANK     VARCHAR(16777216)  COMMENT 'Nombre de la categoria de ranking (cat_rank_name)' — 100% NULL
+    NU_LIKES                 NUMBER(12,0)       COMMENT 'Cantidad de likes en la comunidad (likes)',
+    NU_HAVES                 NUMBER(12,0)       COMMENT 'Cantidad de usuarias que tienen el producto (haves)',
+
+    -- imagenes y tiendas (Stage 3)
+    DS_IMAGENES              VARIANT            COMMENT 'Array de URLs de imagenes del producto (all_images)',
+    DS_TIENDAS               VARIANT            COMMENT 'Array de nombres de tiendas fisicas (stores)',
+    DS_PRODUCTOS_RELACIONADOS VARIANT           COMMENT 'Productos relacionados como array [{name, url}] (related_products)',
+
+    -- metadatos del scraper
+    -- DS_FLAGS              VARIANT            COMMENT 'Flags del scraper (e.g. detail_unavailable) (scraper_flags)' — 100% NULL
+    DT_SCRAPING              TIMESTAMP_NTZ      COMMENT 'Fecha y hora del scraping ISO 8601 (scraped_at)',
+    FT_FUENTE                VARCHAR(100)       COMMENT 'Identificador de la fuente: cosme-new-arrivals',
+    CREATED_AT               TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP()  COMMENT 'Timestamp de insercion en Snowflake'
+);
 
 
 
