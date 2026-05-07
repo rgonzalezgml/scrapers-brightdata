@@ -117,7 +117,7 @@ DELIVERY_COUNTRY_CODE: str = "10"
 DEFAULT_LISTING_URL: str = "https://global.oliveyoung.com/display/page/best-seller?target=pillsTab1Nav2"
 
 # Default pagination budget forwarded to the JS scraper (input.max_pages).
-DEFAULT_MAX_PAGES: int = 3
+DEFAULT_MAX_PAGES: int = 20
 
 # Spec §8: default crawl budgets. The middleware does NOT enforce the hard
 # caps — the JS scraper does. These are surfaced so the seed built for

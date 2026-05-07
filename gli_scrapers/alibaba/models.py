@@ -54,10 +54,9 @@ class AlibabaInputs(BaseModel):
     to one BrightData trigger seed. Bounded at 20 items to keep the
     BrightData payload predictable."""
 
-    max_pages: Annotated[int, Field(ge=1, le=10)] = 5
-    """Listing pages to crawl per search term. The vendor interaction code
-    (scrapers/alibaba/vendor/sc_browser/interaction_code.js line 32) caps
-    this at ``min(input.max_pages || 5, 10)``; we enforce the same bound
+    max_pages: Annotated[int, Field(ge=1, le=20)] = 20
+    """Listing pages to crawl per search term. The interaction code caps
+    this at ``min(input.max_pages || 5, 20)``; we enforce the same bound
     here so the middleware never sends a value the scraper will clamp."""
 
     supplier_country: str | None = None

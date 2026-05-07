@@ -1,6 +1,6 @@
 """Scheduler de scrapers GLI.
 
-Corre automáticamente a las 04:00 America/Mexico_City todos los días.
+Corre automáticamente a las 05:00 America/Mexico_City todos los días.
 
 Uso:
     python scheduler.py          # modo daemon (espera y ejecuta a las 4 AM)
@@ -47,9 +47,9 @@ def main() -> None:
     from apscheduler.schedulers.blocking import BlockingScheduler
 
     scheduler = BlockingScheduler(timezone="America/Mexico_City")
-    scheduler.add_job(run_scrapers, "cron", hour=4, minute=0, misfire_grace_time=3600)
+    scheduler.add_job(run_scrapers, "cron", hour=5, minute=0, misfire_grace_time=3600)
 
-    log.info("Scheduler activo — ejecutará a las 04:00 America/Mexico_City")
+    log.info("Scheduler activo — ejecutará a las 05:00 America/Mexico_City")
 
     try:
         scheduler.start()

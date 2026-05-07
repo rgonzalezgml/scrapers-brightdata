@@ -24,7 +24,7 @@
 
 const LISTING_URL = 'https://global.oliveyoung.com/display/page/best-seller';
 const PRDT_NO_RE = /^GA\d{8,12}$/;
-const MAX_ENRICHMENTS = 10;
+const MAX_ENRICHMENTS = 20;
 
 // ── Stage dispatch ────────────────────────────────────────────────────────────
 

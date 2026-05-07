@@ -121,7 +121,7 @@ DEFAULT_LISTING_URL: str = DEFAULT_SEED_URLS[0]
 # the ``.page-total`` widget of the listing; ``N > 0`` processes
 # ``min(N, total_pages)``; ``0`` is normalized to ``-1`` by the interaction
 # code. Spec §9 defaults are "3 paginas c/u" but are override-able at runtime.
-DEFAULT_MAX_PAGES: int = 3
+DEFAULT_MAX_PAGES: int = 20
 
 # Hard caps on middleware-side row clipping (spec §9: "hasta 800 unique
 # PRODUCT_ID detail; hasta 200 supplier home").

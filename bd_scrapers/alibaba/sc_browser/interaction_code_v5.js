@@ -31,7 +31,7 @@ wait(product_card_selector);
 let page_data = parse();
 
 if (!input.is_rerun) {
-    const max_pages = Math.min(input.max_pages || 5, 10);
+    const max_pages = Math.min(input.max_pages || 5, 20);
     const current_page = parseInt(url.searchParams.get('page')) || 1;
     const has_next = el_exists('button.pagination-item.next:not([disabled])');
 

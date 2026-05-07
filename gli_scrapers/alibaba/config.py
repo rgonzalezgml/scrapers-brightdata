@@ -131,8 +131,8 @@ DEFAULT_SEARCH_TERMS: tuple[str, ...] = (
 # Spec genomma lab §3: connector-Python default is max_pages=3; Stage 1 JS is
 # max_pages=5. The middleware takes the Stage-1 default so we match what the
 # deployed scraper does on a default trigger.
-DEFAULT_MAX_PAGES: int = 5
-MAX_PAGES_HARD_CAP: int = 10
+DEFAULT_MAX_PAGES: int = 10
+MAX_PAGES_HARD_CAP: int = 20
 """JS interaction code caps at ``Math.min(input.max_pages || 5, 10)``
 (scrapers/alibaba/vendor/sc_browser/interaction_code.js line 32). The
 middleware mirrors that upper bound rather than letting callers send a value
