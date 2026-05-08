@@ -1,0 +1,278 @@
+name: Cosme Ranking
+description: >
+  Modelo semantico del historico de ranking semanal de productos de belleza de @cosme
+  (plataforma japonesa lider en resenas de cosmeticos). Permite analizar posiciones de ranking,
+  precios en yenes, ratings, categorias y tendencias de productos de skincare y cuidado personal.
+  IMPORTANTE: Siempre filtrar por la fecha maxima de FECHA_CONSULTA para obtener el ranking mas reciente,
+  a menos que el usuario solicite explicitamente un historico o comparacion entre fechas.
+
+tables:
+  - name: VW_COSME_RANKING_HIST
+    description: >
+      Vista con el historico de ranking semanal de productos best-seller de @cosme.
+      Granularidad: producto x periodo semanal. Rankings del 1 al 100.
+      47 categorias, 53 marcas. Datos desde abril 2026.
+    base_table:
+      database: PRD_CNS_SHD
+      schema: DATA_GNM
+      table: VW_COSME_RANKING_HIST
+
+    filters:
+      - name: ULTIMO_RANKING
+        synonyms:
+          - ranking actual
+          - ultimo
+          - mas reciente
+          - current ranking
+        description: >
+          Filtro por defecto que selecciona unicamente los registros de la fecha de consulta
+          mas reciente. Debe aplicarse SIEMPRE a menos que el usuario pida explicitamente
+          un historico o comparacion entre periodos.
+        expr: FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_COSME_RANKING_HIST)
+
+    dimensions:
+      - name: ID_PRODUCTO
+        synonyms:
+          - codigo producto
+          - SKU
+          - producto ID
+        description: Identificador unico del producto en @cosme
+        expr: ID_PRODUCTO
+        data_type: VARCHAR
+
+      - name: NOMBRE_PRODUCTO
+        synonyms:
+          - producto
+          - nombre
+          - product name
+        description: Nombre del producto en japones
+        expr: NOMBRE_PRODUCTO
+        data_type: VARCHAR
+
+      - name: MARCA
+        synonyms:
+          - brand
+          - nombre marca
+          - fabricante
+        description: Nombre de la marca en japones
+        expr: MARCA
+        data_type: VARCHAR
+
+      - name: NOMBRE_CATEGORIA
+        synonyms:
+          - categoria
+          - category
+          - tipo producto
+        description: Nombre de la categoria del producto en japones
+        expr: NOMBRE_CATEGORIA
+        data_type: VARCHAR
+
+      - name: RANK_CAMBIO
+        synonyms:
+          - movimiento
+          - cambio ranking
+          - tendencia
+          - trend
+        description: Indicador de movimiento en el ranking (UP, DOWN, HOT, NEW, STAY)
+        expr: RANK_CAMBIO
+        data_type: VARCHAR
+
+      - name: TALLA
+        synonyms:
+          - tamano
+          - presentacion
+          - size
+          - contenido
+        description: Tamano o presentacion del producto (ml, g)
+        expr: TALLA
+        data_type: VARCHAR
+
+      - name: FLAG_PRECIO_ABIERTO
+        synonyms:
+          - precio abierto
+          - sin precio fijo
+          - open price
+        description: Indicador de precio abierto (sin precio fijo de venta)
+        expr: FLAG_PRECIO_ABIERTO
+        data_type: BOOLEAN
+
+      - name: FLAG_INCLUYE_IVA
+        synonyms:
+          - incluye IVA
+          - con impuesto
+          - tax included
+        description: Indicador si el precio incluye impuesto al consumo japones
+        expr: FLAG_INCLUYE_IVA
+        data_type: BOOLEAN
+
+      - name: FLAG_BEST_COSME
+        synonyms:
+          - best cosme
+          - premio
+          - award
+          - ganador
+        description: Indicador de premio Best Cosme Award
+        expr: FLAG_BEST_COSME
+        data_type: BOOLEAN
+
+      - name: ES_PRODUCTO_NUEVO
+        synonyms:
+          - nuevo
+          - new
+          - recien lanzado
+          - novedad
+        description: Indicador de producto nuevo en el ranking
+        expr: ES_PRODUCTO_NUEVO
+        data_type: BOOLEAN
+
+      - name: FECHA_LANZAMIENTO
+        synonyms:
+          - lanzamiento
+          - release date
+          - fecha salida
+        description: Fecha de lanzamiento del producto en texto
+        expr: FECHA_LANZAMIENTO
+        data_type: VARCHAR
+
+      - name: DESCRIPCION
+        synonyms:
+          - detalle
+          - description
+          - info producto
+        description: Descripcion del producto en japones
+        expr: DESCRIPCION
+        data_type: VARCHAR
+
+      - name: INGREDIENTES
+        synonyms:
+          - ingredients
+          - componentes
+          - formulacion
+        description: Lista de ingredientes del producto
+        expr: INGREDIENTES
+        data_type: VARCHAR
+
+      - name: URL_IMG_PRINCIPAL
+        synonyms:
+          - imagen
+          - foto
+          - image
+        description: URL de la imagen principal del producto
+        expr: URL_IMG_PRINCIPAL
+        data_type: VARCHAR
+
+      - name: URL_TIENDA
+        synonyms:
+          - link producto
+          - pagina producto
+          - url producto
+        description: URL de la pagina del producto en @cosme
+        expr: URL_TIENDA
+        data_type: VARCHAR
+
+      - name: FUENTE
+        synonyms:
+          - fuente datos
+          - origen
+          - source
+        description: Identificador de la fuente de datos
+        expr: FUENTE
+        data_type: VARCHAR
+
+    time_dimensions:
+      - name: FECHA_CONSULTA
+        synonyms:
+          - fecha
+          - fecha extraccion
+          - fecha scraping
+          - dia consulta
+          - date
+        description: Fecha en que se realizo la consulta/extraccion del dato
+        expr: FECHA_CONSULTA
+        data_type: DATE
+
+      - name: DT_PERIODO_INICIO
+        synonyms:
+          - inicio periodo
+          - desde
+          - periodo inicio
+          - start date
+        description: Fecha de inicio del periodo semanal del ranking
+        expr: DT_PERIODO_INICIO
+        data_type: DATE
+
+      - name: DT_PERIODO_FIN
+        synonyms:
+          - fin periodo
+          - hasta
+          - periodo fin
+          - end date
+        description: Fecha de fin del periodo semanal del ranking
+        expr: DT_PERIODO_FIN
+        data_type: DATE
+
+    measures:
+      - name: RANKING
+        synonyms:
+          - posicion
+          - rank
+          - lugar
+          - puesto
+        description: Posicion en el ranking semanal de @cosme (1-100)
+        expr: RANKING
+        data_type: NUMBER
+        default_aggregation: avg
+
+      - name: PRECIO_YEN
+        synonyms:
+          - precio
+          - price
+          - costo
+          - valor
+        description: Precio numerico del producto en yenes japoneses
+        expr: PRECIO_YEN
+        data_type: FLOAT
+        default_aggregation: avg
+
+      - name: RATING
+        synonyms:
+          - calificacion
+          - score
+          - estrellas
+          - valoracion
+          - puntuacion
+        description: Calificacion promedio del producto en @cosme (escala 0-7)
+        expr: RATING
+        data_type: FLOAT
+        default_aggregation: avg
+
+      - name: RESENIAS
+        synonyms:
+          - resenas
+          - reviews
+          - opiniones
+          - comentarios
+        description: Numero total de resenas del producto
+        expr: RESENIAS
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: TOTAL_PRODUCTOS
+        synonyms:
+          - cantidad productos
+          - conteo productos
+          - count products
+        description: Cantidad total de productos distintos en el ranking
+        expr: ID_PRODUCTO
+        data_type: VARCHAR
+        default_aggregation: count_distinct
+
+      - name: TOTAL_MARCAS
+        synonyms:
+          - cantidad marcas
+          - conteo marcas
+          - count brands
+        description: Cantidad total de marcas distintas en el ranking
+        expr: MARCA
+        data_type: VARCHAR
+        default_aggregation: count_distinct

@@ -132,11 +132,11 @@ DEFAULT_SEARCH_TERMS: tuple[str, ...] = (
 # max_pages=5. The middleware takes the Stage-1 default so we match what the
 # deployed scraper does on a default trigger.
 DEFAULT_MAX_PAGES: int = 10
-MAX_PAGES_HARD_CAP: int = 20
-"""JS interaction code caps at ``Math.min(input.max_pages || 5, 10)``
-(scrapers/alibaba/vendor/sc_browser/interaction_code.js line 32). The
-middleware mirrors that upper bound rather than letting callers send a value
-the scraper will silently clamp."""
+MAX_PAGES_HARD_CAP: int = 100
+"""JS interaction code caps at ``Math.min(input.max_pages || 5, 100)``
+(sc_browser/interaction_code_v6.js line 34). The middleware mirrors that
+upper bound rather than letting callers send a value the scraper will
+silently clamp."""
 
 # Spec genomma lab §3: default proxy / supplier_country is CN. We forward it
 # as an explicit field so downstream filtering (``input.supplier_country``

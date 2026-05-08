@@ -1,0 +1,373 @@
+name: IndiaMart Proveedores
+description: >
+  Modelo semantico del historico de proveedores y precios de quimicos industriales
+  scrapeados de indiamart.com (principal B2B de India). Permite analizar precios en INR y USD,
+  proveedores, ubicaciones, certificaciones y especificaciones de insumos de interes para Genomma Lab.
+  IMPORTANTE: Siempre filtrar por la fecha maxima de FECHA_CONSULTA para obtener los precios
+  mas recientes, a menos que el usuario solicite explicitamente un historico o comparacion entre fechas.
+
+tables:
+  - name: VW_INDIAMART_PROV_HIST
+    description: >
+      Vista con el historico de proveedores y precios de quimicos industriales en IndiaMART.
+      Granularidad: producto x fecha de consulta. Incluye precio raw y conversion USD,
+      datos del proveedor (ciudad, pais, verificacion, trustseal) y caracteristicas del producto.
+    base_table:
+      database: PRD_CNS_SHD
+      schema: DATA_GNM
+      table: VW_INDIAMART_PROV_HIST
+
+    filters:
+      - name: ULTIMO_PRECIO
+        synonyms:
+          - precio actual
+          - ultimo
+          - mas reciente
+          - current price
+        description: >
+          Filtro por defecto que selecciona unicamente los registros de la fecha de consulta
+          mas reciente. Debe aplicarse SIEMPRE a menos que el usuario pida explicitamente
+          un historico o comparacion entre periodos.
+        expr: FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_INDIAMART_PROV_HIST)
+
+      - name: SOLO_VERIFICADOS
+        synonyms:
+          - verificados
+          - proveedores verificados
+          - verified only
+        description: Filtra solo proveedores verificados por IndiaMART
+        expr: FLAG_VERIFICADO = TRUE
+
+      - name: CON_TRUSTSEAL
+        synonyms:
+          - trustseal
+          - sello confianza
+          - trusted
+        description: Filtra solo proveedores con sello de confianza TrustSeal
+        expr: FLAG_TRUSTSEAL = TRUE
+
+    dimensions:
+      - name: ID_PRODUCTO
+        synonyms:
+          - codigo producto
+          - product id
+          - SKU
+        description: Identificador unico del producto en indiamart.com
+        expr: ID_PRODUCTO
+        data_type: VARCHAR
+
+      - name: URL_PRODUCTO
+        synonyms:
+          - url
+          - link
+          - enlace producto
+          - product url
+        description: URL del producto en indiamart.com
+        expr: URL_PRODUCTO
+        data_type: VARCHAR
+
+      - name: NOMBRE_PRODUCTO
+        synonyms:
+          - producto
+          - nombre
+          - product name
+        description: Nombre del producto normalizado por el scraper
+        expr: NOMBRE_PRODUCTO
+        data_type: VARCHAR
+
+      - name: NOMBRE_PRODUCTO_RAW
+        synonyms:
+          - nombre original
+          - nombre fuente
+          - raw name
+        description: Nombre del producto tal como aparece en la fuente, sin normalizar
+        expr: NOMBRE_PRODUCTO_RAW
+        data_type: VARCHAR
+
+      - name: DESCRIPCION
+        synonyms:
+          - detalle
+          - description
+          - info producto
+        description: Descripcion del producto en texto libre
+        expr: DESCRIPCION
+        data_type: VARCHAR
+
+      - name: TIPO
+        synonyms:
+          - tipo producto
+          - product type
+          - clasificacion
+        description: Tipo de producto
+        expr: TIPO
+        data_type: VARCHAR
+
+      - name: CATEGORIA
+        synonyms:
+          - category
+          - rubro
+          - segmento
+        description: Categoria del producto segun catalogo interno
+        expr: CATEGORIA
+        data_type: VARCHAR
+
+      - name: PRECIO_RAW
+        synonyms:
+          - precio texto
+          - precio original
+          - precio fuente
+          - raw price
+        description: Precio tal como aparece en la pagina, sin procesar
+        expr: PRECIO_RAW
+        data_type: VARCHAR
+
+      - name: PRECIO_VALOR_RAW
+        synonyms:
+          - valor numerico precio
+          - price value raw
+          - numero precio
+        description: Valor numerico del precio en texto (price_value_raw)
+        expr: PRECIO_VALOR_RAW
+        data_type: VARCHAR
+
+      - name: PRECIO_MIN_USD
+        synonyms:
+          - precio minimo
+          - min price
+          - precio desde
+          - precio base usd
+        description: Objeto JSON con precio minimo en USD (value, currency, symbol)
+        expr: PRECIO_MIN_USD
+        data_type: VARCHAR
+
+      - name: PRECIO_MAX_USD
+        synonyms:
+          - precio maximo
+          - max price
+          - precio hasta
+          - precio techo usd
+        description: Objeto JSON con precio maximo en USD (value, currency, symbol)
+        expr: PRECIO_MAX_USD
+        data_type: VARCHAR
+
+      - name: UNIDAD_PRECIO
+        synonyms:
+          - unidad
+          - por kilogramo
+          - per unit
+          - price unit
+        description: Unidad de medida del precio
+        expr: UNIDAD_PRECIO
+        data_type: VARCHAR
+
+      - name: MONEDA
+        synonyms:
+          - currency
+          - divisa
+          - tipo moneda
+        description: Codigo de moneda del precio (ej. INR, USD)
+        expr: MONEDA
+        data_type: VARCHAR
+
+      - name: DISPONIBILIDAD
+        synonyms:
+          - stock
+          - availability
+          - en stock
+        description: Disponibilidad del producto
+        expr: DISPONIBILIDAD
+        data_type: VARCHAR
+
+      - name: ID_PROVEEDOR
+        synonyms:
+          - codigo proveedor
+          - supplier id
+          - vendor id
+        description: Identificador unico del proveedor en indiamart.com
+        expr: ID_PROVEEDOR
+        data_type: VARCHAR
+
+      - name: PROVEEDOR
+        synonyms:
+          - supplier
+          - fabricante
+          - vendedor
+          - empresa
+        description: Nombre del proveedor
+        expr: PROVEEDOR
+        data_type: VARCHAR
+
+      - name: URL_PROVEEDOR
+        synonyms:
+          - perfil proveedor
+          - supplier profile
+          - link proveedor
+        description: URL del perfil del proveedor en indiamart.com
+        expr: URL_PROVEEDOR
+        data_type: VARCHAR
+
+      - name: CIUDAD_PROVEEDOR
+        synonyms:
+          - ciudad
+          - city
+          - ubicacion
+          - location
+        description: Ciudad donde se ubica el proveedor
+        expr: CIUDAD_PROVEEDOR
+        data_type: VARCHAR
+
+      - name: PAIS_PROVEEDOR
+        synonyms:
+          - pais
+          - country
+          - origen proveedor
+        description: Pais del proveedor en codigo ISO-2
+        expr: PAIS_PROVEEDOR
+        data_type: VARCHAR
+
+      - name: FLAG_VERIFICADO
+        synonyms:
+          - verificado
+          - verified
+          - proveedor verificado
+        description: Indica si el proveedor fue verificado por IndiaMART
+        expr: FLAG_VERIFICADO
+        data_type: BOOLEAN
+
+      - name: FLAG_TRUSTSEAL
+        synonyms:
+          - trustseal
+          - sello confianza
+          - trusted supplier
+        description: Indica si el proveedor tiene sello de confianza TrustSeal
+        expr: FLAG_TRUSTSEAL
+        data_type: BOOLEAN
+
+      - name: URL_IMAGEN
+        synonyms:
+          - imagen
+          - foto
+          - image
+        description: URL de la imagen principal del producto
+        expr: URL_IMAGEN
+        data_type: VARCHAR
+
+      - name: FUENTE
+        synonyms:
+          - fuente datos
+          - origen
+          - source
+        description: Identificador del scraper que origino la fila (indiamart)
+        expr: FUENTE
+        data_type: VARCHAR
+
+    time_dimensions:
+      - name: FECHA_CONSULTA
+        synonyms:
+          - fecha
+          - fecha extraccion
+          - fecha scraping
+          - dia
+          - date
+        description: Fecha en que se realizo la extraccion del dato
+        expr: FECHA_CONSULTA
+        data_type: DATE
+
+      - name: FECHA_SCRAPING
+        synonyms:
+          - fecha scraping producto
+          - fecha dato
+          - scraped date
+        description: Fecha en que se realizo el scraping del producto
+        expr: FECHA_SCRAPING
+        data_type: DATE
+
+    measures:
+      - name: ANIOS_MIEMBRO
+        synonyms:
+          - anios en indiamart
+          - years member
+          - antiguedad proveedor
+        description: Anios que el proveedor lleva como miembro de IndiaMART
+        expr: ANIOS_MIEMBRO
+        data_type: NUMBER
+        default_aggregation: avg
+
+      - name: TOTAL_PRODUCTOS
+        synonyms:
+          - cantidad productos
+          - conteo
+          - count products
+        description: Cantidad total de productos distintos en el historico
+        expr: ID_PRODUCTO
+        data_type: VARCHAR
+        default_aggregation: count_distinct
+
+      - name: TOTAL_PROVEEDORES
+        synonyms:
+          - cantidad proveedores
+          - conteo proveedores
+          - count suppliers
+        description: Cantidad total de proveedores distintos
+        expr: ID_PROVEEDOR
+        data_type: VARCHAR
+        default_aggregation: count_distinct
+
+      - name: PROVEEDORES_VERIFICADOS
+        synonyms:
+          - verificados
+          - cuantos verificados
+          - verified count
+          - proveedores confiables
+        description: Cantidad de proveedores verificados por IndiaMART
+        expr: CASE WHEN FLAG_VERIFICADO = TRUE THEN 1 ELSE 0 END
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: PROVEEDORES_TRUSTSEAL
+        synonyms:
+          - trustseal
+          - con sello confianza
+          - trusted count
+          - cuantos trustseal
+        description: Cantidad de proveedores con sello de confianza TrustSeal
+        expr: CASE WHEN FLAG_TRUSTSEAL = TRUE THEN 1 ELSE 0 END
+        data_type: NUMBER
+        default_aggregation: sum
+
+    verified_queries:
+      - name: proveedores_verificados_trustseal
+        question: "¿Qué proveedores verificados con TrustSeal están disponibles en IndiaMART?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT PROVEEDOR, CIUDAD_PROVEEDOR, PAIS_PROVEEDOR, ANIOS_MIEMBRO,
+                 NOMBRE_PRODUCTO, PRECIO_RAW, UNIDAD_PRECIO
+          FROM PRD_CNS_SHD.DATA_GNM.VW_INDIAMART_PROV_HIST
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_INDIAMART_PROV_HIST)
+            AND FLAG_VERIFICADO = TRUE AND FLAG_TRUSTSEAL = TRUE
+          ORDER BY ANIOS_MIEMBRO DESC NULLS LAST
+
+      - name: paises_con_mas_proveedores
+        question: "¿Qué países tienen más proveedores en IndiaMART?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT PAIS_PROVEEDOR,
+                 COUNT(DISTINCT ID_PROVEEDOR) AS TOTAL_PROVEEDORES,
+                 SUM(CASE WHEN FLAG_VERIFICADO = TRUE THEN 1 ELSE 0 END) AS VERIFICADOS,
+                 SUM(CASE WHEN FLAG_TRUSTSEAL = TRUE THEN 1 ELSE 0 END) AS CON_TRUSTSEAL
+          FROM PRD_CNS_SHD.DATA_GNM.VW_INDIAMART_PROV_HIST
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_INDIAMART_PROV_HIST)
+          GROUP BY PAIS_PROVEEDOR
+          ORDER BY TOTAL_PROVEEDORES DESC
+
+      - name: proveedores_mas_antiguos
+        question: "¿Cuáles son los proveedores más antiguos y confiables en IndiaMART?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT DISTINCT PROVEEDOR, CIUDAD_PROVEEDOR, PAIS_PROVEEDOR,
+                 ANIOS_MIEMBRO, FLAG_VERIFICADO, FLAG_TRUSTSEAL
+          FROM PRD_CNS_SHD.DATA_GNM.VW_INDIAMART_PROV_HIST
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_INDIAMART_PROV_HIST)
+            AND ANIOS_MIEMBRO IS NOT NULL
+          ORDER BY ANIOS_MIEMBRO DESC
+          LIMIT 20

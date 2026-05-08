@@ -1,0 +1,308 @@
+name: Cosme New Arrivals
+description: >
+  Modelo semantico del historico de nuevos lanzamientos de @cosme
+  (plataforma japonesa lider en resenas de cosmeticos). Contiene el calendario de lanzamientos
+  con detalle enriquecido: marca, fabricante, categoria, rating, puntos, resenas, fotos, Q&A,
+  likes y haves. Permite identificar tendencias de innovacion en el mercado japones de belleza.
+  IMPORTANTE: Siempre filtrar por la fecha maxima de FECHA_CONSULTA para obtener los lanzamientos
+  mas recientes, a menos que el usuario solicite explicitamente un historico o comparacion entre fechas.
+
+tables:
+  - name: VW_COSME_RANKING_NEWARRIVALS
+    description: >
+      Vista del calendario de nuevos lanzamientos de @cosme con detalle enriquecido (Stage 3).
+      Granularidad: producto x fecha de consulta. Incluye fecha de lanzamiento, fabricante,
+      jerarquia de categoria completa, metricas de engagement (rating, puntos, resenas,
+      fotos, Q&A, likes, haves) y descripcion en japones.
+    base_table:
+      database: PRD_CNS_SHD
+      schema: DATA_GNM
+      table: VW_COSME_RANKING_NEWARRIVALS
+
+    filters:
+      - name: ULTIMO_LANZAMIENTO
+        synonyms:
+          - lanzamientos actuales
+          - ultimo
+          - mas reciente
+          - current arrivals
+        description: >
+          Filtro por defecto que selecciona unicamente los registros de la fecha de consulta
+          mas reciente. Debe aplicarse SIEMPRE a menos que el usuario pida explicitamente
+          un historico o comparacion entre periodos.
+        expr: FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_COSME_RANKING_NEWARRIVALS)
+
+    dimensions:
+      - name: ID_PRODUCTO
+        synonyms:
+          - codigo producto
+          - product id
+          - SKU
+        description: Identificador unico del producto en @cosme
+        expr: ID_PRODUCTO
+        data_type: VARCHAR
+
+      - name: NOMBRE_PRODUCTO
+        synonyms:
+          - producto
+          - nombre
+          - product name
+        description: Nombre del producto
+        expr: NOMBRE_PRODUCTO
+        data_type: VARCHAR
+
+      - name: URL_PRODUCTO
+        synonyms:
+          - url
+          - link
+          - enlace producto
+          - product url
+        description: URL del producto en @cosme
+        expr: URL_PRODUCTO
+        data_type: VARCHAR
+
+      - name: MARCA
+        synonyms:
+          - brand
+          - nombre marca
+        description: Nombre de la marca
+        expr: MARCA
+        data_type: VARCHAR
+
+      - name: URL_MARCA
+        synonyms:
+          - perfil marca
+          - brand profile
+          - link marca
+        description: URL del perfil de la marca en @cosme
+        expr: URL_MARCA
+        data_type: VARCHAR
+
+      - name: URL_TIENDA
+        synonyms:
+          - link compra
+          - buy url
+          - pagina compra
+          - tienda
+        description: URL de compra en @cosme
+        expr: URL_TIENDA
+        data_type: VARCHAR
+
+      - name: DESCRIPCION
+        synonyms:
+          - detalle
+          - description
+          - info producto
+        description: Descripcion del producto en japones
+        expr: DESCRIPCION
+        data_type: VARCHAR
+
+      - name: MODO_USO
+        synonyms:
+          - how to use
+          - instrucciones
+          - forma de uso
+        description: Instrucciones de uso del producto
+        expr: MODO_USO
+        data_type: VARCHAR
+
+      - name: FABRICANTE
+        synonyms:
+          - manufacturer
+          - empresa fabricante
+          - laboratorio
+        description: Nombre del fabricante del producto
+        expr: FABRICANTE
+        data_type: VARCHAR
+
+      - name: URL_FABRICANTE
+        synonyms:
+          - perfil fabricante
+          - manufacturer profile
+          - link fabricante
+        description: URL del perfil del fabricante en @cosme
+        expr: URL_FABRICANTE
+        data_type: VARCHAR
+
+      - name: CATEGORIA_FULL
+        synonyms:
+          - categoria jerarquia
+          - breadcrumb
+          - categoria completa
+          - full category
+        description: Jerarquia completa de la categoria en texto (A > B > C)
+        expr: CATEGORIA_FULL
+        data_type: VARCHAR
+
+      - name: FUENTE
+        synonyms:
+          - fuente datos
+          - origen
+          - source
+        description: Identificador del scraper (cosme-new-arrivals)
+        expr: FUENTE
+        data_type: VARCHAR
+
+    time_dimensions:
+      - name: FECHA_CONSULTA
+        synonyms:
+          - fecha
+          - fecha extraccion
+          - fecha scraping
+          - dia
+          - date
+        description: Fecha en que se realizo la extraccion del dato
+        expr: FECHA_CONSULTA
+        data_type: DATE
+
+      - name: DT_LANZAMIENTO
+        synonyms:
+          - fecha lanzamiento
+          - launch date
+          - release date
+          - fecha salida
+        description: Fecha oficial de lanzamiento del producto
+        expr: DT_LANZAMIENTO
+        data_type: DATE
+
+      - name: FECHA_SCRAPING
+        synonyms:
+          - fecha scraping producto
+          - fecha dato
+          - scraped at
+        description: Fecha y hora del scraping ISO 8601
+        expr: FECHA_SCRAPING
+        data_type: TIMESTAMP_NTZ
+
+    measures:
+      - name: RATING
+        synonyms:
+          - calificacion
+          - score
+          - estrellas
+          - valoracion
+          - puntuacion
+        description: Calificacion promedio del producto en @cosme
+        expr: RATING
+        data_type: FLOAT
+        default_aggregation: avg
+
+      - name: PUNTOS
+        synonyms:
+          - points
+          - puntaje
+          - score points
+        description: Puntaje del producto en @cosme
+        expr: PUNTOS
+        data_type: NUMBER
+        default_aggregation: avg
+
+      - name: RESENAS
+        synonyms:
+          - reviews
+          - opiniones
+          - comentarios
+          - numero resenas
+        description: Cantidad de resenas de usuarias
+        expr: RESENAS
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: FOTOS
+        synonyms:
+          - photos
+          - imagenes usuarias
+          - user photos
+        description: Cantidad de fotos de usuarias
+        expr: FOTOS
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: QA
+        synonyms:
+          - preguntas respuestas
+          - questions answers
+          - q and a
+        description: Cantidad de preguntas y respuestas
+        expr: QA
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: LIKES
+        synonyms:
+          - me gusta
+          - favoritos
+          - community likes
+        description: Cantidad de likes en la comunidad
+        expr: LIKES
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: HAVES
+        synonyms:
+          - tienen el producto
+          - usuarias que lo tienen
+          - owners
+        description: Cantidad de usuarias que tienen el producto
+        expr: HAVES
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: TOTAL_PRODUCTOS
+        synonyms:
+          - cantidad productos
+          - conteo productos
+          - count products
+        description: Cantidad total de productos distintos en new arrivals
+        expr: ID_PRODUCTO
+        data_type: VARCHAR
+        default_aggregation: count_distinct
+
+      - name: TOTAL_MARCAS
+        synonyms:
+          - cantidad marcas
+          - conteo marcas
+          - count brands
+        description: Cantidad total de marcas distintas en new arrivals
+        expr: MARCA
+        data_type: VARCHAR
+        default_aggregation: count_distinct
+
+    verified_queries:
+      - name: lanzamientos_proximos_30_dias
+        question: "¿Qué productos de @cosme se lanzan en los próximos 30 días?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT NOMBRE_PRODUCTO, MARCA, FABRICANTE, DT_LANZAMIENTO,
+                 CATEGORIA_FULL, RATING, RESENAS, LIKES
+          FROM PRD_CNS_SHD.DATA_GNM.VW_COSME_RANKING_NEWARRIVALS
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_COSME_RANKING_NEWARRIVALS)
+            AND DT_LANZAMIENTO BETWEEN CURRENT_DATE() AND DATEADD(DAY, 30, CURRENT_DATE())
+          ORDER BY DT_LANZAMIENTO ASC
+
+      - name: nuevos_con_mas_engagement
+        question: "¿Cuáles son los nuevos productos de @cosme con más likes y reseñas?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT NOMBRE_PRODUCTO, MARCA, FABRICANTE, DT_LANZAMIENTO,
+                 RATING, RESENAS, LIKES, HAVES, FOTOS
+          FROM PRD_CNS_SHD.DATA_GNM.VW_COSME_RANKING_NEWARRIVALS
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_COSME_RANKING_NEWARRIVALS)
+          ORDER BY LIKES DESC NULLS LAST, RESENAS DESC NULLS LAST
+          LIMIT 20
+
+      - name: fabricantes_con_mas_lanzamientos
+        question: "¿Qué fabricantes tienen más lanzamientos en el calendario de @cosme?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT FABRICANTE,
+                 COUNT(*) AS TOTAL_LANZAMIENTOS,
+                 AVG(RATING) AS RATING_PROMEDIO,
+                 SUM(RESENAS) AS TOTAL_RESENAS,
+                 SUM(LIKES) AS TOTAL_LIKES
+          FROM PRD_CNS_SHD.DATA_GNM.VW_COSME_RANKING_NEWARRIVALS
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_COSME_RANKING_NEWARRIVALS)
+            AND FABRICANTE IS NOT NULL
+          GROUP BY FABRICANTE
+          ORDER BY TOTAL_LANZAMIENTOS DESC
+          LIMIT 15

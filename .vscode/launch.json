@@ -11,12 +11,12 @@
         // "olive_young",
         // "cosme_ranking",
         // "cosmetics_design",
-        // "alibaba",
+        "alibaba",
         // "indiamart",
         // "made_in_china",
         // "cosme_new_arrivals",
         // "olive_young_new_arrivals",
-        "all"
+        // "all"
       ], // ['alibaba', 'indiamart', 'made_in_china', 'olive_young', 'cosmetics_design', 'cosme_ranking']
       // # Solo cosme new arrivals                                                                                                             
       // python run.py cosme_new_arrivals                                                                                                      

@@ -1,0 +1,158 @@
+name: Cosmetic Design Articulos
+description: >
+  Modelo semantico de articulos publicados en Cosmetic Design / NutraIngredients.
+  Contiene noticias y analisis de la industria de belleza, cuidado personal y nutricion.
+  Permite buscar articulos por tema, fecha, contenido y tendencias de la industria.
+
+tables:
+  - name: VW_COSMETIC_DESIGN_ARTICULOS
+    description: >
+      Vista con articulos de Cosmetic Design / NutraIngredients.
+      Cubre noticias de belleza, cuidado personal, ingredientes y nutricion.
+      Articulos desde 2015 hasta la fecha. 4200+ articulos.
+    base_table:
+      database: PRD_CNS_SHD
+      schema: DATA_GNM
+      table: VW_COSMETIC_DESIGN_ARTICULOS
+
+    dimensions:
+      - name: TITULO
+        synonyms:
+          - titulo articulo
+          - headline
+          - nombre articulo
+          - title
+        description: Titulo del articulo tal como aparece en la publicacion
+        expr: TITULO
+        data_type: VARCHAR
+
+      - name: URL_ARTICULO
+        synonyms:
+          - link
+          - url
+          - enlace
+          - pagina
+        description: URL canonica del articulo en cosmeticdesign.com
+        expr: URL_ARTICULO
+        data_type: VARCHAR
+
+      - name: RESUMEN
+        synonyms:
+          - summary
+          - bajada
+          - extracto
+          - abstract
+        description: Resumen o bajada del articulo
+        expr: RESUMEN
+        data_type: VARCHAR
+
+      - name: CONTENIDO
+        synonyms:
+          - texto
+          - cuerpo
+          - content
+          - articulo completo
+        description: Contenido completo del articulo (vacio si requiere suscripcion)
+        expr: CONTENIDO
+        data_type: VARCHAR
+
+      - name: FLAG_PAYWALL
+        synonyms:
+          - paywall
+          - suscripcion
+          - de pago
+          - bloqueado
+        description: Indica si el articulo requiere suscripcion de pago (true/false)
+        expr: FLAG_PAYWALL
+        data_type: BOOLEAN
+
+      - name: URL_IMAGEN
+        synonyms:
+          - imagen
+          - foto
+          - image url
+        description: URL de la imagen principal del articulo
+        expr: URL_IMAGEN
+        data_type: VARCHAR
+
+      - name: PIE_IMAGEN
+        synonyms:
+          - caption
+          - leyenda imagen
+          - credito foto
+        description: Pie de foto o leyenda de la imagen principal
+        expr: PIE_IMAGEN
+        data_type: VARCHAR
+
+      - name: TEMAS
+        synonyms:
+          - topics
+          - etiquetas
+          - tags
+          - categorias
+          - temas editoriales
+        description: Temas y etiquetas editoriales del articulo como array JSON
+        expr: TEMAS
+        data_type: VARIANT
+
+      - name: FUENTE
+        synonyms:
+          - source
+          - origen
+          - scraper
+        description: Identificador de la fuente de datos (cosmetics_design)
+        expr: FUENTE
+        data_type: VARCHAR
+
+    time_dimensions:
+      - name: FECHA_PUBLICACION
+        synonyms:
+          - fecha
+          - fecha articulo
+          - publicado
+          - cuando se publico
+          - date
+        description: Fecha de publicacion del articulo
+        expr: FECHA_PUBLICACION
+        data_type: DATE
+
+      - name: FECHA_CONSULTA
+        synonyms:
+          - fecha extraccion
+          - fecha scraping
+          - fecha carga
+        description: Fecha en que se realizo la extraccion del articulo
+        expr: FECHA_CONSULTA
+        data_type: DATE
+
+    measures:
+      - name: TOTAL_ARTICULOS
+        synonyms:
+          - cantidad articulos
+          - conteo
+          - cuantos articulos
+          - count
+        description: Cantidad total de articulos
+        expr: TITULO
+        data_type: VARCHAR
+        default_aggregation: count
+
+      - name: ARTICULOS_PAYWALL
+        synonyms:
+          - articulos de pago
+          - bloqueados
+          - con suscripcion
+        description: Cantidad de articulos que requieren suscripcion
+        expr: CASE WHEN FLAG_PAYWALL = TRUE THEN 1 ELSE 0 END
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: ARTICULOS_ABIERTOS
+        synonyms:
+          - articulos gratis
+          - sin paywall
+          - acceso libre
+        description: Cantidad de articulos con acceso libre (sin paywall)
+        expr: CASE WHEN FLAG_PAYWALL = FALSE THEN 1 ELSE 0 END
+        data_type: NUMBER
+        default_aggregation: sum

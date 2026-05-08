@@ -1,0 +1,174 @@
+name: Olive Young Ranking
+description: >
+  Modelo semántico del histórico de ranking de productos best-seller de Olive Young
+  (plataforma coreana de belleza y cuidado personal). Permite analizar posiciones de ranking,
+  precios, ratings y tendencias de productos de skincare y cuidado personal.
+  IMPORTANTE: Siempre filtrar por la fecha maxima de FECHA_CONSULTA para obtener el ranking mas reciente,
+  a menos que el usuario solicite explicitamente un historico o comparacion entre fechas.
+
+tables:
+  - name: VW_OLIVEYOUNG_RANK_HIST
+    description: >
+      Vista con el histórico de ranking best-seller de Olive Young Global.
+      Granularidad: producto x fecha de consulta. Rankings del 1 al 100.
+    base_table:
+      database: PRD_CNS_SHD
+      schema: DATA_GNM
+      table: VW_OLIVEYOUNG_RANK_HIST
+
+    filters:
+      - name: ULTIMO_RANKING
+        synonyms:
+          - ranking actual
+          - ultimo
+          - mas reciente
+          - current ranking
+        description: >
+          Filtro por defecto que selecciona unicamente los registros de la fecha de consulta
+          mas reciente. Debe aplicarse SIEMPRE a menos que el usuario pida explicitamente
+          un historico o comparacion entre periodos.
+        expr: FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_OLIVEYOUNG_RANK_HIST)
+
+    dimensions:
+      - name: ID_PRODUCTO
+        synonyms:
+          - codigo producto
+          - SKU
+          - producto ID
+        description: Identificador unico del producto en Olive Young
+        expr: ID_PRODUCTO
+        data_type: VARCHAR
+
+      - name: MARCA
+        synonyms:
+          - brand
+          - nombre marca
+        description: Nombre de la marca del producto
+        expr: MARCA
+        data_type: VARCHAR
+
+      - name: NOMBRE_PRODUCTO
+        synonyms:
+          - producto
+          - nombre
+          - product name
+        description: Nombre del producto en ingles
+        expr: NOMBRE_PRODUCTO
+        data_type: VARCHAR
+
+      - name: NOMBRE_PRODUCTO_KR
+        synonyms:
+          - nombre coreano
+          - korean name
+        description: Nombre del producto en coreano
+        expr: NOMBRE_PRODUCTO_KR
+        data_type: VARCHAR
+
+      - name: PRECIO_ORIGINAL
+        synonyms:
+          - precio lista
+          - precio sin descuento
+          - original price
+        description: Precio original del producto (texto con moneda)
+        expr: PRECIO_ORIGINAL
+        data_type: VARCHAR
+
+      - name: PRECIO_OFERTA
+        synonyms:
+          - precio descuento
+          - precio promocion
+          - sale price
+        description: Precio de oferta o con descuento (texto con moneda)
+        expr: PRECIO_OFERTA
+        data_type: VARCHAR
+
+      - name: FLAG_SIN_STOCK
+        synonyms:
+          - sin stock
+          - agotado
+          - out of stock
+        description: Indicador de producto sin stock (true/false)
+        expr: FLAG_SIN_STOCK
+        data_type: BOOLEAN
+
+      - name: URL_IMAGEN
+        synonyms:
+          - imagen
+          - foto
+          - image
+        description: URL de la imagen del producto en CDN de Olive Young
+        expr: URL_IMAGEN
+        data_type: VARCHAR
+
+      - name: FT_FUENTE
+        synonyms:
+          - fuente
+          - origen
+          - source
+        description: Identificador de la fuente de datos
+        expr: FT_FUENTE
+        data_type: VARCHAR
+
+      - name: ID_JOB
+        synonyms:
+          - job
+          - ejecucion
+          - job ID
+        description: Identificador del job de extraccion
+        expr: ID_JOB
+        data_type: VARCHAR
+
+    time_dimensions:
+      - name: FECHA_CONSULTA
+        synonyms:
+          - fecha
+          - fecha extraccion
+          - fecha scraping
+          - dia
+          - date
+        description: Fecha y hora de extraccion/scraping del dato
+        expr: FECHA_CONSULTA
+        data_type: TIMESTAMP_NTZ
+
+    measures:
+      - name: NU_RANK
+        synonyms:
+          - ranking
+          - posicion
+          - rank
+          - lugar
+        description: Posicion en el ranking best-seller de Olive Young (1-100)
+        expr: NU_RANK
+        data_type: NUMBER
+        default_aggregation: avg
+
+      - name: RATING
+        synonyms:
+          - calificacion
+          - score
+          - estrellas
+          - valoracion
+        description: Calificacion promedio del producto (escala 1-5)
+        expr: RATING
+        data_type: FLOAT
+        default_aggregation: avg
+
+      - name: TOTAL_PRODUCTOS
+        synonyms:
+          - cantidad productos
+          - conteo
+          - count
+        description: Cantidad total de productos en el ranking
+        expr: ID_PRODUCTO
+        data_type: VARCHAR
+        default_aggregation: count_distinct
+
+      - name: TOTAL_REGISTROS
+        synonyms:
+          - registros
+          - filas
+          - rows
+        description: Cantidad total de registros
+        expr: "1"
+        data_type: NUMBER
+        default_aggregation: sum

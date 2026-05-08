@@ -1,0 +1,362 @@
+name: Olive Young New Arrivals
+description: >
+  Modelo semantico del historico de nuevos lanzamientos de Olive Young Global
+  (plataforma coreana de belleza y cuidado personal). Contiene detalle enriquecido
+  de cada producto nuevo: marca, precios, categoria, rating, resenas, descripcion editorial
+  y modo de uso. Permite identificar tendencias de innovacion en K-beauty.
+  IMPORTANTE: Siempre filtrar por la fecha maxima de FECHA_CONSULTA para obtener los lanzamientos
+  mas recientes, a menos que el usuario solicite explicitamente un historico o comparacion entre fechas.
+
+tables:
+  - name: VW_OLIVEYOUNG_NEWARRIVALS
+    description: >
+      Vista con el historico de nuevos lanzamientos de Olive Young Global con detalle
+      enriquecido (Stage 2). Granularidad: producto x fecha de consulta. Incluye precios,
+      rating, resenas, descripcion, modo de uso y badges (New, Best, Regalo).
+    base_table:
+      database: PRD_CNS_SHD
+      schema: DATA_GNM
+      table: VW_OLIVEYOUNG_NEWARRIVALS
+
+    filters:
+      - name: ULTIMO_LANZAMIENTO
+        synonyms:
+          - lanzamientos actuales
+          - ultimo
+          - mas reciente
+          - current arrivals
+        description: >
+          Filtro por defecto que selecciona unicamente los registros de la fecha de consulta
+          mas reciente. Debe aplicarse SIEMPRE a menos que el usuario pida explicitamente
+          un historico o comparacion entre periodos.
+        expr: FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_OLIVEYOUNG_NEWARRIVALS)
+
+      - name: SOLO_BADGE_NEW
+        synonyms:
+          - nuevos
+          - badge new
+          - new products only
+        description: Filtra solo productos con badge New en Olive Young
+        expr: FLAG_NUEVO = TRUE
+
+      - name: SOLO_BADGE_BEST
+        synonyms:
+          - best sellers
+          - badge best
+          - best products
+        description: Filtra solo productos con badge Best en Olive Young
+        expr: FLAG_BEST = TRUE
+
+    dimensions:
+      - name: ID_PRODUCTO
+        synonyms:
+          - codigo producto
+          - product id
+          - prdt no
+          - SKU
+        description: Identificador unico del producto en Olive Young Global (prdt_no)
+        expr: ID_PRODUCTO
+        data_type: VARCHAR
+
+      - name: URL_PRODUCTO
+        synonyms:
+          - url
+          - link
+          - enlace producto
+          - product url
+        description: URL del detalle del producto en Olive Young
+        expr: URL_PRODUCTO
+        data_type: VARCHAR
+
+      - name: NOMBRE_PRODUCTO
+        synonyms:
+          - producto
+          - nombre
+          - product name
+        description: Nombre del producto en ingles
+        expr: NOMBRE_PRODUCTO
+        data_type: VARCHAR
+
+      - name: NOMBRE_PRODUCTO_KR
+        synonyms:
+          - nombre coreano
+          - korean name
+        description: Nombre del producto en coreano
+        expr: NOMBRE_PRODUCTO_KR
+        data_type: VARCHAR
+
+      - name: URL_IMAGEN
+        synonyms:
+          - imagen
+          - foto
+          - image
+        description: URL de la imagen principal del producto
+        expr: URL_IMAGEN
+        data_type: VARCHAR
+
+      - name: ID_MARCA
+        synonyms:
+          - codigo marca
+          - brand id
+          - brand no
+        description: Identificador unico de la marca en Olive Young
+        expr: ID_MARCA
+        data_type: VARCHAR
+
+      - name: MARCA
+        synonyms:
+          - brand
+          - nombre marca
+        description: Nombre de la marca en ingles
+        expr: MARCA
+        data_type: VARCHAR
+
+      - name: URL_MARCA
+        synonyms:
+          - perfil marca
+          - brand profile
+          - link marca
+        description: URL del perfil de la marca en Olive Young
+        expr: URL_MARCA
+        data_type: VARCHAR
+
+      - name: PRECIO_VENTA
+        synonyms:
+          - precio
+          - precio actual
+          - sale price
+          - precio con descuento
+        description: Precio de venta en USD
+        expr: PRECIO_VENTA
+        data_type: VARCHAR
+
+      - name: PRECIO_NORMAL
+        synonyms:
+          - precio lista
+          - precio original
+          - regular price
+          - precio sin descuento
+        description: Precio normal sin descuento en USD
+        expr: PRECIO_NORMAL
+        data_type: VARCHAR
+
+      - name: DESCUENTO
+        synonyms:
+          - porcentaje descuento
+          - discount
+          - rebaja
+        description: Porcentaje de descuento aplicado
+        expr: DESCUENTO
+        data_type: VARCHAR
+
+      - name: CATEGORIA
+        synonyms:
+          - category
+          - tipo producto
+          - rubro
+        description: Categoria hoja del producto
+        expr: CATEGORIA
+        data_type: VARCHAR
+
+      - name: DESCRIPCION
+        synonyms:
+          - why we love it
+          - descripcion editorial
+          - detalle producto
+          - description
+        description: Descripcion editorial del producto (why we love it)
+        expr: DESCRIPCION
+        data_type: VARCHAR
+
+      - name: MODO_USO
+        synonyms:
+          - how to use
+          - instrucciones
+          - forma de uso
+          - aplicacion
+        description: Instrucciones de uso del producto
+        expr: MODO_USO
+        data_type: VARCHAR
+
+      - name: FLAG_NUEVO
+        synonyms:
+          - badge new
+          - producto nuevo
+          - new badge
+          - etiqueta nuevo
+        description: Badge New en Olive Young
+        expr: FLAG_NUEVO
+        data_type: BOOLEAN
+
+      - name: FLAG_BEST
+        synonyms:
+          - badge best
+          - producto best
+          - best badge
+          - etiqueta best
+        description: Badge Best en Olive Young
+        expr: FLAG_BEST
+        data_type: BOOLEAN
+
+      - name: FLAG_REGALO
+        synonyms:
+          - regalo
+          - gift
+          - gift with purchase
+          - incluye regalo
+        description: Incluye regalo con compra
+        expr: FLAG_REGALO
+        data_type: BOOLEAN
+
+      - name: CORNER
+        synonyms:
+          - coleccion
+          - editorial
+          - corner editorial
+          - collection
+        description: Nombre del corner o coleccion editorial donde aparece el producto
+        expr: CORNER
+        data_type: VARCHAR
+
+      - name: FUENTE
+        synonyms:
+          - fuente datos
+          - origen
+          - source
+        description: Identificador del scraper (olive_young_new_arrivals)
+        expr: FUENTE
+        data_type: VARCHAR
+
+    time_dimensions:
+      - name: FECHA_CONSULTA
+        synonyms:
+          - fecha
+          - fecha extraccion
+          - fecha scraping
+          - dia
+          - date
+        description: Fecha en que se realizo la extraccion del dato
+        expr: FECHA_CONSULTA
+        data_type: DATE
+
+      - name: FECHA_SCRAPING
+        synonyms:
+          - fecha scraping producto
+          - fecha dato
+          - scraped date
+        description: Fecha del scraping YYYY-MM-DD
+        expr: FECHA_SCRAPING
+        data_type: DATE
+
+    measures:
+      - name: RATING
+        synonyms:
+          - calificacion
+          - score
+          - estrellas
+          - valoracion
+        description: Calificacion promedio del producto
+        expr: RATING
+        data_type: FLOAT
+        default_aggregation: avg
+
+      - name: RESENAS
+        synonyms:
+          - reviews
+          - opiniones
+          - comentarios
+          - numero resenas
+        description: Cantidad de resenas del producto
+        expr: RESENAS
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: TOTAL_PRODUCTOS
+        synonyms:
+          - cantidad productos
+          - conteo productos
+          - count products
+        description: Cantidad total de productos distintos en new arrivals
+        expr: ID_PRODUCTO
+        data_type: VARCHAR
+        default_aggregation: count_distinct
+
+      - name: TOTAL_MARCAS
+        synonyms:
+          - cantidad marcas
+          - conteo marcas
+          - count brands
+        description: Cantidad total de marcas distintas en new arrivals
+        expr: ID_MARCA
+        data_type: VARCHAR
+        default_aggregation: count_distinct
+
+      - name: PRODUCTOS_NUEVOS
+        synonyms:
+          - con badge new
+          - nuevos lanzamientos
+          - badge new count
+          - cuantos nuevos
+        description: Cantidad de productos con badge New en Olive Young
+        expr: CASE WHEN FLAG_NUEVO = TRUE THEN 1 ELSE 0 END
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: PRODUCTOS_BEST
+        synonyms:
+          - con badge best
+          - best sellers nuevos
+          - badge best count
+          - cuantos best
+        description: Cantidad de productos con badge Best en Olive Young
+        expr: CASE WHEN FLAG_BEST = TRUE THEN 1 ELSE 0 END
+        data_type: NUMBER
+        default_aggregation: sum
+
+      - name: PRODUCTOS_CON_REGALO
+        synonyms:
+          - con regalo
+          - gift with purchase count
+          - incluyen regalo
+          - cuantos con regalo
+        description: Cantidad de productos que incluyen regalo con compra
+        expr: CASE WHEN FLAG_REGALO = TRUE THEN 1 ELSE 0 END
+        data_type: NUMBER
+        default_aggregation: sum
+
+    verified_queries:
+      - name: ultimos_lanzamientos
+        question: "¿Cuáles son los últimos lanzamientos de Olive Young?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT NOMBRE_PRODUCTO, MARCA, CATEGORIA, PRECIO_VENTA, RATING, RESENAS,
+                 FLAG_NUEVO, FLAG_BEST
+          FROM PRD_CNS_SHD.DATA_GNM.VW_OLIVEYOUNG_NEWARRIVALS
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_OLIVEYOUNG_NEWARRIVALS)
+          ORDER BY RESENAS DESC NULLS LAST
+          LIMIT 20
+
+      - name: marcas_con_mas_lanzamientos
+        question: "¿Qué marcas tienen más lanzamientos nuevos en Olive Young?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT MARCA, COUNT(*) AS TOTAL_PRODUCTOS,
+                 AVG(RATING) AS RATING_PROMEDIO,
+                 SUM(CASE WHEN FLAG_NUEVO = TRUE THEN 1 ELSE 0 END) AS CON_BADGE_NEW
+          FROM PRD_CNS_SHD.DATA_GNM.VW_OLIVEYOUNG_NEWARRIVALS
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_OLIVEYOUNG_NEWARRIVALS)
+          GROUP BY MARCA
+          ORDER BY TOTAL_PRODUCTOS DESC
+          LIMIT 10
+
+      - name: nuevos_con_mejor_rating
+        question: "¿Cuáles son los nuevos productos de Olive Young con mejor calificación?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT NOMBRE_PRODUCTO, MARCA, CATEGORIA, RATING, RESENAS, PRECIO_VENTA,
+                 FLAG_NUEVO, FLAG_BEST
+          FROM PRD_CNS_SHD.DATA_GNM.VW_OLIVEYOUNG_NEWARRIVALS
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_OLIVEYOUNG_NEWARRIVALS)
+            AND RATING IS NOT NULL
+          ORDER BY RATING DESC, RESENAS DESC NULLS LAST
+          LIMIT 10

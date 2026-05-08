@@ -1,0 +1,218 @@
+name: Alibaba Proveedores
+description: >
+  Modelo semantico del historico de precios B2B de quimicos industriales y empaque
+  scrapeados de alibaba.com. Permite analizar precios, proveedores, MOQ y especificaciones
+  quimicas (CAS, pureza) de insumos de interes para Genomma Lab.
+  IMPORTANTE: Siempre filtrar por la fecha maxima de FECHA_CONSULTA para obtener los precios
+  mas recientes, a menos que el usuario solicite explicitamente un historico o comparacion entre fechas.
+
+tables:
+  - name: VW_ALIBABA_PROV_HIST
+    description: >
+      Vista con el historico de precios B2B de quimicos industriales y empaque en Alibaba.
+      Granularidad: producto x fecha de consulta. Incluye precio raw, conversion USD,
+      MOQ, CAS y pureza.
+    base_table:
+      database: PRD_CNS_SHD
+      schema: DATA_GNM
+      table: VW_ALIBABA_PROV_HIST
+
+    filters:
+      - name: ULTIMO_PRECIO
+        synonyms:
+          - precio actual
+          - ultimo
+          - mas reciente
+          - current price
+        description: >
+          Filtro por defecto que selecciona unicamente los registros de la fecha de consulta
+          mas reciente. Debe aplicarse SIEMPRE a menos que el usuario pida explicitamente
+          un historico o comparacion entre periodos.
+        expr: FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_ALIBABA_PROV_HIST)
+
+    dimensions:
+      - name: URL_PRODUCTO
+        synonyms:
+          - url
+          - link
+          - enlace producto
+          - product url
+        description: URL del producto en alibaba.com
+        expr: URL_PRODUCTO
+        data_type: VARCHAR
+
+      - name: NOMBRE_PRODUCTO
+        synonyms:
+          - producto
+          - nombre
+          - product name
+          - descripcion producto
+        description: Nombre del producto normalizado por el scraper
+        expr: NOMBRE_PRODUCTO
+        data_type: VARCHAR
+
+      - name: PROVEEDOR
+        synonyms:
+          - supplier
+          - fabricante
+          - vendedor
+          - empresa
+        description: Nombre del proveedor tal como aparece en el listing
+        expr: PROVEEDOR
+        data_type: VARCHAR
+
+      - name: PRECIO_RAW
+        synonyms:
+          - precio texto
+          - precio original
+          - precio fuente
+          - raw price
+        description: Precio tal como aparece en la pagina, sin procesar
+        expr: PRECIO_RAW
+        data_type: VARCHAR
+
+      - name: UNIDAD_PRECIO
+        synonyms:
+          - unidad
+          - por kilogramo
+          - per unit
+          - price unit
+        description: Unidad de medida del precio (ej. per kilogram)
+        expr: UNIDAD_PRECIO
+        data_type: VARCHAR
+
+      - name: MOQ
+        synonyms:
+          - minimo pedido
+          - minimum order
+          - orden minima
+          - cantidad minima
+        description: Cantidad minima de pedido en texto libre
+        expr: MOQ
+        data_type: VARCHAR
+
+      - name: CAS
+        synonyms:
+          - numero cas
+          - cas number
+          - registro cas
+          - identificador quimico
+        description: Numero CAS del compuesto quimico
+        expr: CAS
+        data_type: VARCHAR
+
+      - name: PUREZA
+        synonyms:
+          - purity
+          - concentracion
+          - grado pureza
+          - pureza quimica
+        description: Pureza del compuesto (ej. 40%)
+        expr: PUREZA
+        data_type: VARCHAR
+
+      - name: FUENTE
+        synonyms:
+          - fuente datos
+          - origen
+          - source
+        description: Identificador del scraper que origino la fila (alibaba)
+        expr: FUENTE
+        data_type: VARCHAR
+
+    time_dimensions:
+      - name: FECHA_CONSULTA
+        synonyms:
+          - fecha
+          - fecha extraccion
+          - fecha scraping
+          - dia
+          - date
+        description: Fecha en que se realizo la extraccion del dato
+        expr: FECHA_CONSULTA
+        data_type: DATE
+
+    measures:
+      - name: PRECIO_MIN_USD
+        synonyms:
+          - precio minimo
+          - min price
+          - precio desde
+          - precio base
+        description: Precio minimo convertido a dolares USD
+        expr: PRECIO_MIN_USD
+        data_type: FLOAT
+        default_aggregation: avg
+
+      - name: PRECIO_MAX_USD
+        synonyms:
+          - precio maximo
+          - max price
+          - precio hasta
+          - precio techo
+        description: Precio maximo convertido a dolares USD
+        expr: PRECIO_MAX_USD
+        data_type: FLOAT
+        default_aggregation: avg
+
+      - name: TOTAL_PRODUCTOS
+        synonyms:
+          - cantidad productos
+          - conteo
+          - count products
+        description: Cantidad total de productos distintos en el historico
+        expr: URL_PRODUCTO
+        data_type: VARCHAR
+        default_aggregation: count_distinct
+
+      - name: TOTAL_PROVEEDORES
+        synonyms:
+          - cantidad proveedores
+          - conteo proveedores
+          - count suppliers
+        description: Cantidad total de proveedores distintos
+        expr: PROVEEDOR
+        data_type: VARCHAR
+        default_aggregation: count_distinct
+
+    verified_queries:
+      - name: precio_mas_bajo_por_producto
+        question: "¿Cuáles son los proveedores con el precio más bajo en Alibaba?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT NOMBRE_PRODUCTO, PROVEEDOR, PRECIO_RAW,
+                 PRECIO_MIN_USD, PRECIO_MAX_USD, UNIDAD_PRECIO, MOQ
+          FROM PRD_CNS_SHD.DATA_GNM.VW_ALIBABA_PROV_HIST
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_ALIBABA_PROV_HIST)
+            AND PRECIO_MIN_USD IS NOT NULL
+          ORDER BY PRECIO_MIN_USD ASC
+          LIMIT 20
+
+      - name: rango_precios_por_compuesto
+        question: "¿Cuál es el rango de precios por compuesto en Alibaba?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT NOMBRE_PRODUCTO, CAS,
+                 MIN(PRECIO_MIN_USD) AS PRECIO_MINIMO_USD,
+                 MAX(PRECIO_MAX_USD) AS PRECIO_MAXIMO_USD,
+                 AVG(PRECIO_MIN_USD) AS PRECIO_PROMEDIO_USD,
+                 COUNT(DISTINCT PROVEEDOR) AS TOTAL_PROVEEDORES
+          FROM PRD_CNS_SHD.DATA_GNM.VW_ALIBABA_PROV_HIST
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_ALIBABA_PROV_HIST)
+            AND PRECIO_MIN_USD IS NOT NULL
+          GROUP BY NOMBRE_PRODUCTO, CAS
+          ORDER BY TOTAL_PROVEEDORES DESC
+
+      - name: productos_con_numero_cas
+        question: "¿Qué productos en Alibaba tienen número CAS y cuántos proveedores los ofrecen?"
+        verified_at: "2026-05-05"
+        sql: |
+          SELECT NOMBRE_PRODUCTO, CAS, PUREZA,
+                 COUNT(DISTINCT PROVEEDOR) AS PROVEEDORES,
+                 MIN(PRECIO_MIN_USD) AS PRECIO_MIN,
+                 MAX(PRECIO_MAX_USD) AS PRECIO_MAX
+          FROM PRD_CNS_SHD.DATA_GNM.VW_ALIBABA_PROV_HIST
+          WHERE FECHA_CONSULTA = (SELECT MAX(FECHA_CONSULTA) FROM PRD_CNS_SHD.DATA_GNM.VW_ALIBABA_PROV_HIST)
+            AND CAS IS NOT NULL
+          GROUP BY NOMBRE_PRODUCTO, CAS, PUREZA
+          ORDER BY PROVEEDORES DESC
