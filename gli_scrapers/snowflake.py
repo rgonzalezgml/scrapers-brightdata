@@ -28,6 +28,7 @@ Contrato:
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass, field
 from typing import Any
@@ -91,6 +92,19 @@ class SnowflakeMapper:
             return 0
 
         mapped = [self.map_row(r) for r in rows]
+
+        # Override CREATED_USR / UPDATED_USR si la env var CREATOR esta seteada.
+        # Util cuando el container corre como service user (executeAsCaller=false o
+        # SNOWFLAKE_AUTH_STRATEGY=spcs) pero auditoria requiere que las filas queden
+        # registradas con un usuario logico (ej. el caller real del webhook).
+        # Si CREATOR no esta seteada, no se incluyen las columnas y Snowflake usa el
+        # DEFAULT CURRENT_USER() de la tabla.
+        creator = os.environ.get("CREATOR", "").strip()
+        if creator:
+            for row in mapped:
+                row["CREATED_USR"] = creator
+                row["UPDATED_USR"] = creator
+
         cols = list(mapped[0].keys())
 
         # parse_json() no es válido en VALUES con executemany → usar SELECT
