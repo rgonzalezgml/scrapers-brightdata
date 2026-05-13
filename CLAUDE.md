@@ -101,11 +101,13 @@ Solo se pueden tocar las siguientes tablas, en DEV y en PROD:
 | Tabla | Scraper |
 |-------|---------|
 | `SRC_OLIVEYOUNG_RANK_HIST` | olive_young |
+| `SRC_OLIVEYOUNG_NEWARRIVALS` | olive_young_new_arrivals |
 | `SRC_ALIBABA_PROV_HIST` | alibaba |
 | `SRC_INDIAMART_PROV_HIST` | indiamart |
 | `SRC_MADEINCHINA_PROV_HIST` | made_in_china |
 | `SRC_COSMETICDESIGN_ART_HIST` | cosmetics_design |
 | `SRC_COSME_RANKING_HIST` | cosme_ranking_products |
+| `SRC_COSME_RANKING_NEWARRIVALS` | cosme_new_arrivals |
 
 **DEV:** `DEV_STG.GNM_MEX.<tabla>`
 **PROD:** `PRD_STG.GNM.<tabla>`
@@ -134,3 +136,4 @@ Cualquier operación sobre una tabla fuera de esta lista requiere confirmación 
 | `find-skills` | Descubrir e instalar skills desde skills.sh con `npx skills` |
 | `module-specs` | (legacy — usar `scraper-spec-analysis`) |
 | `edge-cases` | Analizar features para identificar casos borde, modos de fallo y escenarios de error |
+| `gli-devcontainer-bootstrap` | Bootstrap del devcontainer en Windows: prerequisito WSL (Ubuntu) + DooD (Docker-out-of-Docker) para `docker build` desde dentro. Usar cuando VSCode falla con `Read-only file system` o se quiere "habilitar Docker dentro de Docker". |

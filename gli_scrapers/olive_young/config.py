@@ -165,7 +165,8 @@ MAPPER = SnowflakeMapper(
     source="olive_young",
     field_map={
         "rank":           "NU_RANK",
-        "prdtNo":         "ID_PRODUCTO",
+        "prdt_no":        "ID_PRODUCTO",
+        "prdtNo":         "ID_PRODUCTO",   # fallback: BrightData emite camelCase
         "brand":          "NM_MARCA",
         "name":           "NM_PRODUCTO",
         "name_kr":        "NM_PRODUCTO_KR",
