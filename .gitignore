@@ -3,6 +3,7 @@
 **/.env
 .env.prod
 .env.dev
+.env.deployment
 docker_packages/
 
 # ---- Repos externos y carpetas descartadas ----------------------------------

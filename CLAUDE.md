@@ -137,3 +137,5 @@ Cualquier operación sobre una tabla fuera de esta lista requiere confirmación 
 | `module-specs` | (legacy — usar `scraper-spec-analysis`) |
 | `edge-cases` | Analizar features para identificar casos borde, modos de fallo y escenarios de error |
 | `gli-devcontainer-bootstrap` | Bootstrap del devcontainer en Windows: prerequisito WSL (Ubuntu) + DooD (Docker-out-of-Docker) para `docker build` desde dentro. Usar cuando VSCode falla con `Read-only file system` o se quiere "habilitar Docker dentro de Docker". |
+| `gli-test-result` | Convención de almacenamiento de resultados de QA del captcha solver: estructura `intento_NN/rNN_<category>/iterNN_*.png + review.md + summary.md`. Cargar cuando se implementa o modifica cualquier solver. |
+| `gli-spcs-deploy` | Pipeline de despliegue continuo de servicios SPCS: `build → push → deploy → validate`. Incluye plantilla genérica en `templates/deploy_service.sh` para adaptar a cualquier servicio en minutos. Guía de instalación: `docs/guias/gli-spcs-deploy-install.md`. |

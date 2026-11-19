@@ -9,10 +9,14 @@
   "mounts": [
     "source=C:/Users/Genomma Lab/.ssh-gitkeeper,target=/root/.ssh,type=bind",
     "source=${localEnv:USERPROFILE}/.claude,target=/root/.claude,type=bind"
+    // ❌ Eliminado: source=/var/run/docker.sock — el feature DooD lo maneja solo
   ],
   "features": {
     "ghcr.io/devcontainers/features/node:1": {},
-    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "moby": false
+    }
   },
   "postCreateCommand": "bash /workspace/scripts/add-skill-symlinks.sh && git config --global user.name 'Ramiro González Almarales' && git config --global user.email 'ramiro.gonzalez@contractor.genommalab.com'",
   "forwardPorts": [

@@ -4,21 +4,29 @@ httpx
 
 # Browser automation (BrightData Scraping Browser)
 playwright
+patchright
 
 # Data handling
 pandas
 pydantic>=2
 pydantic-settings
 python-dotenv
+Pillow
 
 # Middleware logging (structured)
 structlog
 
 # Snowflake
 snowflake-connector-python
+snowflake-cli
 
 # Scheduler (prod container)
 apscheduler>=3.10,<4
+
+# AI / LLM
+anthropic>=0.40
+onnxruntime
+huggingface-hub
 
 # Dev / debug
 debugpy

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import gzip
 import logging
 from datetime import datetime, timezone
@@ -236,7 +237,8 @@ async def webhook(
 
     caller_token = request.headers.get("Sf-Context-Current-User-Token")
     try:
-        inserted = snowflake_writer.write_with_retry(
+        inserted = await asyncio.to_thread(
+            snowflake_writer.write_with_retry,
             normalized_rows, handler.mapper, job_id=job_id,
             caller_token=caller_token, clean=clean,
         )
